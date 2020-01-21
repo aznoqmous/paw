@@ -8,9 +8,7 @@ const CONFIG = {
   strategy: 'cache', // cache, network
   debug: true,
   staticPages: [
-    '/', // needed
-    '/public/index.html',
-    '/public/offline.html'
+    '/' // needed
   ],
   offlinePage: null,
   notifications: true
