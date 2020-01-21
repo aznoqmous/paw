@@ -9,6 +9,7 @@ export default class RegisterWrapper {
 
     this.privateKey = urlB64ToUint8Array(CONFIG.privateKey)
     this.publicKey = CONFIG.publicKey
+    this.notifications = CONFIG.notifications
 
     this.init()
   }
@@ -50,9 +51,8 @@ export default class RegisterWrapper {
     .pushManager.getSubscription()
     .then((sub)=>{
       this.isSubscribed = !(sub === null)
-      // this.updateSubscriptionOnServer(sub)
-      if(CONFIG.debug) console.log(`subscribed  ${(this.isSubscribed ? 'true': 'false')}`)
-      if(!this.isSubscribed) this.subscribeUser(this.registration)
+      if(CONFIG.debug) console.log(`subscribed ${(this.isSubscribed ? 'true': 'false')}`)
+      if(!this.isSubscribed && this.notifications) this.subscribeUser(this.registration)
     })
 
   }
@@ -64,18 +64,11 @@ export default class RegisterWrapper {
     })
     .then((sub)=>{
       if(CONFIG.debug) console.log('user subscribed')
-
-      // this.updateSubscriptionOnServer(sub)
-
       this.isSubscribed = true
       this.notify('Notifications are now active', 'permission')
     })
     .catch((err)=>{console.log(err)})
   }
-
-  // updateSubscriptionOnServer(){
-  //   if(CONFIG.debug) console.log('updateSubscriptionOnServer')
-  // }
 
   notify(body, title=false){
     if(!this.registration) return false;

@@ -12,7 +12,8 @@ const CONFIG = {
     '/public/index.html',
     '/public/offline.html'
   ],
-  offlinePage: null
+  offlinePage: null,
+  notifications: true
 }
 
 export default CONFIG
