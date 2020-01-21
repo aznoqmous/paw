@@ -1,0 +1,23 @@
+{
+  "short_name": "adct",
+  "name": "Addictic",
+  "theme_color": "#fff",
+  "background_color": "#474747",
+  "display": "standalone",
+  "scope": "/",
+  "orientation": "portrait",
+  "start_url": "/",
+  "charset": "utf-8",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}
