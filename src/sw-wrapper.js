@@ -158,6 +158,7 @@ defaultFetchStrategy(e){
   }
 
   notify(body, title=false){
+    if(!this.sw.registration.active) return false;
     title = `${this.title} ${title ? '-' + title : ''}`
     let options = {
       body: `${body}`,
