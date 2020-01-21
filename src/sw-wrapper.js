@@ -36,7 +36,13 @@ export default class SWrapper {
 
     this.sw.addEventListener('activate', e => {
       // clean old cache
-      e.waitUntil( this.clearOldCaches() )
+      e.waitUntil( caches.keys().then(keyList => {
+        return Promise.all(keyList.map(key => {
+          if(key !== this.cacheName) {
+            return caches.delete(key)
+          }
+        }))
+      }) )
       this.sw.skipWaiting()
       this.sw.clients.claim()
 

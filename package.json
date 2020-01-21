@@ -20,6 +20,7 @@
   "homepage": "https://github.com/aznoqmous/paw#readme",
   "dependencies": {
     "copyfiles": "^2.2.0",
-    "process": "^0.11.10"
+    "process": "^0.11.10",
+    "urlb64touint8array": "^1.0.3"
   }
 }
