@@ -8,12 +8,12 @@ sw.route('/', ()=>{
 })
 
 sw.online('/test', ()=>{
-  return JSON.stringify('offline')
+  return JSON.stringify('online')
 })
 
 sw.offline('/test', ()=>{
   sw.notify('You are offline')
-  return JSON.stringify('online')
+  return JSON.stringify('offline')
 })
 
 sw.notify('Installation complete !')
