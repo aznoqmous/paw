@@ -12,7 +12,7 @@ sw.online('/test', ()=>{
 })
 
 sw.offline('/test', ()=>{
-  sw.notifiy('You are offline')
+  sw.notify('You are offline')
   return JSON.stringify('online')
 })
 
