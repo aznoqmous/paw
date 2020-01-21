@@ -1,0 +1,20 @@
+{
+  "name": "paw",
+  "version": "1.0.0",
+  "description": "```js\r import SWrapper from './sw-wrapper'",
+  "main": "src/index.js",
+  "scripts": {
+    "paw": "webpack --config ./paw.config.js --mode production",
+    "paw:dev": "webpack --config ./paw.config.js --mode development"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aznoqmous/paw.git"
+  },
+  "author": "plandreau@addictic.fr",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aznoqmous/paw/issues"
+  },
+  "homepage": "https://github.com/aznoqmous/paw#readme"
+}
