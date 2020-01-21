@@ -57,6 +57,7 @@ export default class RegisterWrapper {
   }
 
   subscribeUser(){
+    if(!this.registration.active) return false
     this.registration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: this.publicKey
