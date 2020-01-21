@@ -1,10 +1,15 @@
 const path = require('path')
-const copy = require('copy')
+const copyfiles = require('copyfiles')
 const process = require('process')
 
-let cwd = path.resolve(__dirname, '.')
-console.log('dirname:', __dirname)
-console.log('filename:', __filename)
-console.log('cwd:', cwd)
-console.log('process.cwd:', process.cwd())
-console.log('init cwd', process.env.INIT_CWD)
+let dir = path.resolve(__dirname, '.')
+let cwd = process.env.INIT_CWD
+cwd = path.resolve(cwd, '.')
+
+console.log(`Install PAW inside ${cwd}`)
+copyfiles([
+  `./paw.config.js`,
+  `./src/*`,
+  `./src/*/*`,
+  `${cwd}/`
+], '', ()=>{ console.log('PAW Installation completed') })

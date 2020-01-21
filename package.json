@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/aznoqmous/paw#readme",
   "dependencies": {
-    "copy": "^0.3.2",
+    "copyfiles": "^2.2.0",
     "process": "^0.11.10"
   }
 }
