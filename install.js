@@ -8,7 +8,9 @@ cwd = path.resolve(cwd, '.')
 
 console.log(`Install PAW inside ${cwd}`)
 copyfiles([
+  `./manifest.json`,
   `./paw.config.js`,
+  `./icon-*.png`,
   `./src/*`,
   `./src/*/*`,
   `${cwd}/`
