@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "paw": "webpack --config ./paw.config.js --mode production",
-    "paw:dev": "webpack --config ./paw.config.js --mode development"
+    "paw:dev": "webpack --config ./paw.config.js --mode development",
+    "postinstall": "node install.js"
   },
   "repository": {
     "type": "git",
@@ -16,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/aznoqmous/paw/issues"
   },
-  "homepage": "https://github.com/aznoqmous/paw#readme"
+  "homepage": "https://github.com/aznoqmous/paw#readme",
+  "dependencies": {
+    "copy": "^0.3.2"
+  }
 }
