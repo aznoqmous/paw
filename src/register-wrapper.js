@@ -36,7 +36,7 @@ export default class RegisterWrapper {
 
           });
 
-          this.subscribe()
+          if(this.notifications) this.subscribe(registration)
 
         }).catch((err)=>{
           if(CONFIG.debug) console.warn("SW error : ", err);
@@ -45,14 +45,13 @@ export default class RegisterWrapper {
     }
   }
 
-  subscribe(){
-
-    this.registration
+  subscribe(registration){
+    registration
     .pushManager.getSubscription()
     .then((sub)=>{
       this.isSubscribed = !(sub === null)
       if(CONFIG.debug) console.log(`subscribed ${(this.isSubscribed ? 'true': 'false')}`)
-      if(!this.isSubscribed && this.notifications) this.subscribeUser(this.registration)
+      if(!this.isSubscribed) this.subscribeUser(registration)
     })
 
   }
