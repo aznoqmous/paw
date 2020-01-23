@@ -21,6 +21,7 @@
   "dependencies": {
     "copyfiles": "^2.2.0",
     "npm-add-script": "^1.1.0",
+    "path": "^0.12.7",
     "process": "^0.11.10",
     "urlb64touint8array": "^1.0.3"
   }
