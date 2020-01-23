@@ -4,9 +4,10 @@
   "description": "```js\r import SWrapper from './sw-wrapper'",
   "main": "src/index.js",
   "scripts": {
-    "paw": "webpack --config ./paw.config.js --mode production",
-    "paw:dev": "webpack --config ./paw.config.js --mode development",
-    "postinstall": "node install.js"
+    "postinstall": "node install.js",
+    "paw": "webpack --config paw.config.js --mode production",
+    "paw:dev": "webpack --config paw.config.js --mode development",
+    "paw:watch": "webpack --config paw.config.js --mode development --watch"
   },
   "repository": {
     "type": "git",
