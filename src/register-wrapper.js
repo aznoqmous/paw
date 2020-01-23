@@ -1,15 +1,16 @@
-import CONFIG from './config'
+import this.config from './config.json'
 import urlB64ToUint8Array from 'urlb64touint8array'
 
 export default class RegisterWrapper {
-  constructor(){
-    this.title = CONFIG.title
+  constructor(config){
+    this.config = config
+    this.title = this.config.title
     this.registration = null
     this.isSubscribed = null
 
-    this.privateKey = urlB64ToUint8Array(CONFIG.privateKey)
-    this.publicKey = CONFIG.publicKey
-    this.notifications = CONFIG.notifications
+    this.privateKey = urlB64ToUint8Array(this.config.privateKey)
+    this.publicKey = this.config.publicKey
+    this.notifications = this.config.notifications
 
     this.init()
   }
@@ -19,18 +20,18 @@ export default class RegisterWrapper {
 
       window.addEventListener('DOMContentLoaded', ()=>{
 
-        if(CONFIG.debug) console.log('Registering sw.js...')
+        if(this.config.debug) console.log('Registering sw.js...')
         navigator.serviceWorker.register('sw.js')
         .then((registration)=>{
           // Registration was successful
-          if(CONFIG.debug) console.log('Registration successful')
+          if(this.config.debug) console.log('Registration successful')
           this.registration = registration
 
           this.registration.addEventListener('updatefound', () => {
             var networker = registration.installing;
 
             networker.addEventListener('statechange', ()=>{
-              if(CONFIG.debug) console.log('SW new state : ', networker.state);
+              if(this.config.debug) console.log('SW new state : ', networker.state);
 
             });
 
@@ -39,7 +40,7 @@ export default class RegisterWrapper {
           if(this.notifications) this.subscribe(registration)
 
         }).catch((err)=>{
-          if(CONFIG.debug) console.warn("SW error : ", err);
+          if(this.config.debug) console.warn("SW error : ", err);
         });
       });
     }
@@ -50,7 +51,7 @@ export default class RegisterWrapper {
     .pushManager.getSubscription()
     .then((sub)=>{
       this.isSubscribed = !(sub === null)
-      if(CONFIG.debug) console.log(`subscribed ${(this.isSubscribed ? 'true': 'false')}`)
+      if(this.config.debug) console.log(`subscribed ${(this.isSubscribed ? 'true': 'false')}`)
       if(!this.isSubscribed) this.subscribeUser(registration)
     })
 
@@ -63,7 +64,7 @@ export default class RegisterWrapper {
       applicationServerKey: this.publicKey
     })
     .then((sub)=>{
-      if(CONFIG.debug) console.log('user subscribed')
+      if(this.config.debug) console.log('user subscribed')
       this.isSubscribed = true
       this.notify('Notifications are now active', 'permission')
     })
@@ -75,8 +76,8 @@ export default class RegisterWrapper {
     title = `${this.title} - ${title ? title : 'New message'}`
     let options = {
       body: `${body}`,
-      icon: CONFIG.icon,
-      badge: CONFIG.badge
+      icon: this.config.icon,
+      badge: this.config.badge
     }
     return this.registration.showNotification(title, options)
   }
