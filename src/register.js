@@ -1,3 +1,3 @@
-import RegisterWrapper from 'paw'
+import {RegisterWrapper} from 'paw'
 
 new RegisterWrapper()

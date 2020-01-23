@@ -1,4 +1,4 @@
-import SWrapper from 'paw'
+import {SWrapper} from 'paw'
 // This file is processed during installation only
 
 let sw = new SWrapper(self)
