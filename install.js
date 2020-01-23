@@ -13,9 +13,9 @@ copyfiles([
   './manifest.json',
   './paw.config.js',
   './icon-*.png',
-  './src/*',
-  './src/*/*',
-  `${cwd}/`
+  './src/register.js',
+  './src/sw.js',
+  `${cwd}/copy/`
 ], '', ()=>{
   console.log('PAW Installation completed')
   process.chdir(cwd)
