@@ -1,4 +1,3 @@
-import this.config from './config.json'
 import urlB64ToUint8Array from 'urlb64touint8array'
 
 export default class RegisterWrapper {

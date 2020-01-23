@@ -1,4 +1,4 @@
 import {RegisterWrapper} from 'paw'
-const config = require('./config.json')
+import config from './config.json'
 
 new RegisterWrapper(config)
