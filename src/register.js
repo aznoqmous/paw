@@ -1,3 +1,3 @@
-import RegisterWrapper from './register-wrapper'
+import RegisterWrapper from 'paw'
 
 new RegisterWrapper()
