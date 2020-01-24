@@ -11,10 +11,6 @@ prompt.get([{
     name: 'name',
   }, {
     name: 'short_name',
-  },{
-    name: 'theme_color'
-  },{
-    name: 'background_color'
   }], (err, res)=>{
   let config = {
     name: 'paw',

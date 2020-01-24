@@ -27,12 +27,12 @@ sw.route('/test', ()=>{
 
 sw.online('/status', ()=>{
   sw.notify('You are online')
-  return sw.redirectReponse('/')
+  return sw.redirectResponse('/')
 })
 
 sw.offline('/status', ()=>{
   sw.notify('You are offline')
-  return sw.redirectReponse('/')
+  return sw.redirectResponse('/')
 })
 
 sw.notify('Installation complete !')
