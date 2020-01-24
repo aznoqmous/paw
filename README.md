@@ -12,11 +12,10 @@ Once `paw` is installed, you'll notice the following files added to your project
 ```sh
 your_project
 ├── src
-│   ├── config.json # paw config file     - passed to both register and sw
+│   ├── config.json # paw config file     - passed to both register and sw, generate your /manifest.json
 │   ├── register.js # register file       - register your service worker
 │   └── sw.js       # sw file             - service worker definition
 ├── icon-*.png      # icon file           - needed, use your own
-├── manifest.json   # manifest file       - needed, modify at will
 └── paw.config.js   # paw webpack config  - used to generate final files
 ```
 
@@ -37,6 +36,9 @@ You'll have to add those two lines to your app root page :
 ...
 ```
 
-## Next
+## Features
+- Auto installation
+- Auto ask notifications permission (config.notifications)
+- Custom routes inside src/sw.js / offline - online -both
 - Build `config.json` during install (prompt in CLI)
 - Regenerate `manifest.json` from `config.json` on webpack build
