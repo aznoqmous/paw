@@ -40,7 +40,7 @@ icons.sort((a,b)=>{ return (a.src > b.src) ? 1 : -1 })
 manifest.icons = []
 icons.map(icon => { manifest.icons.push(icon) })
 
-fs.writeFile(manifestFile, JSON.stringify(manifest), (err)=>{
+fs.writeFile(manifestFile, JSON.stringify(manifest, null, 4), (err)=>{
   if(!err) console.log(manifest)
   else console.log(err)
 })
