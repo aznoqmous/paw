@@ -41,6 +41,6 @@ manifest.icons = []
 icons.map(icon => { manifest.icons.push(icon) })
 
 fs.writeFile(manifestFile, JSON.stringify(manifest), (err)=>{
-  if(!err) console.log("manifest.json :", manifest)
+  if(!err) console.log(manifest)
   else console.log(err)
 })
