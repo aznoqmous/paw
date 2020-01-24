@@ -6,7 +6,7 @@ const fs = require('fs')
 let cwd = process.env.INIT_CWD
 let configFile = `${cwd}/src/config.json`
 
-console.log("PAW config setup :")
+console.log(`PAW config setup ${configFile} :`)
 prompt.get([{
     name: 'name',
   }, {

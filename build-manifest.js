@@ -9,7 +9,7 @@ let manifestFile = `${cwd}/manifest.json`
 const config = require(configFile)
 
 
-console.log("Generating manifest.json...")
+console.log(`Generating manifest.json from ${configFile}...`)
 
 let manifest = {
   name: "",
