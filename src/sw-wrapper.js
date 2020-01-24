@@ -141,11 +141,11 @@ export default class SWrapper {
     this.routes.push( new Route(path, callback, config) )
   }
   // register offline routes
-  offlineRoute(path, callback, config={}){
+  offline(path, callback, config={}){
     this.routes.push( new Route(path, callback, Object.assign(config, { offline: true })) )
   }
   // register online routes
-  onlineRoute(path, callback, config={}){
+  online(path, callback, config={}){
     this.routes.push( new Route(path, callback, Object.assign(config, { online: true })) )
   }
   routeMatch(request){

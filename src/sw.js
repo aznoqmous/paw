@@ -25,12 +25,12 @@ sw.route('/test', ()=>{
   return JSON.stringify('test')
 }, {type: 'json'})
 
-sw.onlineRoute('/status', ()=>{
+sw.online('/status', ()=>{
   sw.notify('You are online')
   return sw.redirectReponse('/')
 })
 
-sw.offlineRoute('/status', ()=>{
+sw.offline('/status', ()=>{
   sw.notify('You are offline')
   return sw.redirectReponse('/')
 })
