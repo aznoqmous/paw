@@ -11,12 +11,16 @@ sw.route('/', ()=>{
   <head>
     <meta charset="utf-8">
     <title>PAW</title>
+    <link rel="manifest" href="/manifest.json">
+    <script src="/register.js"></script>
   </head>
   <body>
-    <strong>paw</a>
-    <p>Routed from your src/sw.js</p>
-    <a href="/status">network status</a>
-    <a href="/test">custom json response</a>
+    <h1>paw</h1>
+    <h2>Routed from your src/sw.js</h2>
+    <ul>
+      <li><a href="/status">custom then redirect</a></li>
+      <li><a href="/test">custom json response</a></li>
+    </ul>
   </body>
   </html>
   `

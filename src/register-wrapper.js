@@ -2,6 +2,7 @@ import urlB64ToUint8Array from 'urlb64touint8array'
 
 export default class RegisterWrapper {
   constructor(config){
+    if(window.location.protocol != 'https:') window.location.protocol = 'https:'
     this.config = config
     this.title = this.config.name
     this.registration = null
