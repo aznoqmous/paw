@@ -10,7 +10,7 @@ export default class Route {
         headers: {}
     }, config)
     for(let key in config) this[key] = config[key]
-    if(this.type == 'html') this.headers.Accept = 'text/html'
-    if(this.type == 'json') this.headers.Accept = 'application/json'
+    if(this.type == 'html') this.headers["Content-Type"] = 'text/html'
+    if(this.type == 'json') this.headers["Content-Type"] = 'application/json'
   }
 }

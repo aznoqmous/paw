@@ -11,8 +11,6 @@ sw.route('/', ()=>{
   <head>
     <meta charset="utf-8">
     <title>PAW</title>
-    <link rel="manifest" href="/manifest.json">
-    <script src="/register.js"></script>
   </head>
   <body>
     <strong>paw</a>
@@ -21,8 +19,6 @@ sw.route('/', ()=>{
   </body>
   </html>
   `
-}, {
-  type: 'html'
 })
 
 sw.route('/test', ()=>{
