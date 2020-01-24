@@ -13,6 +13,7 @@ export default class RegisterWrapper {
     this.notifications = this.config.notifications
 
     this.init()
+    this.bindNetworkStateMessage()
   }
   init(){
     if (!navigator.serviceWorker) console.warn('No ServiceWorker available on current navigator.');
@@ -80,6 +81,21 @@ export default class RegisterWrapper {
       badge: this.config.badge
     }
     return this.registration.showNotification(title, options)
+  }
+
+  bindNetworkStateMessage(){
+    this.connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    this.connection.addEventListener('change', ()=>{
+      this.message(this.connection.effectiveType)
+    })
+  }
+  message(content){ // load message into html
+    let message = document.createElement('div')
+    document.body.appendChild(message)
+    message.innerHTML = content
+    setTimeout(()=>{
+      message.parentElement.removeChild(message)
+    }, this.messageTimeOut)
   }
 
 }

@@ -34,7 +34,8 @@ prompt.get([{
     debug: true,
     staticPages: [ "/" ],
     offlinePage: null,
-    notifications: true
+    notifications: true,
+    messageTimeOut: 3000
   }
   for(let key in res) config[key] = res[key]
 
