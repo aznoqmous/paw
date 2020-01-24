@@ -4,7 +4,7 @@
 - Your app must be served over `https`
 - You must include `manifest.json` and `register.js` to your app head
 
-See Google's [Progressive Web App Checklist](https://developers.google.com/web/progressive-web-apps/checklist) for more about PWA
+See Google's [Progressive Web App Checklist](https://developers.google.com/web/progressive-web-apps/checklist) for more about PWA best practices.
 
 ## How to use
 Note that PAW installation will fail if no `package.json` is found in your current project.  
@@ -43,12 +43,17 @@ You'll have to add those two lines to your app root page :
 ```
 
 ## Features
+### CLI
 - Auto installation
-- Auto ask notifications permission (config.notifications)
-- Custom routes inside src/sw.js / offline - online -both
 - Build `config.json` during install (prompt in CLI)
 - Regenerate `manifest.json` from `config.json` on webpack build
+
+### sw.js / register.js
+- Auto ask notifications permission (config.notifications)
+- Register custom routes inside `src/sw.js`
+- Notifications
 
 ## Next
 - Network change handling
 - Web Share API
+- Messaging from register.js / sw.js to document
