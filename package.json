@@ -4,10 +4,14 @@
   "description": "```js\r import SWrapper from './sw-wrapper'",
   "main": "src/index.js",
   "scripts": {
-    "postinstall": "node install.js",
-    "paw": "webpack --config paw.config.js --mode production",
-    "paw:dev": "webpack --config paw.config.js --mode development",
-    "paw:watch": "webpack --config paw.config.js --mode development --watch"
+    "postinstall": "node install.js ; node setup-config.js ; node build-manifest.js ; webpack --config paw.config.js --mode production",
+
+    "paw:config": "node setup-config.js; node build-manifest.js",
+    "paw:manifest": "node build-manifest.js",
+
+    "paw": "node build-manifest.js ; webpack --config paw.config.js --mode production",
+    "paw:dev": "node build-manifest.js ; webpack --config paw.config.js --mode development",
+    "paw:watch": "node build-manifest.js ; webpack --config paw.config.js --mode development --watch"
   },
   "repository": {
     "type": "git",
@@ -24,6 +28,7 @@
     "npm-add-script": "^1.1.0",
     "path": "^0.12.7",
     "process": "^0.11.10",
+    "prompt": "^1.0.0",
     "urlb64touint8array": "^1.0.3"
   }
 }

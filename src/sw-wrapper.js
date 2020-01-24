@@ -4,7 +4,7 @@ export default class SWrapper {
 
   constructor(sw, config){
     this.config = Object.assign({
-      title: config.title,
+      title: config.name,
       cacheName: config.cacheName,
       offlinePage: config.offline, // offline page : takes first static cached request by default
       strategy: config.strategy
@@ -167,7 +167,7 @@ defaultFetchStrategy(e){
     title = `${this.title} ${title ? '-' + title : ''}`
     let options = {
       body: `${body}`,
-      icon: this.config.icon,
+      icon: (this.config.icons.length) ? this.config.icons[0] : '',
       badge: this.config.badge
     }
     return this.sw.registration.showNotification(title, options)

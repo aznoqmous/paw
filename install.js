@@ -10,7 +10,7 @@ cwd = path.resolve(cwd, '.')
 console.log(`Installing PAW...`)
 
 copyfiles([
-  './manifest.json',
+  // './manifest.json',
   './paw.config.js',
   './icon-*.png',
   './src/register.js',

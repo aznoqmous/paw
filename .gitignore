@@ -1,3 +1,6 @@
 node_modules
 /register.js
 /sw.js
+/manifest.json
+/src/config.json
+package-lock.json

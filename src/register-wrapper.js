@@ -3,7 +3,7 @@ import urlB64ToUint8Array from 'urlb64touint8array'
 export default class RegisterWrapper {
   constructor(config){
     this.config = config
-    this.title = this.config.title
+    this.title = this.config.name
     this.registration = null
     this.isSubscribed = null
 
@@ -75,7 +75,7 @@ export default class RegisterWrapper {
     title = `${this.title} - ${title ? title : 'New message'}`
     let options = {
       body: `${body}`,
-      icon: this.config.icon,
+      icon: (this.config.icons.length) ? this.config.icons[0] : '',
       badge: this.config.badge
     }
     return this.registration.showNotification(title, options)
