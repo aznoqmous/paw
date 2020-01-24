@@ -16,6 +16,7 @@ sw.route('/', ()=>{
     <strong>paw</a>
     <p>Routed from your src/sw.js</p>
     <a href="/status">network status</a>
+    <a href="/test">custom json response</a>
   </body>
   </html>
   `
@@ -35,4 +36,4 @@ sw.offline('/status', ()=>{
   return sw.redirectResponse('/')
 })
 
-sw.notify('Installation complete !')
+// sw.notify('Installation complete !')
