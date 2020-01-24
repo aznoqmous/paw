@@ -25,13 +25,14 @@ sw.route('/test', ()=>{
   return JSON.stringify('test')
 }, {type: 'json'})
 
-sw.online('/status', ()=>{
-  return JSON.stringify('online')
-}, {type: 'json'})
+sw.onlineRoute('/status', ()=>{
+  sw.notify('You are online')
+  return sw.redirectReponse('/')
+})
 
-sw.offline('/status', ()=>{
+sw.offlineRoute('/status', ()=>{
   sw.notify('You are offline')
-  return JSON.stringify('offline')
-}, {type: 'json'})
+  return sw.redirectReponse('/')
+})
 
 sw.notify('Installation complete !')

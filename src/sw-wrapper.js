@@ -51,8 +51,11 @@ export default class SWrapper {
 
       let matches = this.routeMatch(e.request)
       if(matches.length) {
-        let response = this.controller(matches[0])
-        if(response) e.respondWith(response)
+        let route = matches[0]
+        let response = this.controller(route)
+        console.log(response.constructor.name);
+        if(response.constructor.name == 'Response') e.respondWith(response)
+        else if(response) e.respondWith(new Response(response, { status: 200, headers: route.headers }))
         else this.defaultFetchStrategy(e)
       }
       else if(e.request.mode == 'navigate'){
@@ -67,7 +70,7 @@ export default class SWrapper {
 
   }
 
-// CACHE
+  // CACHE
   store(url, response){
     let clone = response.clone()
     caches.open(this.cacheName)
@@ -87,11 +90,11 @@ export default class SWrapper {
   }
 
 
-// STRATEGY
-defaultFetchStrategy(e){
-  if(this.strategy == 'cache') return this.strategyCache(e)
-  if(this.strategy == 'network') return this.strategyNetwork(e)
-}
+  // STRATEGY
+  defaultFetchStrategy(e){
+    if(this.strategy == 'cache') return this.strategyCache(e)
+    if(this.strategy == 'network') return this.strategyNetwork(e)
+  }
   strategyNetwork(e){
     e.respondWith(
       fetch(e.request)
@@ -132,17 +135,17 @@ defaultFetchStrategy(e){
   }
 
 
-// ROUTES
+  // ROUTES
   // register routes
   route(path, callback, config){
     this.routes.push( new Route(path, callback, config) )
   }
   // register offline routes
-  offline(path, callback, config={}){
+  offlineRoute(path, callback, config={}){
     this.routes.push( new Route(path, callback, Object.assign(config, { offline: true })) )
   }
   // register online routes
-  online(path, callback, config={}){
+  onlineRoute(path, callback, config={}){
     this.routes.push( new Route(path, callback, Object.assign(config, { online: true })) )
   }
   routeMatch(request){
@@ -158,8 +161,11 @@ defaultFetchStrategy(e){
   }
   controller(route){
     let content = route.callback()
-    if(content) return new Response(content, { status: 200, headers: route.headers })
+    if(content) return route.callback()
     else return false
+  }
+  redirectResponse(path){
+     return Response.redirect(path, 302);
   }
 
   notify(body, title=false){
