@@ -21,19 +21,21 @@ sw.route('/', ()=>{
   </body>
   </html>
   `
+}, {
+  type: 'html'
 })
 
 sw.route('/test', ()=>{
   return JSON.stringify('test')
-})
+}, {type: 'json'})
 
 sw.online('/status', ()=>{
   return JSON.stringify('online')
-})
+}, {type: 'json'})
 
 sw.offline('/status', ()=>{
   sw.notify('You are offline')
   return JSON.stringify('offline')
-})
+}, {type: 'json'})
 
 sw.notify('Installation complete !')

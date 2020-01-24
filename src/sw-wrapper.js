@@ -138,12 +138,12 @@ defaultFetchStrategy(e){
     this.routes.push( new Route(path, callback, config) )
   }
   // register offline routes
-  offline(path, callback){
-    this.routes.push( new Route(path, callback, { offline: true }) )
+  offline(path, callback, config={}){
+    this.routes.push( new Route(path, callback, Object.assign(config, { offline: true }) )
   }
   // register online routes
-  online(path, callback){
-    this.routes.push( new Route(path, callback, { online: true }) )
+  online(path, callback, config={}){
+    this.routes.push( new Route(path, callback, Object.assign(config, { online: true }) )
   }
   routeMatch(request){
     let path = (new URL(request.url)).pathname
@@ -158,7 +158,7 @@ defaultFetchStrategy(e){
   }
   controller(route){
     let content = route.callback()
-    if(content) return new Response(content, {status: 200})
+    if(content) return new Response(content, { status: 200, headers: route.headers })
     else return false
   }
 
