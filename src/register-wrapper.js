@@ -95,7 +95,7 @@ export default class RegisterWrapper {
     message.innerHTML = content
     setTimeout(()=>{
       message.parentElement.removeChild(message)
-    }, this.messageTimeOut)
+    }, this.config.messageTimeOut)
   }
 
 }
