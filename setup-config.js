@@ -31,11 +31,12 @@ prompt.get([{
     privateKey: "4AtF_NBS2jXcgQNEdQmOFLMeqA2ZWylX-_PhIlOq4xE",
     publicKey: "BE-bdUE6scWTi0HQzt3PujQcSDeCK0KKz-wCkq-XIfTIXhmawwI-dTUNZAZEH_X5rkDrBqbA71wba2CsAm7gyDA",
     strategy: "cache",
-    debug: true,
+    debug: false,
     staticPages: [ "/" ],
     offlinePage: null,
     notifications: true,
-    messageTimeOut: 3000
+    messageTimeOut: 3000,
+    updateText: 'A new update is available, click on this message to <strong>update</strong>'
   }
   for(let key in res) config[key] = res[key]
 
