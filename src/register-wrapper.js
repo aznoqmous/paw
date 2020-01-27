@@ -13,6 +13,7 @@ export default class RegisterWrapper {
         this.notifications = this.config.notifications
 
         this.init()
+        this.createMessageHolder()
         this.bindNetworkStateMessage()
     }
     init(){
@@ -21,40 +22,57 @@ export default class RegisterWrapper {
 
             window.addEventListener('DOMContentLoaded', ()=>{
 
-                if(this.config.debug) console.log('Registering sw.js...')
+                if(this.config.debug) this.message('Registering sw.js...')
                 navigator.serviceWorker.register('sw.js')
-                .then((registration)=>{
-                    // Registration was successful
-                    if(this.config.debug) console.log('Registration successful')
-                    this.registration = registration
+                    .then((registration)=>{
+                        // Registration was successful
+                        if(this.config.debug) this.message('Registration successful')
+                        this.registration = registration
 
-                    this.registration.addEventListener('updatefound', () => {
-                        var networker = registration.installing;
+                        this.registration.addEventListener('updatefound', () => {
+                            var networker = registration.installing;
+                            networker.addEventListener('statechange', ()=>{
 
-                        networker.addEventListener('statechange', ()=>{
-                            if(this.config.debug) console.log('SW new state : ', networker.state);
+                                if(networker.state == 'installed' && navigator.serviceWorker.controller) {
+                                  this.message('A new update is available, click on this message to <strong>update</strong>', 5000)
+                                      .addEventListener('click', ()=>{
+                                        console.log('updating')
+                                          networker.postMessage({action: 'skipWaiting'})
+                                      })
+                                }
+
+                                if(this.config.debug) {
+                                    this.message(`Update : ${networker.state}`);
+                                }
+                            });
 
                         });
 
+                        if(this.notifications) this.subscribe(registration)
+
+                    }).catch((err)=>{
+                      if(this.config.debug) this.message("SW error : ", err);
                     });
 
-                    if(this.notifications) this.subscribe(registration)
-
-                }).catch((err)=>{
-                    if(this.config.debug) console.warn("SW error : ", err);
-                });
+                let refreshing = false
+                navigator.serviceWorker.addEventListener('controllerchange', (e)=>{
+                    console.log(e)
+                    if(refreshing) return false
+                    window.location.reload()
+                    refreshing = true
+                })
             });
         }
     }
 
     subscribe(registration){
         registration
-        .pushManager.getSubscription()
-        .then((sub)=>{
-            this.isSubscribed = !(sub === null)
-            if(this.config.debug) console.log(`subscribed ${(this.isSubscribed ? 'true': 'false')}`)
-            if(!this.isSubscribed) this.subscribeUser(registration)
-        })
+            .pushManager.getSubscription()
+            .then((sub)=>{
+                this.isSubscribed = !(sub === null)
+                if(this.config.debug)this.message(`Notification subscribed ${(this.isSubscribed ? 'true': 'false')}`)
+                if(!this.isSubscribed) this.subscribeUser(registration)
+            })
 
     }
 
@@ -64,12 +82,12 @@ export default class RegisterWrapper {
             userVisibleOnly: true,
             applicationServerKey: this.publicKey
         })
-        .then((sub)=>{
-            if(this.config.debug) console.log('user subscribed')
-            this.isSubscribed = true
-            this.notify('Notifications are now active', 'permission')
-        })
-        .catch((err)=>{console.log(err)})
+            .then((sub)=>{
+                if(this.config.debug) this.message('user subscribed to notifications')
+                this.isSubscribed = true
+                this.notify('Notifications are now active', 'permission')
+            })
+            .catch((err)=>{console.log(err)})
     }
 
     notify(body, title=false){
@@ -92,11 +110,43 @@ export default class RegisterWrapper {
     message(content, timeout=null){ // load message into html
         if(timeout === null) timeout = this.config.messageTimeOut
         let message = document.createElement('div')
-        document.body.appendChild(message)
+        let styles = {
+            padding: '1rem 2rem',
+            zIndex: '10000',
+            color: 'white',
+            background: 'rgba(0,0,0,0.7)',
+            borderRadius: '0.5rem',
+            marginBottom: '0.5rem',
+            boxShadow: '0 0.1rem 0.1rem rgba(0,0,0,0.2)'
+        }
+        for(let key in styles) message.style[key] = styles[key]
         message.innerHTML = content
+        this.messageHolder.appendChild(message)
         setTimeout(()=>{
             message.parentElement.removeChild(message)
         }, timeout)
+        return message
+    }
+    createMessageHolder()
+    {
+        this.messageHolder = document.createElement('div')
+        let styles = {
+            position: 'fixed',
+            left: '50%',
+            top: '1rem',
+            transform: 'translate(-50%, 0)',
+            padding: '1rem',
+            zIndex: '10000',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            fontFamily: 'Arial, sans-serif'
+        }
+        for(let key in styles) this.messageHolder.style[key] = styles[key]
+
+        if(document.body) document.body.appendChild(this.messageHolder)
+        else document.addEventListener('DOMContentLoaded', ()=>{ document.body.appendChild(this.messageHolder) })
     }
 
 }

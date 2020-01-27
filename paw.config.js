@@ -14,7 +14,6 @@ module.exports = [
   },
   {
     entry: {
-
       path: [
         './src/register.js'
       ]

@@ -66,6 +66,10 @@ export default class SWrapper {
             e.waitUntil(this.notify(JSON.stringify(e.data), 'New push notification'))
         })
 
+        this.sw.addEventListener('message', (e)=>{
+            if(e.data.action == 'skipWaiting') this.sw.skipWaiting()
+        })
+
     }
 
     // CACHE
