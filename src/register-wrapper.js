@@ -142,16 +142,15 @@ export default class RegisterWrapper {
         this.messageHolder = document.createElement('div')
         let styles = {
             position: 'fixed',
-            left: '50%',
-            bottom: '1rem',
-            transform: 'translate(-50%, 0)',
+            left: '0',
             padding: '1rem',
             zIndex: '10000',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            fontFamily: 'Arial, sans-serif'
+            fontFamily: 'Arial, sans-serif',
+            width: '100vw'
         }
         for(let key in styles) this.messageHolder.style[key] = styles[key]
 

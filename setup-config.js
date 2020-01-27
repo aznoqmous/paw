@@ -36,6 +36,7 @@ prompt.get([{
     offlinePage: null,
     notifications: true,
     messageTimeOut: 3000,
+    messagePosition: 'bottom',
     updateText: 'A new update is available, click on this message to <strong>update</strong>'
   }
   for(let key in res) config[key] = res[key]

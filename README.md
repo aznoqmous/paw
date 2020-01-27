@@ -50,6 +50,7 @@ You'll have to add those two lines to your app root page :
 
 ### sw.js / register.js
 - Auto ask notifications permission (config.notifications)
+- Prompt on available update / on installing - on wainting
 - Register custom routes inside `src/sw.js`
 - Notifications
 
