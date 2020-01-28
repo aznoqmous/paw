@@ -1,23 +1,29 @@
 export default class RouteElement {
-    constructor(config){
-        config = Object.assign({
-            path: null
-        }, config)
-        for(let key in config) this[key] = config[key]
+    constructor(data){
+        this.data = {}
+        for(let key in data) this.data[key] = data[key]
 
         this.build()
     }
 
-    update(config){
-        for(let key in config) this[key] = config[key]
-
-        el.innerHTML = ''
-
-        el.innerHTML += `<p><strong>Path</strong>${path}</p>`
+    update(data){
+        for(let key in data) this.data[key] = data[key]
+        this.outputData()
     }
 
     build(){
         this.el = document.createElement('div')
-        return el
+        this.outputData()
+        return this.el
+    }
+
+    outputData(){
+        this.el.innerHTML = ''
+        for(let key in this.data) {
+            let dataType = typeof(this.data[key])
+
+            if( dataType != 'object' && dataType != 'function') this.el.innerHTML += `<p><strong>${key} : </strong>${this.data[key]}</p>`
+            if( dataType == 'object' ) this.el.innerHTML += `<p><strong>${key} : </strong>${JSON.stringify(this.data[key])}</p>`
+        }
     }
 }

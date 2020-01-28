@@ -4,7 +4,7 @@ import config from './config.json'
 
 let sw = new SWrapper(self, config)
 
-sw.redirect('/', '/paw');
+// sw.redirect('/', '/paw');
 
 sw.route('/paw', ()=>{
     return `
@@ -14,7 +14,7 @@ sw.route('/paw', ()=>{
         <meta charset="utf-8">
         <title>PAW</title>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-        <script src="./node_modules/paw/dist/tester.js"></script>
+        <script src="/node_modules/paw/dist/tester.js"></script>
 
         <link rel="manifest" href="/manifest.json">
         <script src="/register.js"></script>

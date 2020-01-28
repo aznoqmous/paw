@@ -38,7 +38,10 @@ export default class RouteTester {
 
         fetch(path)
         .then(res => {
-            console.log(res)
+            route.update(res)
+            if(!res.ok) return false
+            res.json()
+            .then(json => route.update({json: json}))
         })
     }
 }
