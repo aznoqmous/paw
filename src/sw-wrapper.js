@@ -182,6 +182,9 @@ export default class SWrapper {
         else return false
     }
 
+    redirect(from, to){
+        this.route(from, ()=>{ return this.redirectResponse(to) })
+    }
     redirectResponse(path) {
         return Response.redirect(path, 302);
     }
