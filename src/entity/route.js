@@ -7,6 +7,7 @@ export default class Route {
             online: false, // match only when online
             methods: 'get,post',
             type: 'html', // html, json
+            strategy: null, // overwrite swrapper cache policy
             headers: {}
         }, config)
         for(let key in config) this[key] = config[key]

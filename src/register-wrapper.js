@@ -137,12 +137,13 @@ export default class RegisterWrapper {
         }, timeout)
         return message
     }
-    createMessageHolder()
-    {
-        this.messageHolder = document.createElement('div')
+    createMessageHolder(){
+        this.messageHolder = document.createElement('ul')
+        this.messageHolder.className = "paw-messages"
         let styles = {
             position: 'fixed',
             left: '0',
+            bottom: '0',
             padding: '1rem',
             zIndex: '10000',
             display: 'flex',

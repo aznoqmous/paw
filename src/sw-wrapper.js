@@ -44,7 +44,6 @@ export default class SWrapper {
             }))
             this.sw.skipWaiting()
             this.sw.clients.claim()
-
         })
 
         this.sw.addEventListener('fetch', e => {
@@ -54,6 +53,7 @@ export default class SWrapper {
                 let response = this.controller(route)
                 if (response.constructor.name == 'Response') e.respondWith(response)
                 else if (response) e.respondWith(new Response(response, {status: 200, headers: route.headers}))
+                else if (route.strategy) this.fetchStrategy(e, route.strategy)
                 else this.defaultFetchStrategy(e)
             }
             else if (e.request.mode == 'navigate') {
@@ -98,8 +98,12 @@ export default class SWrapper {
 
     // STRATEGY
     defaultFetchStrategy(e) {
-        if (this.strategy == 'cache') return this.strategyCache(e)
-        else if (this.strategy == 'network') return this.strategyNetwork(e)
+        return this.fetchStrategy(e, this.strategy)
+    }
+
+    fetchStrategy(e, strategy){
+        if (strategy == 'cache') return this.strategyCache(e)
+        else if (strategy == 'network') return this.strategyNetwork(e)
         else return this.strategyCache(e)
     }
 
@@ -145,6 +149,9 @@ export default class SWrapper {
     route(path, callback, config) {
         this.routes.push(new Route(path, callback, config))
     }
+    json(path, callback, config = {}){
+        this.route(path, ()=>{ return JSON.stringify( callback() ) }, Object.assign(config, {json: true}))
+    }
 
     // register offline routes
     offline(path, callback, config = {}) {
@@ -155,6 +162,7 @@ export default class SWrapper {
     online(path, callback, config = {}) {
         this.routes.push(new Route(path, callback, Object.assign(config, {online: true})))
     }
+
 
     routeMatch(request) {
         let path = (new URL(request.url)).pathname
