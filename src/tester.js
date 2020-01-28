@@ -1,3 +1,7 @@
 import RouteTester from './utils/route-tester'
 
-new RouteTester()
+document.addEventListener('DOMContentLoaded', ()=>{
+    new RouteTester({
+        parent: routeTesterContainer
+    })
+})

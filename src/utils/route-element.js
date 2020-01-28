@@ -14,7 +14,6 @@ export default class RouteElement {
         el.innerHTML = ''
 
         el.innerHTML += `<p><strong>Path</strong>${path}</p>`
-
     }
 
     build(){

@@ -4,7 +4,7 @@ export default class RouteTester {
 
     constructor(config){
         config = Object.assign({
-
+            parent: null
         }, config)
         for(let key in config) this[key] = config[key]
 
@@ -31,9 +31,10 @@ export default class RouteTester {
     }
 
     test(path){
-        let routeEl = new RouteElement({
+        let route = new RouteElement({
             path: path
         })
+        this.parent.appendChild(route.el)
 
         fetch(path)
         .then(res => {
