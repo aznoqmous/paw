@@ -163,6 +163,12 @@ export default class SWrapper {
         this.routes.push(new Route(path, callback, Object.assign(config, {online: true})))
     }
 
+    redirect(from, to){
+        this.route(from, ()=>{ return this.redirectResponse(to) })
+    }
+    redirectResponse(path) {
+        return Response.redirect(path, 302);
+    }
 
     routeMatch(request) {
         let path = (new URL(request.url)).pathname
@@ -180,13 +186,6 @@ export default class SWrapper {
         let content = route.callback()
         if (content) return route.callback()
         else return false
-    }
-
-    redirect(from, to){
-        this.route(from, ()=>{ return this.redirectResponse(to) })
-    }
-    redirectResponse(path) {
-        return Response.redirect(path, 302);
     }
 
     notify(body, title = false) {

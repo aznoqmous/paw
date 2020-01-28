@@ -51,10 +51,12 @@ You'll have to add those two lines to your app root page :
 ### sw.js / register.js
 - Auto ask notifications permission (config.notifications)
 - Prompt on available update / on installing - on wainting
-- Register custom routes inside `src/sw.js`
+- Custom routes registration inside `src/sw.js` (available: route, offline, online, json, redirect)
 - Notifications
 
 ## Next
 - Network change handling
 - Web Share API
 - Messaging from register.js / sw.js to document
+- Separate Router responsability from sw
+- Test route at project initialization under `/paw`

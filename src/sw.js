@@ -13,8 +13,12 @@ sw.route('/paw', ()=>{
     <head>
         <meta charset="utf-8">
         <title>PAW</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+        <script src="./node_modules/paw/dist/tester.js"></script>
+
         <link rel="manifest" href="/manifest.json">
         <script src="/register.js"></script>
+
     </head>
     <body>
         <h1>paw</h1>
