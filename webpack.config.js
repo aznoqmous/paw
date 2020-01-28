@@ -4,12 +4,12 @@ module.exports = [
   {
     entry: {
       path: [
-        './src/tester.js'
+        './node_modules/paw/src/tester.js'
       ]
     },
     output: {
       path: path.resolve(__dirname, "."),
-      filename: "dist/tester.js"
+      filename: "./node_modules/paw/dist/tester.js"
     }
   }
 ]
