@@ -6,6 +6,12 @@ let sw = new SWrapper(self, config)
 
 sw.redirect('/', '/paw');
 
+sw.route('/paw/test', ()=>{
+    sw.post('/paw', {
+        foo: 'bar'
+    })
+})
+
 sw.route('/paw', ()=>{
     if(e.post) return JSON.stringify(e.post)
     else return `

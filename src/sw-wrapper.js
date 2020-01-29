@@ -230,6 +230,16 @@ export default class SWrapper {
         return matches
     }
 
+    post(url, data){
+        return fetch(url, {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+    }
+
     controller(route, e) {
         if(!route.callback) return false
         let res = route.callback(e)
