@@ -1,4 +1,4 @@
-import SWrapper from './sw-wrapper'
+import {SWrapper} from 'paw'
 import config from './config.json'
 // This file is processed during installation only
 
