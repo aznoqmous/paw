@@ -34,14 +34,28 @@ export default class RouteTester {
         let route = new RouteElement({
             path: path
         })
-        this.parent.appendChild(route.el)
+        let firstChild = (this.parent.children.length > 1) ? this.parent.children[1] : null;
+        this.parent.insertBefore(route.el, firstChild)
 
-        fetch(path)
+        this.fetchKey(route, 'json')
+        this.fetchKey(route, 'text')
+        this.fetchKey(route, 'blob')
+        this.fetchKey(route, 'arrayBuffer')
+        this.fetchKey(route, 'formData')
+    }
+
+    fetchKey(route, key){
+        fetch(route.path)
         .then(res => {
             route.update(res)
             if(!res.ok) return false
-            res.json()
-            .then(json => route.update({json: json}))
+            return res[key]()
+        })
+        .then(data => {
+            let obj = {}
+            obj[key] = data
+            route.update(obj)
         })
     }
+
 }

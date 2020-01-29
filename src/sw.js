@@ -37,7 +37,7 @@ sw.route('/paw', ()=>{
 
 sw.json('/network', ()=>{
     return {
-        name: "ouiahazd"
+        foo: "bar"
     }
 }, {
     strategy: 'network'
@@ -56,5 +56,3 @@ sw.offline('/status', ()=>{
     sw.notify('You are offline')
     return sw.redirectResponse('/')
 })
-
-// sw.notify('Installation complete !')
