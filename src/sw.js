@@ -4,7 +4,7 @@ import config from './config.json'
 
 let sw = new SWrapper(self, config)
 
-// sw.redirect('/', '/paw');
+sw.redirect('/', '/paw');
 
 sw.route('/paw', ()=>{
     return `
@@ -23,7 +23,7 @@ sw.route('/paw', ()=>{
     <body class="container">
         <h1>paw</h1>
         <h2>Routed from your src/sw.js</h2>
-        <ul>
+        <ul> 
             <li><a href="/status">custom <code>online/offline</code> callback then redirect</a></li>
             <li><a href="/network">custom json response with strategy <code>network</code></a></li>
             <li><a href="/cache">custom json response with strategy <code>cache</code></a></li>

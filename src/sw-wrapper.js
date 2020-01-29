@@ -54,7 +54,7 @@ export default class SWrapper {
                 if (response.constructor.name == 'Response') e.respondWith(response)
                 else if (response) e.respondWith(new Response(response, {status: 200, headers: route.headers}))
                 else if (route.strategy) this.fetchStrategy(e, route.strategy)
-                else this.defaultFetchStrategy(e)
+                else this.defaultFetchStrategy(e) // if no response handle basic response
             }
             else if (e.request.mode == 'navigate') {
                 this.defaultFetchStrategy(e)
