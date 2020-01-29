@@ -17,7 +17,7 @@ sw.route('/paw/test', ()=>{
     })
 })
 
-sw.route('/paw', ()=>{
+sw.route('/paw', (e)=>{
     if(e.post) return JSON.stringify(e.post)
     else return `
     <!DOCTYPE html>
