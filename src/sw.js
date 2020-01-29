@@ -4,11 +4,16 @@ import config from './config.json'
 
 let sw = new SWrapper(self, config)
 
-sw.redirect('/', '/paw');
+// sw.redirect('/', '/paw');
 
 sw.route('/paw/test', ()=>{
-    sw.post('/paw', {
+    return sw.post('/paw', {
         foo: 'bar'
+    })
+    .then((res)=>{return res.text()})
+    .then(text =>{
+        console.log(text)
+        return text
     })
 })
 
