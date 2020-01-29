@@ -13,6 +13,7 @@ export default class RouteElement {
 
     build(){
         this.el = document.createElement('div')
+        this.el.className = 'card p-2 mt-2'
         this.outputData()
         return this.el
     }
