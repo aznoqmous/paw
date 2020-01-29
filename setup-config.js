@@ -9,9 +9,7 @@ let configFile = `${cwd}/src/config.json`
 console.log(`PAW config setup ${configFile} :`)
 prompt.get([{
     name: 'name',
-  }, {
-    name: 'short_name',
-  }], (err, res)=>{
+}], (err, res)=>{
   let config = {
     name: 'paw',
     short_name: 'paw',

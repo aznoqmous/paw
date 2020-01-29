@@ -1,4 +1,4 @@
-import {SWrapper} from 'paw'
+import SWrapper from './sw-wrapper'
 import config from './config.json'
 // This file is processed during installation only
 
@@ -7,7 +7,8 @@ let sw = new SWrapper(self, config)
 sw.redirect('/', '/paw');
 
 sw.route('/paw', ()=>{
-    return `
+    if(e.post) return JSON.stringify(e.post)
+    else return `
     <!DOCTYPE html>
     <html lang="en" dir="ltr">
     <head>
@@ -23,7 +24,7 @@ sw.route('/paw', ()=>{
     <body class="container">
         <h1>paw</h1>
         <h2>Routed from your src/sw.js</h2>
-        <ul> 
+        <ul>
             <li><a href="/status">custom <code>online/offline</code> callback then redirect</a></li>
             <li><a href="/network">custom json response with strategy <code>network</code></a></li>
             <li><a href="/cache">custom json response with strategy <code>cache</code></a></li>
@@ -34,14 +35,15 @@ sw.route('/paw', ()=>{
     </html>
     `
 })
+sw.json('/paw/routes', ()=>{
+    return sw.routes
+})
 
 sw.json('/network', ()=>{
     return {
         foo: "bar"
     }
-}, {
-    strategy: 'network'
-})
+}).setStrategyNetwork()
 
 sw.json('/cache', ()=>{
     return 'test'

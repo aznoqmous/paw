@@ -14,4 +14,18 @@ export default class Route {
         if(this.type == 'html') this.headers["Content-Type"] = 'text/html'
         if(this.type == 'json') this.headers["Content-Type"] = 'application/json'
     }
+
+    setStrategyNetwork(){
+        this.strategy = 'network'
+    }
+    setStrategyCache(){
+        this.strategy = 'cache'
+    }
+
+    redirectTo(path){
+        this.callback = ()=>{
+            return Response.redirect(path, 302);
+        }
+    }
+
 }
