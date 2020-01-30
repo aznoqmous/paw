@@ -6,6 +6,10 @@ let sw = new SWrapper(self, config)
 
 // sw.redirect('/', '/paw');
 
+sw.route('/', (e)=>{
+    console.log(e.post, e.get, e.data)
+})
+
 sw.route('/paw/test', ()=>{
     return sw.post('/paw', {
         foo: 'bar'

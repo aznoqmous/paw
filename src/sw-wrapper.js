@@ -89,8 +89,10 @@ export default class SWrapper {
         })
     }
     prepareRequest(fetchEvent){
+        fetchEvent.data = {}
         return Promise.all([
-            this.getPostData(fetchEvent)
+            this.getPostData(fetchEvent),
+            this.getURLParamsData(fetchEvent)
         ])
     }
     getPostData(fetchEvent){
@@ -98,8 +100,16 @@ export default class SWrapper {
         return new Promise((res, rej)=>{
             let requestData = this.fetchRequestData(request)
             if(requestData) requestData.then((data)=>{
-                fetchEvent.post = [...data]
-                res(fetchEvent.post)
+
+                if(typeof data[Symbol.iterator] === 'function') {
+                    let objData = {}
+                    data.forEach((value, key) => { objData[key] = value });
+                    data = objData
+                }
+                fetchEvent.post = data
+                fetchEvent.data = Object.assign(fetchEvent.data, fetchEvent.post)
+
+                res(fetchEvent.data)
             })
             else res(false)
         })
@@ -116,6 +126,25 @@ export default class SWrapper {
             return request.text()
         else return false;
     }
+
+    getURLParamsData(fetchEvent){
+        return new Promise((res, rej)=>{
+            let objData = {}
+            let data = new URL(fetchEvent.request.url).searchParams
+
+            if(typeof data[Symbol.iterator] === 'function') {
+                let objData = {}
+                data.forEach((value, key) => { objData[key] = value });
+                data = objData
+            }
+
+            fetchEvent.get = data
+            fetchEvent.data = Object.assign(fetchEvent.data, fetchEvent.get)
+
+            res()
+        })
+    }
+
 
     // CACHE
     store(cacheName, url, response) {
@@ -162,7 +191,6 @@ export default class SWrapper {
         else if (strategy == 'network') return this.strategyNetwork(e, cacheName)
         else return this.strategyCache(e, cacheName)
     }
-
     strategyNetwork(e, cacheName=null) {
         cacheName = (cacheName) ? cacheName : this.cacheName
         return fetch(e.request)
@@ -175,18 +203,17 @@ export default class SWrapper {
             .catch(() => {
                 return caches.open(cacheName)
                     .then(cache => {
-                        if (cache.match(e.request)) return cache.match(e.request)
+                        if (this.cacheMatch(cache, e)) return this.cacheMatch(e)
                         return cache.match(this.offlinePage)
                     })
             })
 
     }
-
     strategyCache(e, cacheName=null) {
         cacheName = (cacheName) ? cacheName : this.cacheName
         return caches.open(cacheName)
             .then(cache => {
-                return cache.match(e.request).then(response => {
+                return this.cacheMatch(cache, e).then(response => {
                     return response || fetch(e.request)
                         .then(response => {
                             if (response.status == 200) {
@@ -197,6 +224,9 @@ export default class SWrapper {
                 })
             })
 
+    }
+    cacheMatch(cache, fetchEvent){
+        return cache.match(fetchEvent.request.url)
     }
 
 
@@ -230,6 +260,7 @@ export default class SWrapper {
 
     routeMatch(request) {
         let path = (new URL(request.url)).pathname
+
         let matches = this.routes.filter((route) => {
             if (!route.methods.toLowerCase().match(request.method.toLowerCase())) return false; // methods dont match
             if (path != route.path) return false; // path doesnt match
