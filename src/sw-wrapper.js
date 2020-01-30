@@ -96,15 +96,25 @@ export default class SWrapper {
     getPostData(fetchEvent){
         let request = fetchEvent.request.clone()
         return new Promise((res, rej)=>{
-            let headers = {}
-            let hs = [...request.headers]
-            hs.map(h => { headers[h[0]] = h[1] })
-            if(headers['content-type'] == 'application/x-www-form-urlencoded') request.formData().then((data)=>{
+            let requestData = this.fetchRequestData(request)
+            if(requestData) requestData.then((data)=>{
                 fetchEvent.post = [...data]
                 res(fetchEvent.post)
             })
             else res(false)
         })
+    }
+    fetchRequestData(request){
+        let headers = {}
+        let hs = [...request.headers]
+        hs.map(h => { headers[h[0]] = h[1] })
+        if(headers['content-type'] == 'application/x-www-form-urlencoded')
+            return request.formData()
+        else if(headers['content-type'] == 'application/json')
+            return request.json()
+        else if(headers['content-type'] == 'text/html')
+            return request.text()
+        else return false;
     }
 
     // CACHE
