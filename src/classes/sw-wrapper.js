@@ -1,4 +1,4 @@
-import Route from './entity/route'
+import Route from './route'
 
 export default class SWrapper {
 

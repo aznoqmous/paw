@@ -1,3 +1,3 @@
-import RegisterWrapper from './register-wrapper'
-import SWrapper from './sw-wrapper'
+import RegisterWrapper from './classes/register-wrapper'
+import SWrapper from './classes/sw-wrapper'
 export {RegisterWrapper, SWrapper}
