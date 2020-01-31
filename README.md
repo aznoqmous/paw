@@ -50,8 +50,10 @@ You'll have to add those two lines to your app root page :
 
 ### sw.js / register.js
 - Auto ask notifications permission (config.notifications)
-- Prompt on available update / on installing - on wainting
+- Prompt on available update / on installing - on waiting
 - Custom routes registration inside `src/sw.js` (available: route, offline, online, json, redirect)
+- Custom routes with simplified regexp and capture groups (ex: `/entity/{id}`, `/pages/*`)
+- Router fill its fetchEvent input data (accessible when routing via `e.data` or `e.get` and `e.post`)
 - Notifications
 
 ## Next
@@ -60,3 +62,4 @@ You'll have to add those two lines to your app root page :
 - Messaging from register.js / sw.js to document
 - Separate Router responsability from sw
 - Test route at project initialization under `/paw`
+- Priority cache -> notify on update

@@ -29,6 +29,8 @@ export default class SWrapper {
         this.bindActivate()
         this.bindFetch()
 
+        this.bindSync()
+
         this.sw.addEventListener('push', (e) => {
             e.waitUntil(this.notify(JSON.stringify(e.data), 'New push notification'))
         })
@@ -69,6 +71,12 @@ export default class SWrapper {
             e.respondWith(this.handleRequest(e))
         })
     }
+    bindSync(){
+        this.sw.addEventListener('sync', (e)=>{
+            console.log('sync', e)
+            this.notify(e)
+        })
+    }
 
     // REQUESTS HANDLING
     handleRequest(fetchEvent){
@@ -76,8 +84,7 @@ export default class SWrapper {
         .then(()=>{
             let matches = this.routeMatch(fetchEvent.request)
             if (matches.length) {
-                let route = matches[0]
-                return this.controllerStrategy(route, fetchEvent)
+                return this.controllerStrategy(matches, fetchEvent)
             }
             else if (fetchEvent.request.mode == 'navigate') {
                 return this.defaultFetchStrategy(fetchEvent)
@@ -119,11 +126,11 @@ export default class SWrapper {
         let hs = [...request.headers]
         hs.map(h => { headers[h[0]] = h[1] })
         if(headers['content-type'] == 'application/x-www-form-urlencoded')
-            return request.formData()
+        return request.formData()
         else if(headers['content-type'] == 'application/json')
-            return request.json()
+        return request.json()
         else if(headers['content-type'] == 'text/html')
-            return request.text()
+        return request.text()
         else return false;
     }
 
@@ -151,9 +158,9 @@ export default class SWrapper {
         cacheName = (cacheName) ? cacheName : this.cacheName
         let clone = response.clone()
         caches.open(cacheName)
-            .then(cache => {
-                cache.put(url, clone)
-            })
+        .then(cache => {
+            cache.put(url, clone)
+        })
     }
     clearOldCaches() {
         return caches.keys().then(keyList => {
@@ -171,12 +178,18 @@ export default class SWrapper {
 
 
     // STRATEGY
-    controllerStrategy(route, e){
-        let response = this.controller(route, e)
+    controllerStrategy(matchingRoutes, e){
+        let response = null
+        let finalRoute = null
+        matchingRoutes.map(route => {
+            if(response) return false
+            response = this.controller(route, e)
+            finalRoute = route
+        })
 
         if (response && response.constructor.name == 'Response') return response
-        else if (response) return new Response(response, {status: 200, headers: route.headers})
-        else if (route.strategy) return this.fetchStrategy(e, route.strategy)
+        else if (response) return new Response(response, {status: 200, headers: finalRoute.headers})
+        else if (finalRoute.strategy) return this.fetchStrategy(e, finalRoute.strategy)
         else return this.defaultFetchStrategy(e) // if no response handle basic response
     }
     defaultFetchStrategy(e) {
@@ -194,35 +207,35 @@ export default class SWrapper {
     strategyNetwork(e, cacheName=null) {
         cacheName = (cacheName) ? cacheName : this.cacheName
         return fetch(e.request)
-            .then(response => {
-                if (response.status == 200) {
-                    this.store(cacheName, e.request.url, response)
-                }
-                return response;
+        .then(response => {
+            if (response.status == 200) {
+                this.store(cacheName, e.request.url, response)
+            }
+            return response;
+        })
+        .catch(() => {
+            return caches.open(cacheName)
+            .then(cache => {
+                if (this.cacheMatch(cache, e)) return this.cacheMatch(e)
+                return cache.match(this.offlinePage)
             })
-            .catch(() => {
-                return caches.open(cacheName)
-                    .then(cache => {
-                        if (this.cacheMatch(cache, e)) return this.cacheMatch(e)
-                        return cache.match(this.offlinePage)
-                    })
-            })
+        })
 
     }
     strategyCache(e, cacheName=null) {
         cacheName = (cacheName) ? cacheName : this.cacheName
         return caches.open(cacheName)
-            .then(cache => {
-                return this.cacheMatch(cache, e).then(response => {
-                    return response || fetch(e.request)
-                        .then(response => {
-                            if (response.status == 200) {
-                                this.store(cacheName, e.request.url, response)
-                            }
-                            return response;
-                        })
+        .then(cache => {
+            return this.cacheMatch(cache, e).then(response => {
+                return response || fetch(e.request)
+                .then(response => {
+                    if (response.status == 200) {
+                        this.store(cacheName, e.request.url, response)
+                    }
+                    return response;
                 })
             })
+        })
 
     }
     cacheMatch(cache, fetchEvent){
@@ -260,12 +273,11 @@ export default class SWrapper {
 
     routeMatch(request) {
         let path = (new URL(request.url)).pathname
-
         let matches = this.routes.filter((route) => {
             if (!route.methods.toLowerCase().match(request.method.toLowerCase())) return false; // methods dont match
-            if (path != route.path) return false; // path doesnt match
             if (route.offline && navigator.onLine) return false; // dont serve offline routes if online
             if (route.online && !navigator.onLine) return false; // dont serve online routes if offline
+            if(!path.match(route.regPath)) return false;
             return true;
         })
         return matches
@@ -284,7 +296,16 @@ export default class SWrapper {
 
     controller(route, e) {
         if(!route.callback) return false
-        let res = route.callback(e)
+
+        let capture = (new URL(e.request.url)).pathname.match(route.regPath)
+        let res = null
+
+        if(capture){
+            let values = []
+            for (let key in capture.groups ) values.push(capture.groups[key])
+            res = route.callback(e, ...values)
+        }
+        else res = route.callback(e)
         return (res) ? res : false;
     }
 
@@ -297,6 +318,11 @@ export default class SWrapper {
             badge: this.config.badge
         }
         return this.sw.registration.showNotification(title, options)
+    }
+
+    // deferer
+    register(string){
+        this.sw.registration.sync.register(string)
     }
 
 }

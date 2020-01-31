@@ -5,24 +5,18 @@ import config from './config.json'
 let sw = new SWrapper(self, config)
 
 // sw.redirect('/', '/paw');
-
-sw.route('/', (e)=>{
-    console.log(e.post, e.get, e.data)
+sw.route('/{path}', (e, path)=>{
+    console.log(`${path}`)
 })
-
 sw.route('/paw/test', ()=>{
-    return sw.post('/paw', {
-        foo: 'bar'
-    })
-    .then((res)=>{return res.text()})
-    .then(text =>{
-        console.log(text)
-        return text
-    })
+    sw.notify('test')
+})
+sw.route('/paw/{id}', (e, id)=>{
+    sw.notify(`${id}`)
 })
 
 sw.route('/paw', (e)=>{
-    if(e.post) return JSON.stringify(e.post)
+    if(e.post) return JSON.stringify(e.data)
     else return `
     <!DOCTYPE html>
     <html lang="en" dir="ltr">

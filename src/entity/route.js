@@ -13,6 +13,12 @@ export default class Route {
         for(let key in config) this[key] = config[key]
         if(this.type == 'html') this.headers["Content-Type"] = 'text/html'
         if(this.type == 'json') this.headers["Content-Type"] = 'application/json'
+
+        this.init()
+    }
+
+    init(){
+        this.regPath = this.getRegPath()
     }
 
     setStrategyNetwork(){
@@ -26,6 +32,15 @@ export default class Route {
         this.callback = ()=>{
             return Response.redirect(path, 302);
         }
+    }
+
+    getRegPath(){
+        let regPath = `^${this.path.replace(/\//g, '\\\/')}$`
+        regPath = regPath.replace(/\*/, '.*?')
+        regPath = regPath.replace(/\{([a-z]*?)\}/g, '(?<$1>[^\\\/]*?)')
+
+
+        return regPath
     }
 
 }
