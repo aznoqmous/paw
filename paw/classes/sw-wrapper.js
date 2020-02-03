@@ -1,10 +1,10 @@
 import Route from './route'
+import Router from './router'
 import Deferrer from './deferrer'
 
 export default class SWrapper {
 
     constructor(sw, config) {
-        console.log(this)
         this.config = Object.assign({
             title: config.name,
             cacheName: config.cacheName,
@@ -15,9 +15,7 @@ export default class SWrapper {
             strategy: config.strategy
         }, config)
         for (let key in this.config) this[key] = this.config[key]
-        this.deferrer = new Deferrer({
-            name: this.deferrerName
-        })
+
         this.init(sw)
         this.bind()
     }
@@ -26,6 +24,8 @@ export default class SWrapper {
         this.sw = sw
         this.routes = []
         this.offlineRoutes = []
+        this.deferrer = new Deferrer()
+        this.router = new Router()
     }
 
     // addEventListeners
@@ -87,9 +87,28 @@ export default class SWrapper {
     handleRequest(fetchEvent){
         return this.prepareRequest(fetchEvent)
         .then(()=>{
-            let matches = this.routeMatch(fetchEvent.request)
+            let matches = this.router.routeMatch(fetchEvent.request)
+
             if (matches.length) {
-                return this.controllerStrategy(matches, fetchEvent)
+
+                // ----------------- MOVE TO ROUTER ---------------------------
+                let response = null
+                let finalRoute = null
+                matches.map(route => {
+                    if(response) return false
+                    response = this.router.controller(route, fetchEvent)
+                    finalRoute = route
+                })
+
+                if (response && response.constructor.name == 'Promise') return response.then(res => {
+                    return new Response(res, {status: 200, headers: finalRoute.headers})
+                })
+                else if (response && response.constructor.name == 'Response') return response
+                else if (response) return new Response(response, {status: 200, headers: finalRoute.headers})
+                // ------------------------------------------------------------
+
+                else if (finalRoute.strategy) return this.fetchStrategy(fetchEvent, finalRoute.strategy)
+                else return this.defaultFetchStrategy(fetchEvent) // if no response handle basic response
             }
             else if (fetchEvent.request.mode == 'navigate') {
                 return this.defaultFetchStrategy(fetchEvent)
@@ -157,7 +176,6 @@ export default class SWrapper {
         })
     }
 
-
     // CACHE
     storeResponse(cacheName, url, response) {
         cacheName = (cacheName) ? cacheName : this.cacheName
@@ -181,24 +199,7 @@ export default class SWrapper {
         return caches.delete(cacheName)
     }
 
-
     // STRATEGY
-    controllerStrategy(matchingRoutes, e){
-        let response = null
-        let finalRoute = null
-        matchingRoutes.map(route => {
-            if(response) return false
-            response = this.controller(route, e)
-            finalRoute = route
-        })
-        if (response && response.constructor.name == 'Promise') return response.then(res => {
-            return new Response(res, {status: 200, headers: finalRoute.headers})
-        })
-        else if (response && response.constructor.name == 'Response') return response
-        else if (response) return new Response(response, {status: 200, headers: finalRoute.headers})
-        else if (finalRoute.strategy) return this.fetchStrategy(e, finalRoute.strategy)
-        else return this.defaultFetchStrategy(e) // if no response handle basic response
-    }
     defaultFetchStrategy(e) {
         return this.fetchStrategy(e, this.strategy)
     }
@@ -243,69 +244,9 @@ export default class SWrapper {
                 })
             })
         })
-
     }
     cacheMatch(cache, fetchEvent){
         return cache.match(fetchEvent.request.url)
-    }
-
-
-    // ROUTES
-    // register routes
-    route(path, callback=null, config={}) {
-        let route = new Route(path, callback, config)
-        this.routes.push(route)
-        return route
-    }
-    json(path, callback, config = {}){
-        return this.route(path, ()=>{ return JSON.stringify( callback() ) }, Object.assign(config, {json: true}))
-    }
-
-    // register offline routes
-    offline(path, callback, config = {}) {
-        return this.route(path, callback, Object.assign(config, {offline: true}))
-    }
-
-    // register online routes
-    online(path, callback, config = {}) {
-        return this.route(path, callback, Object.assign(config, {online: true}))
-    }
-
-    redirect(from, to, config={}){
-        return this.route(from, ()=>{ return this.redirectResponse(to) }, config)
-    }
-    redirectResponse(path) {
-        return Response.redirect(path, 302);
-    }
-
-    routeMatch(request) {
-        let path = (new URL(request.url)).pathname
-        let matches = this.routes.filter((route) => {
-            if (!route.methods.toLowerCase().match(request.method.toLowerCase())) return false; // methods dont match
-            if (route.offline && navigator.onLine) return false; // dont serve offline routes if online
-            if (route.online && !navigator.onLine) return false; // dont serve online routes if offline
-            if(!path.match(route.regPath)) return false;
-            return true;
-        })
-        return matches
-    }
-
-    controller(route, e) {
-        if(!route.callback) return false
-
-        let capture = (new URL(e.request.url)).pathname.match(route.regPath)
-        let res = null
-
-        if(capture){
-            let values = []
-            for (let key in capture.groups ) values.push(capture.groups[key])
-            res = route.callback(e, ...values)
-        }
-        else {
-            res = route.callback(e)
-        }
-
-        return (res) ? res : false;
     }
 
     notify(body, title = false) {
