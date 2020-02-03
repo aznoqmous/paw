@@ -1,18 +1,23 @@
 import Route from './route'
+import Deferrer from './deferrer'
 
 export default class SWrapper {
 
     constructor(sw, config) {
+        console.log(this)
         this.config = Object.assign({
             title: config.name,
             cacheName: config.cacheName,
             assetsCacheName: `${config.cacheName}-assets`,
+            deferrerName: `paw-deferred`,
             offlinePage: config.offlinePage,
             staticPages: config.staticPages,
             strategy: config.strategy
         }, config)
         for (let key in this.config) this[key] = this.config[key]
-
+        this.deferrer = new Deferrer({
+            name: this.deferrerName
+        })
         this.init(sw)
         this.bind()
     }
@@ -154,7 +159,7 @@ export default class SWrapper {
 
 
     // CACHE
-    store(cacheName, url, response) {
+    storeResponse(cacheName, url, response) {
         cacheName = (cacheName) ? cacheName : this.cacheName
         let clone = response.clone()
         caches.open(cacheName)
@@ -186,8 +191,10 @@ export default class SWrapper {
             response = this.controller(route, e)
             finalRoute = route
         })
-
-        if (response && response.constructor.name == 'Response') return response
+        if (response && response.constructor.name == 'Promise') return response.then(res => {
+            return new Response(res, {status: 200, headers: finalRoute.headers})
+        })
+        else if (response && response.constructor.name == 'Response') return response
         else if (response) return new Response(response, {status: 200, headers: finalRoute.headers})
         else if (finalRoute.strategy) return this.fetchStrategy(e, finalRoute.strategy)
         else return this.defaultFetchStrategy(e) // if no response handle basic response
@@ -209,7 +216,7 @@ export default class SWrapper {
         return fetch(e.request)
         .then(response => {
             if (response.status == 200) {
-                this.store(cacheName, e.request.url, response)
+                this.storeResponse(cacheName, e.request.url, response)
             }
             return response;
         })
@@ -230,7 +237,7 @@ export default class SWrapper {
                 return response || fetch(e.request)
                 .then(response => {
                     if (response.status == 200) {
-                        this.store(cacheName, e.request.url, response)
+                        this.storeResponse(cacheName, e.request.url, response)
                     }
                     return response;
                 })
@@ -283,17 +290,6 @@ export default class SWrapper {
         return matches
     }
 
-    post(url, data){
-        return fetch(url, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-    }
-
     controller(route, e) {
         if(!route.callback) return false
 
@@ -305,7 +301,10 @@ export default class SWrapper {
             for (let key in capture.groups ) values.push(capture.groups[key])
             res = route.callback(e, ...values)
         }
-        else res = route.callback(e)
+        else {
+            res = route.callback(e)
+        }
+
         return (res) ? res : false;
     }
 
@@ -321,8 +320,14 @@ export default class SWrapper {
     }
 
     // deferer
-    register(string){
-        this.sw.registration.sync.register(string)
+    defer(key, fetchEvent){
+        return this.deferrer.save(key, fetchEvent)
+    }
+    sync(key, url=null){
+        return this.deferrer.load(key, url)
+    }
+    deferred(){
+        return this.deferrer.all('index')
     }
 
 }
