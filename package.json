@@ -2,7 +2,7 @@
   "name": "paw",
   "version": "1.0.0",
   "description": "```js\r import SWrapper from './sw-wrapper'",
-  "main": "src/index.js",
+  "main": "paw/index.js",
   "scripts": {
     "postinstall": "node install.js && node setup-config.js && node build-manifest.js",
 

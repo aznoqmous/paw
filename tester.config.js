@@ -4,7 +4,7 @@ module.exports = [
   {
     entry: {
       path: [
-        './src/tester.js'
+        './paw/tester.js'
       ]
     },
     output: {

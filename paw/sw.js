@@ -32,7 +32,7 @@ sw.route('/paw', (e)=>{
     </head>
     <body class="container">
         <h1>paw</h1>
-        <h2>Routed from your src/sw.js</h2>
+        <h2>Routed from your paw/sw.js</h2>
         <ul>
             <li><a href="/status">custom <code>online/offline</code> callback then redirect</a></li>
             <li><a href="/network">custom json response with strategy <code>network</code></a></li>

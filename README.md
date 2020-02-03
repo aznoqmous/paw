@@ -16,7 +16,7 @@ Once `paw` is installed, you'll notice the following files added to your project
 
 ```sh
 your_project
-├── src
+├── paw
 │   ├── config.json # paw config file     - passed to both register and sw, generate your /manifest.json
 │   ├── register.js # register file       - register your service worker
 │   └── sw.js       # sw file             - service worker definition
@@ -42,7 +42,7 @@ You'll have to add those two lines to your app root page :
 ```
 
 ## How to use
-Your `src/sw.js` file must look like this :
+Your `paw/sw.js` file must look like this :
 ```js
 import {SWrapper} from 'paw'
 import config from './config.json'
@@ -129,7 +129,7 @@ sw.online('/back-online-route', (e)=>{
 - Prompt on available update / on installing - on waiting
 
 ### SW.js : controller utility
-- Custom routes registration inside `src/sw.js` (available: route, offline, online, json, redirect)
+- Custom routes registration inside `paw/sw.js` (available: route, offline, online, json, redirect)
 - Custom routes with simplified regexp and capture groups (ex: `/entity/{id}`, `/pages/*`)
 - Router fill its fetchEvent input data (accessible when routing via `e.data` or `e.get` and `e.post`)
 - Notifications (sw.notify)

@@ -3,7 +3,7 @@ const process = require('process')
 const fs = require('fs')
 
 let cwd = process.env.INIT_CWD
-let configFile = `${cwd}/src/config.json`
+let configFile = `${cwd}/paw/config.json`
 let manifestFile = `${cwd}/manifest.json`
 
 const config = require(configFile)

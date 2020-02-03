@@ -4,7 +4,7 @@ module.exports = [
   {
     entry: {
       path: [
-        './src/sw.js'
+        './paw/sw.js'
       ]
     },
     output: {
@@ -15,7 +15,7 @@ module.exports = [
   {
     entry: {
       path: [
-        './src/register.js'
+        './paw/register.js'
       ]
     },
     output: {
