@@ -24,7 +24,6 @@ export default class IDB {
             }
 
             connection.onupgradeneeded = (e)=>{
-                console.log('Updating IDB')
                 this.db = e.target.result
                 this.table = this.db.createObjectStore(this.tableName, {
                     autoIncrement: true
@@ -54,7 +53,6 @@ export default class IDB {
             request.onsuccess = (e)=>{
                 let element = e.target.result
                 if(element) {
-                    console.log(element.value)
                     elements.push(this.clone(element))
                     element.continue()
                 }

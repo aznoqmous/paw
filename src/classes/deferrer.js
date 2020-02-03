@@ -3,15 +3,13 @@ export default class Deferrer {
 
     constructor(config){
         config = Object.assign({
-            name: 'deferred-requests',
-            requestDB: 'requests'
+            name: 'deferred'
         }, config)
         for(let key in config) this[key] = config[key]
 
         if(!indexedDB) console.warn('indexedDB doesnt work here :(')
 
         this.build()
-        console.log(this)
     }
 
     build(){
@@ -23,7 +21,6 @@ export default class Deferrer {
     }
 
     save(key, fetchEvent){
-        console.log('saving', key, fetchEvent)
         let request = fetchEvent.request
 
         let headers = {}
