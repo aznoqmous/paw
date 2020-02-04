@@ -3,19 +3,24 @@ import config from './config.json'
 // This file is processed during installation only
 
 let sw = new SWrapper(self, config)
+let router = sw.router
 
-// sw.redirect('/', '/paw');
-sw.route('/{path}', (e, path)=>{
-    console.log(`${path}`)
-})
-sw.route('/paw/test', ()=>{
-    sw.notify('test')
-})
-sw.route('/paw/{id}', (e, id)=>{
-    sw.notify(`${id}`)
+router.json('/paw/routes', ()=>{
+    return router.routes
 })
 
-sw.route('/paw', (e)=>{
+router.route('/').setStrategyNetwork()
+
+
+router.route('/paw/test', ()=>{
+    router.notify('test')
+})
+
+router.route('/paw/{id}', (e, id)=>{
+    router.notify(`${id}`)
+})
+
+router.route('/paw', (e)=>{
     if(e.post) return JSON.stringify(e.data)
     else return `
     <!DOCTYPE html>
@@ -32,7 +37,7 @@ sw.route('/paw', (e)=>{
     </head>
     <body class="container">
         <h1>paw</h1>
-        <h2>Routed from your paw/sw.js</h2>
+        <h2>Routed from your paw/router.js</h2>
         <ul>
             <li><a href="/status">custom <code>online/offline</code> callback then redirect</a></li>
             <li><a href="/network">custom json response with strategy <code>network</code></a></li>
@@ -44,26 +49,24 @@ sw.route('/paw', (e)=>{
     </html>
     `
 })
-sw.json('/paw/routes', ()=>{
-    return sw.routes
-})
 
-sw.json('/network', ()=>{
+
+router.json('/network', ()=>{
     return {
         foo: "bar"
     }
 }).setStrategyNetwork()
 
-sw.json('/cache', ()=>{
+router.json('/cache', ()=>{
     return 'test'
 })
 
-sw.online('/status', ()=>{
-    sw.notify('You are online')
-    return sw.redirectResponse('/')
+router.online('/status', ()=>{
+    router.notify('You are online')
+    return router.redirectResponse('/')
 })
 
-sw.offline('/status', ()=>{
-    sw.notify('You are offline')
-    return sw.redirectResponse('/')
+router.offline('/status', ()=>{
+    router.notify('You are offline')
+    return router.redirectResponse('/')
 })
