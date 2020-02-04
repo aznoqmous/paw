@@ -31,7 +31,7 @@ Aswell as these commands added to your `package.json`
 "paw:watch": "webpack --config paw.config.js --mode development --watch"
 ```
 You'll have to run these command to generate `your_project/register.js` and `your_project/sw.js`  
->_You can call npm scripts using `npm run <script>`_
+>_You can call npm scripts using `npm run <command>`_
 
 You'll have to add those two lines to your app root page :
 ```html
@@ -136,8 +136,11 @@ sw.online('/back-online-route', (e)=>{
 - Defer/Sync method to save request and load it later (sw.defer/sw.sync)
 
 ## Next
-- Network change handling
-- Messaging from register.js / sw.js to document
-- Separate Router responsability from sw
+- Ask public directory path during install
+
+- Network change handling - set but always 4g will debugging
+- Messaging from register.js / sw.js to document - set but not complete
+- Separate Router responsability from sw - router.js in progress
 - Test route at project initialization under `/paw`
 - Priority cache -> notify on update
+- Add improve messaging system between rw <-> sw (Promised message)

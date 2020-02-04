@@ -1,1 +1,171 @@
-!function(t){var e={};function i(n){if(e[n])return e[n].exports;var s=e[n]={i:n,l:!1,exports:{}};return t[n].call(s.exports,s,s.exports,i),s.l=!0,s.exports}i.m=t,i.c=e,i.d=function(t,e,n){i.o(t,e)||Object.defineProperty(t,e,{enumerable:!0,get:n})},i.r=function(t){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(t,"__esModule",{value:!0})},i.t=function(t,e){if(1&e&&(t=i(t)),8&e)return t;if(4&e&&"object"==typeof t&&t&&t.__esModule)return t;var n=Object.create(null);if(i.r(n),Object.defineProperty(n,"default",{enumerable:!0,value:t}),2&e&&"string"!=typeof t)for(var s in t)i.d(n,s,function(e){return t[e]}.bind(null,s));return n},i.n=function(t){var e=t&&t.__esModule?function(){return t.default}:function(){return t};return i.d(e,"a",e),e},i.o=function(t,e){return Object.prototype.hasOwnProperty.call(t,e)},i.p="",i(i.s=0)}([function(t,e,i){t.exports=i(1)},function(t,e,i){"use strict";i.r(e);var n={title:"PAW",icon:"icon-192.png",badge:"icon-192.png",cacheName:`SW-cache-${Date.now()}`,privateKey:"4AtF_NBS2jXcgQNEdQmOFLMeqA2ZWylX-_PhIlOq4xE",publicKey:"BE-bdUE6scWTi0HQzt3PujQcSDeCK0KKz-wCkq-XIfTIXhmawwI-dTUNZAZEH_X5rkDrBqbA71wba2CsAm7gyDA",strategy:"cache",debug:!0,staticPages:["/","/public/index.html","/public/offline.html"],offlinePage:null};class s{constructor(t,e,i){i=Object.assign({path:t,callback:e,offline:!1,online:!1,methods:"get,post"},i);for(let t in i)this[t]=i[t]}}let a=new class{constructor(t,e){this.config=Object.assign({title:n.title,cacheName:n.cacheName,offlinePage:n.offline,strategy:n.strategy},e),this.staticPages=n.staticPages;for(let t in this.config)this[t]=this.config[t];this.init(t),this.bind()}init(t){this.sw=t,this.routes=[],this.offlineRoutes=[]}bind(){this.sw.addEventListener("install",t=>{t.waitUntil(caches.open(this.cacheName).then(t=>t.addAll(this.staticPages)))}),this.sw.addEventListener("activate",t=>{t.waitUntil(this.clearOldCaches()),this.sw.skipWaiting(),this.sw.clients.claim()}),this.sw.addEventListener("fetch",t=>{let e=this.routeMatch(t.request);if(e.length){let i=this.controller(e[0]);i?t.respondWith(i):this.defaultFetchStrategy(t)}else"navigate"==t.request.mode&&this.defaultFetchStrategy(t)}),this.sw.addEventListener("push",t=>{t.waitUntil(this.notify(JSON.stringify(t.data),"New push notification"))})}store(t,e){let i=e.clone();caches.open(this.cacheName).then(e=>{e.put(t,i)})}clearOldCaches(){return caches.keys().then(t=>Promise.all(t.map(t=>{if(t!==this.cacheName)return caches.delete(t)})))}clearCache(){return caches.delete(this.cacheName)}defaultFetchStrategy(t){return"cache"==this.strategy?this.strategyCache(t):"network"==this.strategy?this.strategyNetwork(t):void 0}strategyNetwork(t){t.respondWith(fetch(t.request).then(e=>(200==e.status&&this.store(t.request.url,e),e)).catch(()=>caches.open(this.cacheName).then(e=>e.match(t.request)?e.match(t.request):e.match(this.offlinePage))))}strategyCache(t){t.respondWith(caches.open(this.cacheName).then(e=>(e.match(t.request)&&fetch(t.request).then(e=>(200==e.status&&this.store(t.request.url,e),e)),e.match(t.request))))}route(t,e,i){this.routes.push(new s(t,e,i))}offline(t,e){this.routes.push(new s(t,e,{offline:!0}))}online(t,e){this.routes.push(new s(t,e,{online:!0}))}routeMatch(t){let e=new URL(t.url).pathname;return this.routes.filter(i=>!(!i.methods.toLowerCase().match(t.method.toLowerCase())||e!=i.path||i.offline&&navigator.onLine||i.online&&!navigator.onLine))}controller(t){let e=t.callback();return!!e&&new Response(e,{status:200})}notify(t,e=!1){e=`${this.title} ${e?"-"+e:""}`;let i={body:`${t}`,icon:n.icon,badge:n.badge};return this.sw.registration.showNotification(e,i)}}(self);a.route("/",()=>"index"),a.online("/test",()=>JSON.stringify("offline")),a.offline("/test",()=>(a.notifiy("You are offline"),JSON.stringify("online"))),a.notify("Installation complete !")}]);
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ })
+/************************************************************************/
+/******/ ({
+
+/***/ "./paw/classes/IDB.js":
+/*!****************************!*\
+  !*** ./paw/classes/IDB.js ***!
+  \****************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return IDB; });\nclass IDB {\r\n    constructor(config){\r\n        config = Object.assign({\r\n            name: 'idb',\r\n            tableName: 'data',\r\n            built: false\r\n        }, config)\r\n        for(let key in config) this[key] = config[key]\r\n        this.build().then(()=>{this.built = true})\r\n    }\r\n\r\n    build(){\r\n        return new Promise((res, rej)=>{\r\n            let connection = indexedDB.open(this.name, 1)\r\n\r\n            connection.onsuccess = (e) => {\r\n                this.db = e.target.result\r\n                res(this.db)\r\n            }\r\n\r\n            connection.onerror = (err) => {\r\n                console.error('indexedDB error', err)\r\n                rej()\r\n            }\r\n\r\n            connection.onupgradeneeded = (e)=>{\r\n                this.db = e.target.result\r\n                this.table = this.db.createObjectStore(this.tableName, {\r\n                    autoIncrement: true\r\n                })\r\n                this.table.createIndex('name', 'name', { unique: false })\r\n                res(this.db)\r\n            }\r\n        })\r\n    }\r\n    getTransaction(){\r\n        return this.db.transaction(this.tableName, 'readwrite').objectStore(this.tableName)\r\n    }\r\n\r\n    save(data){\r\n        return new Promise(res => {\r\n            if(!this.built) return this.build().then(()=>{this.save(data)})\r\n\r\n            let request = this.getTransaction().add(data)\r\n            request.onsuccess = (e)=>{ console.log('SAVE SUCESS', data, e); res(data) }\r\n            request.onerror = (err)=>{ console.error(err); rej(err) }\r\n        })\r\n    }\r\n    get(key=null){\r\n        let elements = []\r\n        return new Promise(res => {\r\n            let request = this.getTransaction().openCursor()\r\n            request.onsuccess = (e)=>{\r\n                let element = e.target.result\r\n                if(element) {\r\n                    elements.push(this.clone(element))\r\n                    element.continue()\r\n                }\r\n                else res(elements)\r\n            }\r\n\r\n            request.onerror = (err)=>{ console.error(err); rej(err) }\r\n        })\r\n    }\r\n    delete(key){\r\n        return new Promise(res => {\r\n            let request = this.getTransaction().delete(key)\r\n            request.onsuccess = ()=>{ res(key) }\r\n            request.onerror = (err)=>{ console.error(err); rej(err) }\r\n        })\r\n    }\r\n\r\n    clone(obj){\r\n        let objCopy = {}\r\n        for(let key in obj){\r\n            objCopy[key] = obj[key]\r\n        }\r\n        return objCopy;\r\n    }\r\n}\r\n\n\n//# sourceURL=webpack:///./paw/classes/IDB.js?");
+
+/***/ }),
+
+/***/ "./paw/classes/deferrer.js":
+/*!*********************************!*\
+  !*** ./paw/classes/deferrer.js ***!
+  \*********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return Deferrer; });\n/* harmony import */ var _IDB__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./IDB */ \"./paw/classes/IDB.js\");\n\r\nclass Deferrer {\r\n\r\n    constructor(config){\r\n        config = Object.assign({\r\n            name: 'deferred'\r\n        }, config)\r\n        for(let key in config) this[key] = config[key]\r\n\r\n        if(!indexedDB) console.warn('indexedDB doesnt work here :(')\r\n\r\n        this.build()\r\n    }\r\n\r\n    build(){\r\n        this.db = new _IDB__WEBPACK_IMPORTED_MODULE_0__[\"default\"]({ name: this.name })\r\n    }\r\n\r\n    all(key){\r\n        return this.db.get(key)\r\n    }\r\n\r\n    save(key, fetchEvent){\r\n        let request = fetchEvent.request\r\n\r\n        let headers = {}\r\n        let hs = [...request.headers]\r\n        hs.map(h => { headers[h[0]] = h[1] })\r\n\r\n        return this.db.save({\r\n            key: key,\r\n            time: Date.now(),\r\n            url: request.url,\r\n            method: request.method,\r\n            headers: headers,\r\n            data: fetchEvent.data,\r\n            post: fetchEvent.post,\r\n            get: fetchEvent.get,\r\n        })\r\n    }\r\n    load(key, url=null){\r\n        return this.all(key).then(res => {\r\n            return Promise.all(res.map((r)=>{\r\n                url = (url) ? url : r.value.url\r\n                return fetch(url, {\r\n                    method: r.value.method,\r\n                    // headers: r.headers,\r\n                    body: this.content(r.value.headers['content-type'], r.value.data)\r\n                })\r\n                .then(re => { return this.db.delete(r.key) })\r\n                .then(deleted => { return `key ${deleted} has been deleted` })\r\n            }))\r\n\r\n        })\r\n    }\r\n\r\n    content(contentType, data){ // js object to given  content type\r\n        if(contentType == 'application/x-www-form-urlencoded'){\r\n            let datas = new FormData()\r\n            for (let key in data){\r\n                datas.append(key, data[key])\r\n            }\r\n            return datas\r\n        }\r\n        if(contentType == 'application/json') return JSON.stringify(data)\r\n    }\r\n\r\n}\r\n\n\n//# sourceURL=webpack:///./paw/classes/deferrer.js?");
+
+/***/ }),
+
+/***/ "./paw/classes/route.js":
+/*!******************************!*\
+  !*** ./paw/classes/route.js ***!
+  \******************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return Route; });\nclass Route {\r\n    constructor(path, callback, config){\r\n        config = Object.assign({\r\n            path: path,\r\n            callback: callback,\r\n            offline: false, // match only when offline\r\n            online: false, // match only when online\r\n            methods: 'get,post',\r\n            type: 'html', // html, json\r\n            strategy: null, // overwrite swrapper cache policy\r\n            headers: {}\r\n        }, config)\r\n        for(let key in config) this[key] = config[key]\r\n        if(this.type == 'html') this.headers[\"Content-Type\"] = 'text/html'\r\n        if(this.type == 'json') this.headers[\"Content-Type\"] = 'application/json'\r\n\r\n        this.init()\r\n    }\r\n\r\n    init(){\r\n        this.regPath = this.getRegPath()\r\n    }\r\n\r\n    setStrategyNetwork(){\r\n        this.strategy = 'network'\r\n    }\r\n    setStrategyCache(){\r\n        this.strategy = 'cache'\r\n    }\r\n\r\n    redirectTo(path){\r\n        this.callback = ()=>{\r\n            return Response.redirect(path, 302);\r\n        }\r\n    }\r\n\r\n    getRegPath(){\r\n        let regPath = `^${this.path.replace(/\\//g, '\\\\\\/')}$`\r\n        regPath = regPath.replace(/\\*/, '.*?')\r\n        regPath = regPath.replace(/\\{([a-z]*?)\\}/g, '(?<$1>[^\\\\\\/]*?)')\r\n\r\n\r\n        return regPath\r\n    }\r\n\r\n}\r\n\n\n//# sourceURL=webpack:///./paw/classes/route.js?");
+
+/***/ }),
+
+/***/ "./paw/classes/sw-wrapper.js":
+/*!***********************************!*\
+  !*** ./paw/classes/sw-wrapper.js ***!
+  \***********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return SWrapper; });\n/* harmony import */ var _route__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./route */ \"./paw/classes/route.js\");\n/* harmony import */ var _deferrer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./deferrer */ \"./paw/classes/deferrer.js\");\n\r\n\r\n\r\nclass SWrapper {\r\n\r\n    constructor(sw, config) {\r\n        console.log(this)\r\n        this.config = Object.assign({\r\n            title: config.name,\r\n            cacheName: config.cacheName,\r\n            assetsCacheName: `${config.cacheName}-assets`,\r\n            deferrerName: `paw-deferred`,\r\n            offlinePage: config.offlinePage,\r\n            staticPages: config.staticPages,\r\n            strategy: config.strategy\r\n        }, config)\r\n        for (let key in this.config) this[key] = this.config[key]\r\n        this.deferrer = new _deferrer__WEBPACK_IMPORTED_MODULE_1__[\"default\"]({\r\n            name: this.deferrerName\r\n        })\r\n        this.init(sw)\r\n        this.bind()\r\n    }\r\n\r\n    init(sw) {\r\n        this.sw = sw\r\n        this.routes = []\r\n        this.offlineRoutes = []\r\n    }\r\n\r\n    // addEventListeners\r\n    bind() {\r\n        this.bindInstall()\r\n        this.bindActivate()\r\n        this.bindFetch()\r\n\r\n        this.bindSync()\r\n\r\n        this.sw.addEventListener('push', (e) => {\r\n            e.waitUntil(this.notify(JSON.stringify(e.data), 'New push notification'))\r\n        })\r\n\r\n        this.sw.addEventListener('message', (e)=>{\r\n            if(e.data.action == 'skipWaiting') this.sw.skipWaiting()\r\n        })\r\n    }\r\n    bindActivate(){\r\n        this.sw.addEventListener('activate', e => {\r\n            // clean old cache\r\n            e.waitUntil(caches.keys().then(keyList => {\r\n                return Promise.all(keyList.map(key => {\r\n                    if (\r\n                        key !== this.cacheName &&\r\n                        key !== this.assetsCacheName\r\n                    ) {\r\n                        return caches.delete(key)\r\n                    }\r\n                }))\r\n            }))\r\n            this.sw.skipWaiting()\r\n            this.sw.clients.claim()\r\n        })\r\n    }\r\n    bindInstall(){\r\n        this.sw.addEventListener('install', e => {\r\n            e.waitUntil(\r\n                // download static resources\r\n                caches.open(this.cacheName).then(cache => {\r\n                    return cache.addAll(this.staticPages)\r\n                })\r\n            )\r\n        })\r\n    }\r\n    bindFetch(){\r\n        this.sw.addEventListener('fetch', e => {\r\n            e.respondWith(this.handleRequest(e))\r\n        })\r\n    }\r\n    bindSync(){\r\n        this.sw.addEventListener('sync', (e)=>{\r\n            console.log('sync', e)\r\n            this.notify(e)\r\n        })\r\n    }\r\n\r\n    // REQUESTS HANDLING\r\n    handleRequest(fetchEvent){\r\n        return this.prepareRequest(fetchEvent)\r\n        .then(()=>{\r\n            let matches = this.routeMatch(fetchEvent.request)\r\n            if (matches.length) {\r\n                return this.controllerStrategy(matches, fetchEvent)\r\n            }\r\n            else if (fetchEvent.request.mode == 'navigate') {\r\n                return this.defaultFetchStrategy(fetchEvent)\r\n            }\r\n            else {\r\n                // assets\r\n                return this.defaultAssetStrategy(fetchEvent)\r\n            }\r\n        })\r\n    }\r\n    prepareRequest(fetchEvent){\r\n        fetchEvent.data = {}\r\n        return Promise.all([\r\n            this.getPostData(fetchEvent),\r\n            this.getURLParamsData(fetchEvent)\r\n        ])\r\n    }\r\n    getPostData(fetchEvent){\r\n        let request = fetchEvent.request.clone()\r\n        return new Promise((res, rej)=>{\r\n            let requestData = this.fetchRequestData(request)\r\n            if(requestData) requestData.then((data)=>{\r\n\r\n                if(typeof data[Symbol.iterator] === 'function') {\r\n                    let objData = {}\r\n                    data.forEach((value, key) => { objData[key] = value });\r\n                    data = objData\r\n                }\r\n                fetchEvent.post = data\r\n                fetchEvent.data = Object.assign(fetchEvent.data, fetchEvent.post)\r\n\r\n                res(fetchEvent.data)\r\n            })\r\n            else res(false)\r\n        })\r\n    }\r\n    fetchRequestData(request){\r\n        let headers = {}\r\n        let hs = [...request.headers]\r\n        hs.map(h => { headers[h[0]] = h[1] })\r\n        if(headers['content-type'] == 'application/x-www-form-urlencoded')\r\n        return request.formData()\r\n        else if(headers['content-type'] == 'application/json')\r\n        return request.json()\r\n        else if(headers['content-type'] == 'text/html')\r\n        return request.text()\r\n        else return false;\r\n    }\r\n\r\n    getURLParamsData(fetchEvent){\r\n        return new Promise((res, rej)=>{\r\n            let objData = {}\r\n            let data = new URL(fetchEvent.request.url).searchParams\r\n\r\n            if(typeof data[Symbol.iterator] === 'function') {\r\n                let objData = {}\r\n                data.forEach((value, key) => { objData[key] = value });\r\n                data = objData\r\n            }\r\n\r\n            fetchEvent.get = data\r\n            fetchEvent.data = Object.assign(fetchEvent.data, fetchEvent.get)\r\n\r\n            res()\r\n        })\r\n    }\r\n\r\n\r\n    // CACHE\r\n    storeResponse(cacheName, url, response) {\r\n        cacheName = (cacheName) ? cacheName : this.cacheName\r\n        let clone = response.clone()\r\n        caches.open(cacheName)\r\n        .then(cache => {\r\n            cache.put(url, clone)\r\n        })\r\n    }\r\n    clearOldCaches() {\r\n        return caches.keys().then(keyList => {\r\n            return Promise.all(keyList.map(key => {\r\n                if (key !== this.cacheName) {\r\n                    return caches.delete(key)\r\n                }\r\n            }))\r\n        })\r\n    }\r\n    clearCache(cacheName=null) {\r\n        cacheName = (cacheName) ? cacheName : this.cacheName\r\n        return caches.delete(cacheName)\r\n    }\r\n\r\n\r\n    // STRATEGY\r\n    controllerStrategy(matchingRoutes, e){\r\n        let response = null\r\n        let finalRoute = null\r\n        matchingRoutes.map(route => {\r\n            if(response) return false\r\n            response = this.controller(route, e)\r\n            finalRoute = route\r\n        })\r\n        if (response && response.constructor.name == 'Promise') return response.then(res => {\r\n            return new Response(res, {status: 200, headers: finalRoute.headers})\r\n        })\r\n        else if (response && response.constructor.name == 'Response') return response\r\n        else if (response) return new Response(response, {status: 200, headers: finalRoute.headers})\r\n        else if (finalRoute.strategy) return this.fetchStrategy(e, finalRoute.strategy)\r\n        else return this.defaultFetchStrategy(e) // if no response handle basic response\r\n    }\r\n    defaultFetchStrategy(e) {\r\n        return this.fetchStrategy(e, this.strategy)\r\n    }\r\n    defaultAssetStrategy(e){\r\n        return this.fetchStrategy(e, 'cache', this.assetsCacheName)\r\n    }\r\n\r\n    fetchStrategy(e, strategy, cacheName=null){\r\n        if (strategy == 'cache') return this.strategyCache(e, cacheName)\r\n        else if (strategy == 'network') return this.strategyNetwork(e, cacheName)\r\n        else return this.strategyCache(e, cacheName)\r\n    }\r\n    strategyNetwork(e, cacheName=null) {\r\n        cacheName = (cacheName) ? cacheName : this.cacheName\r\n        return fetch(e.request)\r\n        .then(response => {\r\n            if (response.status == 200) {\r\n                this.storeResponse(cacheName, e.request.url, response)\r\n            }\r\n            return response;\r\n        })\r\n        .catch(() => {\r\n            return caches.open(cacheName)\r\n            .then(cache => {\r\n                if (this.cacheMatch(cache, e)) return this.cacheMatch(e)\r\n                return cache.match(this.offlinePage)\r\n            })\r\n        })\r\n\r\n    }\r\n    strategyCache(e, cacheName=null) {\r\n        cacheName = (cacheName) ? cacheName : this.cacheName\r\n        return caches.open(cacheName)\r\n        .then(cache => {\r\n            return this.cacheMatch(cache, e).then(response => {\r\n                return response || fetch(e.request)\r\n                .then(response => {\r\n                    if (response.status == 200) {\r\n                        this.storeResponse(cacheName, e.request.url, response)\r\n                    }\r\n                    return response;\r\n                })\r\n            })\r\n        })\r\n\r\n    }\r\n    cacheMatch(cache, fetchEvent){\r\n        return cache.match(fetchEvent.request.url)\r\n    }\r\n\r\n\r\n    // ROUTES\r\n    // register routes\r\n    route(path, callback=null, config={}) {\r\n        let route = new _route__WEBPACK_IMPORTED_MODULE_0__[\"default\"](path, callback, config)\r\n        this.routes.push(route)\r\n        return route\r\n    }\r\n    json(path, callback, config = {}){\r\n        return this.route(path, ()=>{ return JSON.stringify( callback() ) }, Object.assign(config, {json: true}))\r\n    }\r\n\r\n    // register offline routes\r\n    offline(path, callback, config = {}) {\r\n        return this.route(path, callback, Object.assign(config, {offline: true}))\r\n    }\r\n\r\n    // register online routes\r\n    online(path, callback, config = {}) {\r\n        return this.route(path, callback, Object.assign(config, {online: true}))\r\n    }\r\n\r\n    redirect(from, to, config={}){\r\n        return this.route(from, ()=>{ return this.redirectResponse(to) }, config)\r\n    }\r\n    redirectResponse(path) {\r\n        return Response.redirect(path, 302);\r\n    }\r\n\r\n    routeMatch(request) {\r\n        let path = (new URL(request.url)).pathname\r\n        let matches = this.routes.filter((route) => {\r\n            if (!route.methods.toLowerCase().match(request.method.toLowerCase())) return false; // methods dont match\r\n            if (route.offline && navigator.onLine) return false; // dont serve offline routes if online\r\n            if (route.online && !navigator.onLine) return false; // dont serve online routes if offline\r\n            if(!path.match(route.regPath)) return false;\r\n            return true;\r\n        })\r\n        return matches\r\n    }\r\n\r\n    controller(route, e) {\r\n        if(!route.callback) return false\r\n\r\n        let capture = (new URL(e.request.url)).pathname.match(route.regPath)\r\n        let res = null\r\n\r\n        if(capture){\r\n            let values = []\r\n            for (let key in capture.groups ) values.push(capture.groups[key])\r\n            res = route.callback(e, ...values)\r\n        }\r\n        else {\r\n            res = route.callback(e)\r\n        }\r\n\r\n        return (res) ? res : false;\r\n    }\r\n\r\n    notify(body, title = false) {\r\n        if (Notification.permission == 'denied' || !Notification.permission) return false;\r\n        title = `${this.title} ${title ? '-' + title : ''}`\r\n        let options = {\r\n            body: `${body}`,\r\n            icon: (this.config.icons.length) ? this.config.icons[0] : '',\r\n            badge: this.config.badge\r\n        }\r\n        return this.sw.registration.showNotification(title, options)\r\n    }\r\n\r\n    // deferer\r\n    defer(key, fetchEvent){\r\n        return this.deferrer.save(key, fetchEvent)\r\n    }\r\n    sync(key, url=null){\r\n        return this.deferrer.load(key, url)\r\n    }\r\n    deferred(){\r\n        return this.deferrer.all('index')\r\n    }\r\n\r\n}\r\n\n\n//# sourceURL=webpack:///./paw/classes/sw-wrapper.js?");
+
+/***/ }),
+
+/***/ "./paw/config.json":
+/*!*************************!*\
+  !*** ./paw/config.json ***!
+  \*************************/
+/*! exports provided: name, short_name, theme_color, background_color, display, scope, orientation, start_url, charset, icons, badge, cacheName, privateKey, publicKey, strategy, debug, staticPages, offlinePage, notifications, messageTimeOut, messagePosition, updateText, default */
+/***/ (function(module) {
+
+eval("module.exports = {\"name\":\"paw\",\"short_name\":\"paw\",\"theme_color\":\"#fff\",\"background_color\":\"#474747\",\"display\":\"standalone\",\"scope\":\"/\",\"orientation\":\"portrait\",\"start_url\":\"/\",\"charset\":\"utf-8\",\"icons\":[\"icon-192.png\",\"icon-512.png\"],\"badge\":\"icon-192.png\",\"cacheName\":\"paw-cache\",\"privateKey\":\"4AtF_NBS2jXcgQNEdQmOFLMeqA2ZWylX-_PhIlOq4xE\",\"publicKey\":\"BE-bdUE6scWTi0HQzt3PujQcSDeCK0KKz-wCkq-XIfTIXhmawwI-dTUNZAZEH_X5rkDrBqbA71wba2CsAm7gyDA\",\"strategy\":\"network\",\"debug\":false,\"staticPages\":[\"/\"],\"offlinePage\":null,\"notifications\":true,\"messageTimeOut\":3000,\"messagePosition\":\"bottom\",\"updateText\":\"A new update is available, click on this message to <strong>update</strong>\"};\n\n//# sourceURL=webpack:///./paw/config.json?");
+
+/***/ }),
+
+/***/ "./paw/sw-dev.js":
+/*!***********************!*\
+  !*** ./paw/sw-dev.js ***!
+  \***********************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _classes_sw_wrapper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./classes/sw-wrapper */ \"./paw/classes/sw-wrapper.js\");\n/* harmony import */ var _config_json__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./config.json */ \"./paw/config.json\");\nvar _config_json__WEBPACK_IMPORTED_MODULE_1___namespace = /*#__PURE__*/__webpack_require__.t(/*! ./config.json */ \"./paw/config.json\", 1);\n\r\n\r\n// This file is processed during installation only\r\n\r\nlet sw = new _classes_sw_wrapper__WEBPACK_IMPORTED_MODULE_0__[\"default\"](self, _config_json__WEBPACK_IMPORTED_MODULE_1__)\r\n\r\nsw.route('/').setStrategyNetwork()\r\n\r\n// sw.redirect('/', '/paw');\r\nsw.route('/{path}', (e, path)=>{\r\n    console.log(`${path}`)\r\n})\r\nsw.route('/paw/test', ()=>{\r\n    sw.notify('test')\r\n})\r\nsw.route('/paw/{id}', (e, id)=>{\r\n    sw.notify(`${id}`)\r\n})\r\n\r\nsw.route('/paw', (e)=>{\r\n    if(e.post) return JSON.stringify(e.data)\r\n    else return `\r\n    <!DOCTYPE html>\r\n    <html lang=\"en\" dir=\"ltr\">\r\n    <head>\r\n        <meta charset=\"utf-8\">\r\n        <title>PAW</title>\r\n        <link rel=\"stylesheet\" href=\"https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css\">\r\n        <script src=\"/node_modules/paw/dist/tester.js\"></script>\r\n\r\n        <link rel=\"manifest\" href=\"/manifest.json\">\r\n        <script src=\"/register.js\"></script>\r\n\r\n    </head>\r\n    <body class=\"container\">\r\n        <h1>paw</h1>\r\n        <h2>Routed from your paw/sw.js</h2>\r\n        <ul>\r\n            <li><a href=\"/status\">custom <code>online/offline</code> callback then redirect</a></li>\r\n            <li><a href=\"/network\">custom json response with strategy <code>network</code></a></li>\r\n            <li><a href=\"/cache\">custom json response with strategy <code>cache</code></a></li>\r\n        </ul>\r\n\r\n        <div id=\"routeTesterContainer\"></div>\r\n    </body>\r\n    </html>\r\n    `\r\n})\r\nsw.json('/paw/routes', ()=>{\r\n    return sw.routes\r\n})\r\n\r\nsw.json('/network', ()=>{\r\n    return {\r\n        foo: \"bar\"\r\n    }\r\n}).setStrategyNetwork()\r\n\r\nsw.json('/cache', ()=>{\r\n    return 'test'\r\n})\r\n\r\nsw.online('/status', ()=>{\r\n    sw.notify('You are online')\r\n    return sw.redirectResponse('/')\r\n})\r\n\r\nsw.offline('/status', ()=>{\r\n    sw.notify('You are offline')\r\n    return sw.redirectResponse('/')\r\n})\r\n\n\n//# sourceURL=webpack:///./paw/sw-dev.js?");
+
+/***/ }),
+
+/***/ 0:
+/*!*****************************!*\
+  !*** multi ./paw/sw-dev.js ***!
+  \*****************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+eval("module.exports = __webpack_require__(/*! ./paw/sw-dev.js */\"./paw/sw-dev.js\");\n\n\n//# sourceURL=webpack:///multi_./paw/sw-dev.js?");
+
+/***/ })
+
+/******/ });

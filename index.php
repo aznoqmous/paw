@@ -12,5 +12,10 @@
   </head>
   <body>
     PAW demo index
+    <form action="/" method="post">
+        <input type="text" name="foo" value="bar">
+        <input type="submit" value="submit">
+    </form>
+    <?php var_dump($_POST); ?>
   </body>
 </html>

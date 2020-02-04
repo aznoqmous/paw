@@ -9,9 +9,9 @@
     "paw:config": "node setup-config.js && node build-manifest.js",
     "paw:manifest": "node build-manifest.js",
 
-    "paw": "node build-manifest.js && webpack --config paw.config.js --mode production",
-    "paw:dev": "node build-manifest.js && webpack --config paw.config.js --mode development",
-    "paw:watch": "node build-manifest.js && webpack --config paw.config.js --mode development --watch"
+    "paw": "node build-manifest.js && webpack --config paw.config-dev.js --mode production",
+    "paw:dev": "node build-manifest.js && webpack --config paw.config-dev.js --mode development",
+    "paw:watch": "node build-manifest.js && webpack --config paw.config-dev.js --mode development --watch"
   },
   "repository": {
     "type": "git",
