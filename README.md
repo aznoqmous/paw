@@ -116,6 +116,15 @@ router.route('/path-with-sent-datas', (e)=>{
 router.notify(body, title=false)
 ```
 
+### In-App messages
+```js
+// sw.js
+sw.message('in app message content')
+
+// register.js
+rw.message('in app message with event').addEventListener('click', ()=>{ /* do something */ })
+```
+
 ### Deferring data submissions
 In order to provide offline functionnalities to your app, you'll have to define how you want to
 handle data routes when user has lost connection.
@@ -152,7 +161,7 @@ router.online('/back-online-route', (event)=>{
 - Custom routes registration inside `paw/sw.js` (available: route, offline, online, json, redirect)
 - Custom routes with simplified regexp and capture groups (ex: `/entity/{id}`, `/pages/*`)
 - Router fill its fetchEvent input data (accessible when routing via `e.data` or `e.get` and `e.post`)
-- Notifications (sw.notify)
+- Notifications (rw.notify | sw.notify) and in-app message ( rw.message | sw.message )
 - Defer/Sync method to save request and load it later (sw.defer/sw.sync)
 
 ## Next
@@ -161,6 +170,3 @@ router.online('/back-online-route', (event)=>{
 - Network change handling - set but always 4g will debugging
 - Separate Router responsability from sw - router.js in progress
 - Priority cache -> notify on update
-
-- Messaging from register.js / sw.js to document - set but not complete
-- Add improve messaging system between rw <-> sw (Promised message) -> Message ?

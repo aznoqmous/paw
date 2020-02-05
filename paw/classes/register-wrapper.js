@@ -1,8 +1,8 @@
 import urlB64ToUint8Array from 'urlb64touint8array'
+import Message from './message'
 
 export default class RegisterWrapper {
     constructor(config){
-        console.log('rw initiation')
         if(window.location.protocol != 'https:') window.location.protocol = 'https:'
         this.config = config
         this.title = this.config.name
@@ -12,6 +12,8 @@ export default class RegisterWrapper {
         this.privateKey = urlB64ToUint8Array(this.config.privateKey)
         this.publicKey = this.config.publicKey
         this.notifications = this.config.notifications
+
+        this.messages = []
 
         this.init()
         this.bindNetworkStateMessage()
@@ -144,25 +146,22 @@ export default class RegisterWrapper {
     }
 
     message(content, timeout=null){ // load message into html
-        console.log('new message', content)
         if(timeout === null) timeout = this.config.messageTimeOut
-        let message = document.createElement('div')
-        let styles = {
-            padding: '1rem 2rem',
-            zIndex: '10000',
-            color: 'white',
-            background: 'rgba(0,0,0,0.7)',
-            borderRadius: '0.5rem',
-            marginBottom: '0.5rem',
-            boxShadow: '0 0.1rem 0.1rem rgba(0,0,0,0.2)'
-        }
-        for(let key in styles) message.style[key] = styles[key]
-        message.innerHTML = content
-        this.messageHolder.appendChild(message)
+        return this.renderMessage(new Message(content, timeout))
+    }
+
+    // load deferred message
+    loadMessage(message){
+        return this.renderMessage(new Message(message.content, message.timeout, message.time))
+    }
+    renderMessage(message){
+        this.messages.push(message)
+        this.messageHolder.appendChild(message.element)
         setTimeout(()=>{
-            message.parentElement.removeChild(message)
-        }, timeout)
-        return message
+            this.messages.splice(this.messages.indexOf(message), 1)
+            message.element.parentElement.removeChild(message.element)
+        }, message.remaining)
+        return message.element
     }
     createMessageHolder(){
         if(this.messageHolder) return false
@@ -190,13 +189,18 @@ export default class RegisterWrapper {
 
         this.deferredMessages = []
         window.addEventListener('unload', ()=>{
-            let messages = [...this.messageHolder.children]
-            let deferredMessages = messages.map(msg => msg.innerHTML)
+            console.log(this.messages)
+            let deferredMessages = this.messages.filter(msg => {
+                if(msg && msg.state) return true
+                else return false
+            })
             localStorage.setItem('deferredMessages', JSON.stringify(deferredMessages))
         })
         window.addEventListener('DOMContentLoaded', ()=>{
             let deferredMessages = JSON.parse(localStorage.getItem('deferredMessages'))
-            if(deferredMessages) deferredMessages.map(msg => { this.message(msg) })
+            if(deferredMessages) deferredMessages.map(msg => {
+                this.loadMessage(msg)
+            })
         })
     }
 
