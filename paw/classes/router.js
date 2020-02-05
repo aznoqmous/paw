@@ -29,8 +29,8 @@ export default class Router {
               response = this.controller(route, fetchEvent)
               finalRoute = route
           })
-          if (response && response.constructor.name == 'Promise') response.then(res => {
-              res( new Response(res, {status: 200, headers: finalRoute.headers}) )
+          if (response && response.constructor.name == 'Promise') response.then(resp => {
+              res( new Response(resp, {status: 200, headers: finalRoute.headers}) )
           })
           else if (response && response.constructor.name == 'Response') res( response )
           else if (response) res( new Response(response, {status: 200, headers: finalRoute.headers}) )
