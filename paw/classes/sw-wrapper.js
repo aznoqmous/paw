@@ -41,7 +41,22 @@ export default class SWrapper {
         })
 
         this.sw.addEventListener('message', (e)=>{
-            if(e.data.action == 'skipWaiting') this.sw.skipWaiting()
+            if(e.data.action) return this.sw[e.data.action]()
+
+            if(e.data.sync) {
+                if(typeof e.data.sync == 'object') return this.sync(...e.data.sync)
+                else return this.sync(e.data.sync)
+            }
+
+            console.log(e.data)
+            if(e.data == 'message-init') {
+                this.messagePort = e.ports[0]
+                return false
+            }
+
+            if(!e.ports.length) return false
+            let port = e.ports[0]
+            port.postMessage(e.data)
         })
     }
     bindActivate(){
@@ -78,7 +93,6 @@ export default class SWrapper {
     }
     bindSync(){
         this.sw.addEventListener('sync', (e)=>{
-            console.log('sync', e)
             this.notify(e)
         })
     }
@@ -100,7 +114,6 @@ export default class SWrapper {
                 return this.defaultFetchStrategy(fetchEvent)
             }
             else {
-                // assets
                 return this.defaultAssetStrategy(fetchEvent)
             }
         })
@@ -257,4 +270,10 @@ export default class SWrapper {
         return this.deferrer.all('index')
     }
 
+    message(message){
+        if(!this.messagePort) return false
+        else setTimeout(()=>{
+            this.messagePort.postMessage(message)
+        }, 100)
+    }
 }

@@ -56,44 +56,46 @@ let sw = new SWrapper(self, config)
 
 Routes resolution will match the first bound route, and will continue until no return value has been found.
 
-```js
-sw.route(path, callback, config)
+You can access event data via `event.post`, `event.get` or `event.data`
 
-sw.route('/my-route', (e)=>{
+```js
+router.route(path, callback, config)
+
+router.route('/my-route', (event)=>{
     return 'HTML Content'
 })
-sw.route('/my-route/{id}', (e, id)=>{
+router.route('/my-route/{id}', (e, id)=>{
     return `HTML Content with given id : ${id}`
 })
 
 // Will only match when offline
-sw.offline('/my-offline-route', (e)=>{
+router.offline('/my-offline-route', (event)=>{
     return 'HTML Content'
 })
 
 // Will only match when online
-sw.online('/my-online-route', (e)=>{
+router.online('/my-online-route', (event)=>{
     return 'HTML Content'
 })
 
 // Will always return json
-sw.json('/my-json-route', (e)=>{
+router.json('/my-json-route', (event)=>{
     return { foo: 'bar' }
 })
 
 // redirect '/my-old-route' to '/my-new-route'
-sw.route('/my-old-route', (e)=>{
-    return sw.redirectResponse('/my-new-route')
+router.route('/my-old-route', (event)=>{
+    return router.redirectResponse('/my-new-route')
 })
 // also redirect '/my-old-route' to '/my-new-route'
-sw.redirect('/my-old-route', '/my-new-route')
+router.redirect('/my-old-route', '/my-new-route')
 
 ```
 
 ### Notifications
 ```js
 // Will show a notification
-sw.notify(body, title=false)
+router.notify(body, title=false)
 ```
 
 ### Deferring data submissions
@@ -101,16 +103,16 @@ In order to provide offline functionnalities to your app, you'll have to define 
 handle data routes when user has lost connection.
 
 ```js
-sw.offline('/form-action.html', (e)=>{
-    if(Object.entries(e.data).length)
-    return sw.defer('form-action', e)
+router.offline('/form-action.html', (event)=>{
+    if(Object.entries(event.data).length)
+    return sw.defer('form-action', event)
     .then(()=>{
         return 'Your form will be submitted when you get back online !'
     })
 
 })
 
-sw.online('/back-online-route', (e)=>{
+router.online('/back-online-route', (event)=>{
     return sw.sync('form-action')
     .then(()=>{
         return 'Welcome back ! Your form has successfully been submitted has you are back online !'
@@ -139,8 +141,8 @@ sw.online('/back-online-route', (e)=>{
 - Ask public directory path during install
 
 - Network change handling - set but always 4g will debugging
-- Messaging from register.js / sw.js to document - set but not complete
 - Separate Router responsability from sw - router.js in progress
-- Test route at project initialization under `/paw`
 - Priority cache -> notify on update
+
+- Messaging from register.js / sw.js to document - set but not complete
 - Add improve messaging system between rw <-> sw (Promised message)

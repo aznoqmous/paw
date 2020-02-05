@@ -13,8 +13,8 @@ export default class RegisterWrapper {
         this.notifications = this.config.notifications
 
         this.init()
-        this.createMessageHolder()
         this.bindNetworkStateMessage()
+        this.createMessageHolder()
     }
     init(){
         if (!navigator.serviceWorker) console.warn('No ServiceWorker available on current navigator.');
@@ -22,56 +22,60 @@ export default class RegisterWrapper {
 
             window.addEventListener('DOMContentLoaded', ()=>{
 
-                if(this.config.debug) this.message('Registering sw.js...')
-                navigator.serviceWorker.register('sw.js')
-                .then((registration)=>{
-                    // Registration was successful
-                    if(registration.waiting && registration.waiting.state == 'installed') {
-                        this.message(this.config.updateText, 5 * 3600)
-                        .addEventListener('click', ()=>{
-                            registration.waiting.postMessage({action: 'skipWaiting'})
-                        })
-                    }
-                    registration.update()
+                this.register('sw.js')
 
-                    if(this.config.debug) this.message('Registration successful')
-                    this.registration = registration
-
-                    this.registration.addEventListener('updatefound', () => {
-                        var networker = registration.installing;
-
-                        if(navigator.serviceWorker.controller) {
-
-                            this.message(this.config.updateText, 5 * 3600)
-                            .addEventListener('click', ()=>{
-                                networker.postMessage({action: 'skipWaiting'})
-                            })
-
-                        }
-
-                        networker.addEventListener('statechange', ()=>{
-
-                            if(this.config.debug) {
-                                this.message(`Update : ${networker.state}`);
-                            }
-                        });
-
-                    });
-
-                    if(this.notifications) this.subscribe(registration)
-
-                }).catch((err)=>{
-                    if(this.config.debug) this.message("SW error : ", err);
-                });
-
+                // bind reload on sw update
                 let refreshing = false
                 navigator.serviceWorker.addEventListener('controllerchange', (e)=>{
                     if(refreshing) return false
                     window.location.reload()
                     refreshing = true
                 })
-            });
+            })
         }
+    }
+
+    register(sw){
+        return navigator.serviceWorker.register(sw)
+        .then((registration)=>{
+
+            // Registration was successful
+            if(registration.waiting && registration.waiting.state == 'installed') {
+                this.message(this.config.updateText, 5 * 3600)
+                .addEventListener('click', ()=>{
+                    registration.waiting.postMessage({action: 'skipWaiting'})
+                })
+            }
+
+            this.registration = registration
+
+            this.registration.addEventListener('updatefound', () => {
+                var networker = this.registration.installing;
+
+                if(navigator.serviceWorker.controller) {
+
+                    this.message(this.config.updateText, 5 * 3600)
+                    .addEventListener('click', ()=>{
+                        networker.postMessage({action: 'skipWaiting'})
+                    })
+
+                }
+
+                networker.addEventListener('statechange', ()=>{
+                    if(this.config.debug) this.message(`Update : ${networker.state}`);
+                });
+
+            });
+
+            this.registration.update()
+
+            this.bindSWMessages()
+
+            if(this.notifications) this.subscribe(registration)
+
+        }).catch((err)=>{
+            if(this.config.debug) this.message("SW error : ", err);
+        });
     }
 
     subscribe(registration){
@@ -79,7 +83,7 @@ export default class RegisterWrapper {
         .pushManager.getSubscription()
         .then((sub)=>{
             this.isSubscribed = !(sub === null)
-            if(this.config.debug)this.message(`Notification subscribed ${(this.isSubscribed ? 'true': 'false')}`)
+            if(this.config.debug) this.message(`Notification subscribed ${(this.isSubscribed ? 'true': 'false')}`)
             if(!this.isSubscribed) this.subscribeUser(registration)
         })
 
@@ -110,9 +114,31 @@ export default class RegisterWrapper {
         return this.registration.showNotification(title, options)
     }
 
+    sw(message){
+        if(!navigator.serviceWorker) return false
+        return new Promise((res, rej)=>{
+            let messageChannel = new MessageChannel()
+            messageChannel.port1.onmessage = (e)=>{
+                if(e.data.error) rej(e.data.error)
+                else res(e.data)
+            }
+            navigator.serviceWorker.controller.postMessage(message, [messageChannel.port2])
+        })
+    }
+
+    bindSWMessages(){
+        if(!navigator.serviceWorker) return false
+        let messageChannel = new MessageChannel()
+        messageChannel.port1.onmessage = (e)=>{
+            if(e.data.error) return false
+            else this.message(e.data)
+        }
+        navigator.serviceWorker.controller.postMessage('message-init', [messageChannel.port2])
+    }
     bindNetworkStateMessage(){
         this.connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-        this.connection.addEventListener('change', ()=>{
+        this.connection.addEventListener('change', (e)=>{
+            // e.preventDefault()
             this.message(this.connection.effectiveType)
         })
     }
@@ -138,7 +164,8 @@ export default class RegisterWrapper {
         return message
     }
     createMessageHolder(){
-        this.messageHolder = document.createElement('ul')
+        let messageHolder = document.querySelector('.paw-messages')
+        this.messageHolder = (messageHolder) ? messageHolder : document.createElement('ul')
         this.messageHolder.className = "paw-messages"
         let styles = {
             position: 'fixed',
@@ -156,7 +183,10 @@ export default class RegisterWrapper {
         for(let key in styles) this.messageHolder.style[key] = styles[key]
 
         if(document.body) document.body.appendChild(this.messageHolder)
-        else document.addEventListener('DOMContentLoaded', ()=>{ document.body.appendChild(this.messageHolder) })
+        else document.addEventListener('DOMContentLoaded', ()=>{
+            document.body.appendChild(this.messageHolder)
+        })
     }
+
 
 }
