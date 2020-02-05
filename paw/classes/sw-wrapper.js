@@ -26,6 +26,10 @@ export default class SWrapper {
         this.offlineRoutes = []
         this.deferrer = new Deferrer()
         this.router = new Router()
+        this.router.setStrategyNetwork([
+            '/register.js',
+            '/sw.js'
+        ])
     }
 
     // addEventListeners
@@ -48,7 +52,6 @@ export default class SWrapper {
                 else return this.sync(e.data.sync)
             }
 
-            console.log(e.data)
             if(e.data == 'message-init') {
                 this.messagePort = e.ports[0]
                 return false
@@ -136,10 +139,15 @@ export default class SWrapper {
                     data.forEach((value, key) => { objData[key] = value });
                     data = objData
                 }
-                fetchEvent.post = data
-                fetchEvent.data = Object.assign(fetchEvent.data, fetchEvent.post)
 
-                res(fetchEvent.data)
+                if(Object.entries(data).length){
+                    if(!fetchEvent.data) fetchEvent.data = {}
+                    if(!fetchEvent.datas) fetchEvent.datas = {}
+                    fetchEvent.data.post = data
+                    fetchEvent.datas = Object.assign(fetchEvent.datas, data)
+                }
+
+                res()
             })
             else res(false)
         })
@@ -167,9 +175,12 @@ export default class SWrapper {
                 data.forEach((value, key) => { objData[key] = value });
                 data = objData
             }
-
-            fetchEvent.get = data
-            fetchEvent.data = Object.assign(fetchEvent.data, fetchEvent.get)
+            if(Object.entries(data).length){
+                if(!fetchEvent.data) fetchEvent.data = {}
+                if(!fetchEvent.datas) fetchEvent.datas = {}
+                fetchEvent.data.get = data
+                fetchEvent.datas = Object.assign(fetchEvent.datas, data)
+            }
 
             res()
         })
@@ -272,8 +283,6 @@ export default class SWrapper {
 
     message(message){
         if(!this.messagePort) return false
-        else setTimeout(()=>{
-            this.messagePort.postMessage(message)
-        }, 100)
+        else this.messagePort.postMessage(message)
     }
 }
