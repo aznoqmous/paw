@@ -1,12 +1,24 @@
-# aznoqmous/paw
+# paw
+
+## Introduction
+
+`paw` is a npm package which provide default service worker logic you can easily modify to meet your requirements.
+
+__Current features :__
+- Notifications
+- In-app messages
+- Prompt on available update
+- Custom routing
+- Requests deferrer
+
 
 ## Prerequisites
 - Your app must be served over `https`
-- You must include `manifest.json` and `register.js` to your app head
 
 See Google's [Progressive Web App Checklist](https://developers.google.com/web/progressive-web-apps/checklist) for more about PWA best practices.
 
 ## Installation
+
 Note that PAW installation will fail if no `package.json` is found in your current project.  
 So a first step if to run `npm init` if it's not the case.
 
@@ -24,14 +36,19 @@ your_project
 └── paw.config.js   # paw webpack config  - used to generate final files
 ```
 
-Aswell as these commands added to your `package.json`  
-```json
-"paw": "webpack --config paw.config.js --mode production",
-"paw:dev": "webpack --config paw.config.js --mode development",
-"paw:watch": "webpack --config paw.config.js --mode development --watch"
+You will also notice some new `paw` scripts available in your `package.json`.
+
+You have to run on of those commands to generate `your_project/register.js` and `your_project/sw.js`  
+```sh
+# production build
+npm run paw
+
+# development build
+npm run paw:dev
+
+# watch and run development build on update
+npm run paw:watch
 ```
-You'll have to run these command to generate `your_project/register.js` and `your_project/sw.js`  
->_You can call npm scripts using `npm run <command>`_
 
 You'll have to add those two lines to your app root page :
 ```html
@@ -130,34 +147,32 @@ In order to provide offline functionnalities to your app, you'll have to define 
 handle data routes when user has lost connection.
 
 ```js
-router.offline('/form-action.html', (event)=>{
-    if(Object.entries(event.data).length)
-    return sw.defer('form-action', event)
+router.offline('/form-action.html', (e)=>{
+    if(e.data) return sw.defer('form-action', e)
     .then(()=>{
-        return 'Your form will be submitted when you get back online !'
+        return sw.message('your data will be saved when you\'re back online')
     })
-
 })
 
-router.online('/back-online-route', (event)=>{
+router.online('/back-online-route', (e)=>{
     return sw.sync('form-action')
     .then(()=>{
-        return 'Welcome back ! Your form has successfully been submitted has you are back online !'
+        return sw.message('welcome back, your data has been saved !')
     })
 })
 ```
 
 ## Features
-### CLI
+__CLI__
 - Auto installation
 - Build `config.json` during install (prompt in CLI)
 - Regenerate `manifest.json` from `config.json` on webpack build
 
-### App Features
+__App Features__
 - Auto ask notifications permission (config.notifications)
 - Prompt on available update / on installing - on waiting
 
-### SW.js : controller utility
+__SW.js : controller utility__
 - Custom routes registration inside `paw/sw.js` (available: route, offline, online, json, redirect)
 - Custom routes with simplified regexp and capture groups (ex: `/entity/{id}`, `/pages/*`)
 - Router fill its fetchEvent input data (accessible when routing via `e.data` or `e.get` and `e.post`)
