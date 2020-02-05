@@ -6,6 +6,38 @@ export default class Router {
     this.routes = routes
   }
 
+  routeMatch(request) {
+      let path = (new URL(request.url)).pathname
+      let matches = this.routes.filter((route) => {
+          if (!route.methods.toLowerCase().match(request.method.toLowerCase())) return false; // methods dont match
+          if (route.offline && navigator.onLine) return false; // dont serve offline routes if online
+          if (route.online && !navigator.onLine) return false; // dont serve online routes if offline
+          if(!path.match(route.regPath)) return false;
+          return true;
+      })
+
+      return matches
+  }
+
+  resolve(fetchEvent){
+      return new Promise((res, rej)=>{
+          let routes = this.routeMatch(fetchEvent.request)
+          let response = null
+          let finalRoute = null
+          routes.map(route => {
+              if(response) return false
+              response = this.controller(route, fetchEvent)
+              finalRoute = route
+          })
+          if (response && response.constructor.name == 'Promise') response.then(res => {
+              res( new Response(res, {status: 200, headers: finalRoute.headers}) )
+          })
+          else if (response && response.constructor.name == 'Response') res( response )
+          else if (response) res( new Response(response, {status: 200, headers: finalRoute.headers}) )
+          else rej(finalRoute)
+      })
+  }
+
   controller(route, e) {
       if(!route.callback) return false
 
@@ -49,18 +81,6 @@ export default class Router {
   }
   redirectResponse(path) {
       return Response.redirect(path, 302);
-  }
-
-  routeMatch(request) {
-      let path = (new URL(request.url)).pathname
-      let matches = this.routes.filter((route) => {
-          if (!route.methods.toLowerCase().match(request.method.toLowerCase())) return false; // methods dont match
-          if (route.offline && navigator.onLine) return false; // dont serve offline routes if online
-          if (route.online && !navigator.onLine) return false; // dont serve online routes if offline
-          if(!path.match(route.regPath)) return false;
-          return true;
-      })
-      return matches
   }
 
 }

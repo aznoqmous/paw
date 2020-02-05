@@ -88,27 +88,13 @@ export default class SWrapper {
         return this.prepareRequest(fetchEvent)
         .then(()=>{
             let matches = this.router.routeMatch(fetchEvent.request)
-
             if (matches.length) {
-
-                // ----------------- MOVE TO ROUTER ---------------------------
-                let response = null
-                let finalRoute = null
-                matches.map(route => {
-                    if(response) return false
-                    response = this.router.controller(route, fetchEvent)
-                    finalRoute = route
+                return this.router.resolve(fetchEvent)
+                .then(res => { return res })
+                .catch(finalRoute => {
+                    if (finalRoute.strategy) return this.fetchStrategy(fetchEvent, finalRoute.strategy)
+                    else return this.defaultFetchStrategy(fetchEvent) // if no response handle basic response
                 })
-
-                if (response && response.constructor.name == 'Promise') return response.then(res => {
-                    return new Response(res, {status: 200, headers: finalRoute.headers})
-                })
-                else if (response && response.constructor.name == 'Response') return response
-                else if (response) return new Response(response, {status: 200, headers: finalRoute.headers})
-                // ------------------------------------------------------------
-
-                else if (finalRoute.strategy) return this.fetchStrategy(fetchEvent, finalRoute.strategy)
-                else return this.defaultFetchStrategy(fetchEvent) // if no response handle basic response
             }
             else if (fetchEvent.request.mode == 'navigate') {
                 return this.defaultFetchStrategy(fetchEvent)

@@ -3,21 +3,25 @@ import config from './config.json'
 // This file is processed during installation only
 
 let sw = new SWrapper(self, config)
+let router = sw.router
 
-sw.route('/').setStrategyNetwork()
+router.route('/').setStrategyNetwork()
 
-// sw.redirect('/', '/paw');
-sw.route('/{path}', (e, path)=>{
-    console.log(`${path}`)
+// router.redirect('/', '/paw');
+router.route('/{path}', (e, path)=>{
+    console.log(`path matched ${path}`)
 })
-sw.route('/paw/test', ()=>{
-    sw.notify('test')
+router.route('/paw/test', (e)=>{
+    return Object.keys(e).map((k,v) => {
+        return `${k} - ${JSON.stringify(e[k])}`
+    }).join('<br>')
+
 })
-sw.route('/paw/{id}', (e, id)=>{
-    sw.notify(`${id}`)
+router.route('/paw/{id}', (e, id)=>{
+    return id
 })
 
-sw.route('/paw', (e)=>{
+router.route('/paw', (e)=>{
     if(e.post) return JSON.stringify(e.data)
     else return `
     <!DOCTYPE html>
@@ -46,26 +50,26 @@ sw.route('/paw', (e)=>{
     </html>
     `
 })
-sw.json('/paw/routes', ()=>{
-    return sw.routes
+router.json('/paw/routes', ()=>{
+    return router.routes
 })
 
-sw.json('/network', ()=>{
+router.json('/network', ()=>{
     return {
         foo: "bar"
     }
 }).setStrategyNetwork()
 
-sw.json('/cache', ()=>{
+router.json('/cache', ()=>{
     return 'test'
 })
 
-sw.online('/status', ()=>{
-    sw.notify('You are online')
-    return sw.redirectResponse('/')
+router.online('/status', ()=>{
+    router.notify('You are online')
+    return router.redirectResponse('/')
 })
 
-sw.offline('/status', ()=>{
-    sw.notify('You are offline')
-    return sw.redirectResponse('/')
+router.offline('/status', ()=>{
+    router.notify('You are offline')
+    return router.redirectResponse('/')
 })
