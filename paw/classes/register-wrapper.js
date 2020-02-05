@@ -2,6 +2,7 @@ import urlB64ToUint8Array from 'urlb64touint8array'
 
 export default class RegisterWrapper {
     constructor(config){
+        console.log('rw initiation')
         if(window.location.protocol != 'https:') window.location.protocol = 'https:'
         this.config = config
         this.title = this.config.name
@@ -19,7 +20,6 @@ export default class RegisterWrapper {
     init(){
         if (!navigator.serviceWorker) console.warn('No ServiceWorker available on current navigator.');
         else {
-
             window.addEventListener('DOMContentLoaded', ()=>{
 
                 this.register('sw.js')
@@ -144,6 +144,7 @@ export default class RegisterWrapper {
     }
 
     message(content, timeout=null){ // load message into html
+        console.log('new message', content)
         if(timeout === null) timeout = this.config.messageTimeOut
         let message = document.createElement('div')
         let styles = {
@@ -164,8 +165,8 @@ export default class RegisterWrapper {
         return message
     }
     createMessageHolder(){
-        let messageHolder = document.querySelector('.paw-messages')
-        this.messageHolder = (messageHolder) ? messageHolder : document.createElement('ul')
+        if(this.messageHolder) return false
+        this.messageHolder = document.createElement('ul')
         this.messageHolder.className = "paw-messages"
         let styles = {
             position: 'fixed',
@@ -186,7 +187,17 @@ export default class RegisterWrapper {
         else document.addEventListener('DOMContentLoaded', ()=>{
             document.body.appendChild(this.messageHolder)
         })
-    }
 
+        this.deferredMessages = []
+        window.addEventListener('unload', ()=>{
+            let messages = [...this.messageHolder.children]
+            let deferredMessages = messages.map(msg => msg.innerHTML)
+            localStorage.setItem('deferredMessages', JSON.stringify(deferredMessages))
+        })
+        window.addEventListener('DOMContentLoaded', ()=>{
+            let deferredMessages = JSON.parse(localStorage.getItem('deferredMessages'))
+            if(deferredMessages) deferredMessages.map(msg => { this.message(msg) })
+        })
+    }
 
 }

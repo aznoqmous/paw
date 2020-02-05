@@ -6,6 +6,7 @@ let sw = new SWrapper(self, config)
 let router = sw.router
 
 router.route('/', (e)=>{
+    console.log(e)
     if(e.data) sw.defer('form', e).then(()=>{
         sw.message('your data will be saved later')
     })

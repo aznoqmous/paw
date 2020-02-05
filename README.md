@@ -56,8 +56,6 @@ let sw = new SWrapper(self, config)
 
 Routes resolution will match the first bound route, and will continue until no return value has been found.
 
-You can access event data via `event.post`, `event.get` or `event.data`
-
 ```js
 router.route(path, callback, config)
 
@@ -90,6 +88,26 @@ router.route('/my-old-route', (event)=>{
 // also redirect '/my-old-route' to '/my-new-route'
 router.redirect('/my-old-route', '/my-new-route')
 
+```
+
+### Accessing fetchEvents data
+Every fetch event is prepared with its sent datas which you can easily access when routing :
+```js
+fetchEvent {
+    ...
+    data: {
+        get: {},
+        post: {}
+    },
+    datas: {
+        // get + post
+    }
+}
+```
+```js
+router.route('/path-with-sent-datas', (e)=>{
+    if(e.data && e.data.post && !e.data.post.csrfToken) return 'no csrf token :('
+})
 ```
 
 ### Notifications
@@ -145,4 +163,4 @@ router.online('/back-online-route', (event)=>{
 - Priority cache -> notify on update
 
 - Messaging from register.js / sw.js to document - set but not complete
-- Add improve messaging system between rw <-> sw (Promised message)
+- Add improve messaging system between rw <-> sw (Promised message) -> Message ?
