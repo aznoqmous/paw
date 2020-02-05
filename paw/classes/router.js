@@ -15,7 +15,13 @@ export default class Router {
           if(!path.match(route.regPath)) return false;
           return true;
       })
-
+      return matches
+  }
+  routeMatchPath(path){
+      let matches = this.routes.filter((route) => {
+          if(!path.match(route.regPath)) return false;
+          return true;
+      })
       return matches
   }
 
@@ -81,6 +87,22 @@ export default class Router {
   }
   redirectResponse(path) {
       return Response.redirect(path, 302);
+  }
+
+  setStrategyNetwork(routes){
+      return this.setStrategy('network', routes)
+  }
+  setStrategyCache(routes){
+      return this.setStrategy('cache', routes)
+  }
+
+  setStrategy(strategy, routes){
+    if(typeof(routes) == 'string') routes = [routes]
+    routes.map((path)=>{
+        let matches = this.routeMatchPath(path)
+        if(matches) matches.map(route => { route.setStrategy(strategy) })
+        else this.route(path).setStrategy(strategy)
+    })
   }
 
 }

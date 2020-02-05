@@ -21,11 +21,14 @@ export default class Route {
         this.regPath = this.getRegPath()
     }
 
+    setStrategy(strategy){
+        this.strategy = strategy
+    }
     setStrategyNetwork(){
-        this.strategy = 'network'
+        this.setStrategy('network')
     }
     setStrategyCache(){
-        this.strategy = 'cache'
+        this.setStrategy('cache')
     }
 
     redirectTo(path){
