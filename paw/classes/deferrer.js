@@ -38,6 +38,7 @@ export default class Deferrer {
             get: fetchEvent.get,
         })
     }
+    
     load(key, url=null){
         return this.all(key).then(res => {
             return Promise.all(res.map((r)=>{

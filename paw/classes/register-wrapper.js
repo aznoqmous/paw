@@ -189,7 +189,6 @@ export default class RegisterWrapper {
 
         this.deferredMessages = []
         window.addEventListener('unload', ()=>{
-            console.log(this.messages)
             let deferredMessages = this.messages.filter(msg => {
                 if(msg && msg.state) return true
                 else return false

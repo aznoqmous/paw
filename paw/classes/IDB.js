@@ -42,8 +42,8 @@ export default class IDB {
             if(!this.built) return this.build().then(()=>{this.save(data)})
 
             let request = this.getTransaction().add(data)
-            request.onsuccess = (e)=>{ console.log('SAVE SUCESS', data, e); res(data) }
-            request.onerror = (err)=>{ console.error(err); rej(err) }
+            request.onsuccess = (e)=>{ res(data) }
+            request.onerror = (err)=>{ rej(err) }
         })
     }
     get(key=null){
@@ -59,14 +59,14 @@ export default class IDB {
                 else res(elements)
             }
 
-            request.onerror = (err)=>{ console.error(err); rej(err) }
+            request.onerror = (err)=>{ rej(err) }
         })
     }
     delete(key){
         return new Promise(res => {
             let request = this.getTransaction().delete(key)
             request.onsuccess = ()=>{ res(key) }
-            request.onerror = (err)=>{ console.error(err); rej(err) }
+            request.onerror = (err)=>{ rej(err) }
         })
     }
 
