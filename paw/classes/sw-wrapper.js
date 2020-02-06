@@ -277,8 +277,8 @@ export default class SWrapper {
     sync(key, url=null){
         return this.deferrer.load(key, url)
     }
-    deferred(){
-        return this.deferrer.all('index')
+    deferred(key){
+        return this.deferrer.all(key)
     }
 
     message(message){

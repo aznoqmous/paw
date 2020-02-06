@@ -11,6 +11,13 @@ router.post('/', (e)=>{
         return router.redirectResponse('/')
     })
 })
+router.route('/deferred', ()=>{
+    return sw.deferred().then((datas)=>{
+        datas.map( deferred => {
+                return JSON.stringify(deferred)
+        }).join('<br>')
+    })
+})
 
 router.route('/{path}', (e, path)=>{
     console.log(`path matched ${path}`)

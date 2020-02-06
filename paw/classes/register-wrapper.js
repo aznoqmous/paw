@@ -114,27 +114,6 @@ export default class RegisterWrapper {
         return this.registration.showNotification(title, options)
     }
 
-    sw(message){
-        if(!navigator.serviceWorker) return false
-        return new Promise((res, rej)=>{
-            let messageChannel = new MessageChannel()
-            messageChannel.port1.onmessage = (e)=>{
-                if(e.data.error) rej(e.data.error)
-                else res(e.data)
-            }
-            navigator.serviceWorker.controller.postMessage(message, [messageChannel.port2])
-        })
-    }
-
-    bindSWMessages(){
-        if(!navigator.serviceWorker) return false
-        let messageChannel = new MessageChannel()
-        messageChannel.port1.onmessage = (e)=>{
-            if(e.data.error) return false
-            else this.message(e.data)
-        }
-        navigator.serviceWorker.controller.postMessage('message-init', [messageChannel.port2])
-    }
     bindNetworkStateMessage(){
         this.connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
         this.connection.addEventListener('change', (e)=>{
@@ -195,6 +174,31 @@ export default class RegisterWrapper {
                 this.loadMessage(msg)
             })
         })
+    }
+
+    // SW MESSAGING
+    sw(message){
+        if(!navigator.serviceWorker) return false
+        return new Promise((res, rej)=>{
+            let messageChannel = new MessageChannel()
+            messageChannel.port1.onmessage = (e)=>{
+                if(e.data.error) rej(e.data.error)
+                else res(e.data)
+            }
+            navigator.serviceWorker.controller.postMessage(message, [messageChannel.port2])
+        })
+    }
+    sync(key){
+        return this.sw({sync: key})
+    }
+    bindSWMessages(){
+        if(!navigator.serviceWorker) return false
+        let messageChannel = new MessageChannel()
+        messageChannel.port1.onmessage = (e)=>{
+            if(e.data.error) return false
+            else this.message(e.data)
+        }
+        navigator.serviceWorker.controller.postMessage('message-init', [messageChannel.port2])
     }
 
 }
