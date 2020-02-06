@@ -14,7 +14,7 @@ export default class SWrapper {
             offlinePage: config.offlinePage,
             staticPages: config.staticPages,
             strategy: config.strategy,
-            autoCrawl: true
+            auto: true
         }, config)
         for (let key in this.config) this[key] = this.config[key]
 
@@ -33,20 +33,6 @@ export default class SWrapper {
             '/register.js',
             '/sw.js'
         ])
-
-        if(this.autoCrawl) {
-            this.crawler = new Crawler(this.sw.location.hostname)
-            this.crawler.crawl('/')
-            .then((res)=>{
-                Promise.allSettled([
-                    this.addToCache(this.crawler.pages),
-                    this.addToCache(this.crawler.assets, this.assetsCacheName)
-                ])
-                .then(()=>{
-                    this.message('Static resources installation complete !')
-                })
-            })
-        }
 
     }
 
@@ -100,7 +86,10 @@ export default class SWrapper {
     bindInstall(){
         this.sw.addEventListener('install', e => {
             e.waitUntil(
-                this.addToCache(this.staticPages)
+                Promise.all([
+                    this.addToCache(this.staticPages),
+                    this.autoCrawl()
+                ])
             )
         })
     }
@@ -311,5 +300,23 @@ export default class SWrapper {
             }, 200)
         }
         else this.messagePort.postMessage(message)
+    }
+
+
+    autoCrawl(){
+        this.crawler = new Crawler(this.sw.location.hostname)
+        return this.crawler.crawl('/')
+        .then((res)=>{
+            Promise.all([
+                this.addToCache(this.crawler.pages),
+                this.addToCache(this.crawler.assets, this.assetsCacheName)
+            ])
+            .then(()=>{
+                this.message('Static resources installation complete !')
+            })
+            .catch(()=>{
+                this.message('Static resources installation failed !')
+            })
+        })
     }
 }

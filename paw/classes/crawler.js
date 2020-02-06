@@ -15,7 +15,6 @@ export default class Crawler {
         .then((text)=>{
             let links = this.extractLinks(text)
             this.newAssets(links.assets)
-
             return Promise.all(this.newPages(links.pages).map(a => {
                 return this.crawl(a)
             }))
@@ -54,8 +53,14 @@ export default class Crawler {
             let link = match.match(/(href|src)\=(\"|\')([^\"\']*?)(\"|\')/)
             if(link.length && link[3]) {
                 link = link[3]
-                if(link.match('http') && !link.match(this.host)) return false
-                links.push(link)
+                if(!link.match(/^http/)) {
+                    if(link[0] != '/') link = `https://${this.host}/${link}`
+                    else link = `https://${this.host}${link}`
+                }
+                if(link.match(/javascript\:history/)) return false
+                let url = new URL(link)
+                if(url.hostname != this.host) return false
+                if(url) links.push(url.pathname)
             }
         })
         return links
