@@ -74,7 +74,6 @@ let sw = new SWrapper(self, config)
 Routes resolution will match the first bound route, and will continue until no return value has been found.
 
 ```js
-router.route(path, callback, config)
 
 router.route('/my-route', (event)=>{
     return 'HTML Content'
@@ -82,6 +81,15 @@ router.route('/my-route', (event)=>{
 router.route('/my-route/{id}', (e, id)=>{
     return `HTML Content with given id : ${id}`
 })
+
+// Will ony match when get - post data are sent
+router.data('/my-data-route', (e)=>{})
+
+// Will ony match when post data are sent
+router.post('/my-post-route', (e)=>{})
+
+// Will ony match when get data are sent
+router.get('/my-get-route', (e)=>{})
 
 // Will only match when offline
 router.offline('/my-offline-route', (event)=>{

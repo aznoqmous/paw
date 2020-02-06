@@ -104,7 +104,7 @@ export default class SWrapper {
     handleRequest(fetchEvent){
         return this.prepareRequest(fetchEvent)
         .then(()=>{
-            let matches = this.router.routeMatch(fetchEvent.request)
+            let matches = this.router.routeMatch(fetchEvent)
             if (matches.length) {
                 return this.router.resolve(fetchEvent)
                 .then(res => { return res })

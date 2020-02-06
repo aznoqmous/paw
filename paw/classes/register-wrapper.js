@@ -44,7 +44,7 @@ export default class RegisterWrapper {
             // Registration was successful
             if(registration.waiting && registration.waiting.state == 'installed') {
                 this.message(this.config.updateText, 5 * 3600)
-                .addEventListener('click', ()=>{
+                .addEventListener('click', (e)=>{
                     registration.waiting.postMessage({action: 'skipWaiting'})
                 })
             }
@@ -57,8 +57,9 @@ export default class RegisterWrapper {
                 if(navigator.serviceWorker.controller) {
 
                     this.message(this.config.updateText, 5 * 3600)
-                    .addEventListener('click', ()=>{
+                    .addEventListener('click', (e)=>{
                         networker.postMessage({action: 'skipWaiting'})
+
                     })
 
                 }
@@ -85,12 +86,9 @@ export default class RegisterWrapper {
         .pushManager.getSubscription()
         .then((sub)=>{
             this.isSubscribed = !(sub === null)
-            if(this.config.debug) this.message(`Notification subscribed ${(this.isSubscribed ? 'true': 'false')}`)
             if(!this.isSubscribed) this.subscribeUser(registration)
         })
-
     }
-
     subscribeUser(){
         if(!this.registration.active) return false
         this.registration.pushManager.subscribe({
@@ -157,10 +155,6 @@ export default class RegisterWrapper {
     renderMessage(message){
         this.messages.push(message)
         this.messageHolder.appendChild(message.element)
-        setTimeout(()=>{
-            this.messages.splice(this.messages.indexOf(message), 1)
-            message.element.parentElement.removeChild(message.element)
-        }, message.remaining)
         return message.element
     }
     createMessageHolder(){

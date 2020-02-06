@@ -5,8 +5,9 @@ export default class Route {
             callback: callback,
             offline: false, // match only when offline
             online: false, // match only when online
-            methods: 'get,post',
-            type: 'html', // html, json
+            methods: 'GET,POST',
+            data: false, // match only if data are sent
+            // type: 'html', // html, json
             strategy: null, // overwrite swrapper cache policy
             headers: {}
         }, config)
@@ -41,8 +42,6 @@ export default class Route {
         let regPath = `^${this.path.replace(/\//g, '\\\/')}$`
         regPath = regPath.replace(/\*/, '.*?')
         regPath = regPath.replace(/\{([a-z]*?)\}/g, '(?<$1>[^\\\/]*?)')
-
-
         return regPath
     }
 

@@ -5,13 +5,12 @@ import config from './config.json'
 let sw = new SWrapper(self, config)
 let router = sw.router
 
-router.route('/', (e)=>{
-    console.log(e)
-    if(e.data) sw.defer('form', e).then(()=>{
+router.post('/', (e)=>{
+    return sw.defer('form', e).then(()=>{
         sw.message('your data will be saved later')
+        return router.redirectResponse('/')
     })
-}).setStrategyNetwork()
-
+})
 
 router.route('/{path}', (e, path)=>{
     console.log(`path matched ${path}`)

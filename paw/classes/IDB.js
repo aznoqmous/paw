@@ -46,6 +46,7 @@ export default class IDB {
             request.onerror = (err)=>{ rej(err) }
         })
     }
+    
     get(key=null){
         let elements = []
         return new Promise(res => {
@@ -59,14 +60,14 @@ export default class IDB {
                 else res(elements)
             }
 
-            request.onerror = (err)=>{ rej(err) }
+            request.onerror = (err)=>{ console.error(err); rej(err) }
         })
     }
     delete(key){
         return new Promise(res => {
             let request = this.getTransaction().delete(key)
             request.onsuccess = ()=>{ res(key) }
-            request.onerror = (err)=>{ rej(err) }
+            request.onerror = (err)=>{ console.error(err); rej(err) }
         })
     }
 

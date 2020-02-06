@@ -6,10 +6,11 @@ export default class Router {
     this.routes = routes
   }
 
-  routeMatch(request) {
-      let path = (new URL(request.url)).pathname
+  routeMatch(fetchEvent) {
+      let path = (new URL(fetchEvent.request.url)).pathname
       let matches = this.routes.filter((route) => {
-          if (!route.methods.toLowerCase().match(request.method.toLowerCase())) return false; // methods dont match
+          if (!route.methods.toUpperCase().match(fetchEvent.request.method)) return false; // methods dont match
+          if(route.data && !fetchEvent.datas) return false;
           if (route.offline && navigator.onLine) return false; // dont serve offline routes if online
           if (route.online && !navigator.onLine) return false; // dont serve online routes if offline
           if(!path.match(route.regPath)) return false;
@@ -27,7 +28,7 @@ export default class Router {
 
   resolve(fetchEvent){
       return new Promise((res, rej)=>{
-          let routes = this.routeMatch(fetchEvent.request)
+          let routes = this.routeMatch(fetchEvent)
           let response = null
           let finalRoute = null
           routes.map(route => {
@@ -35,9 +36,13 @@ export default class Router {
               response = this.controller(route, fetchEvent)
               finalRoute = route
           })
+
           if (response && response.constructor.name == 'Promise') response.then(resp => {
-              res( new Response(resp, {status: 200, headers: finalRoute.headers}) )
+              if (resp && resp.constructor.name == 'Response') res( resp )
+              else if (resp) res( new Response(resp, {status: 200, headers: finalRoute.headers}) )
           })
+          .catch(err => {console.log(err)})
+
           else if (response && response.constructor.name == 'Response') res( response )
           else if (response) res( new Response(response, {status: 200, headers: finalRoute.headers}) )
           else rej(finalRoute)
@@ -58,7 +63,6 @@ export default class Router {
       else {
           res = route.callback(e)
       }
-
       return (res) ? res : false;
   }
 
@@ -80,6 +84,21 @@ export default class Router {
   // register online routes
   online(path, callback, config = {}) {
       return this.route(path, callback, Object.assign(config, {online: true}))
+  }
+
+  // match only when post/get data is sent
+  data(path, callback, config={}){
+      return this.route(path, callback, Object.assign(config, {data: true}))
+  }
+
+  // match only when post data is sent
+  post(path, callback, config={}){
+      return this.route(path, callback, Object.assign(config, {methods: 'POST', data: true}))
+  }
+
+  // match only when get data is sent
+  get(path, callback, config={}){
+      return this.route(path, callback, Object.assign(config, {methods: 'GET', data: true}))
   }
 
   redirect(from, to, config={}){
