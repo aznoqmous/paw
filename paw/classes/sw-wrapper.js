@@ -1,6 +1,7 @@
 import Route from './route'
 import Router from './router'
 import Deferrer from './deferrer'
+import Crawler from './crawler'
 
 export default class SWrapper {
 
@@ -12,7 +13,8 @@ export default class SWrapper {
             deferrerName: `paw-deferred`,
             offlinePage: config.offlinePage,
             staticPages: config.staticPages,
-            strategy: config.strategy
+            strategy: config.strategy,
+            autoCrawl: true
         }, config)
         for (let key in this.config) this[key] = this.config[key]
 
@@ -26,10 +28,26 @@ export default class SWrapper {
         this.offlineRoutes = []
         this.deferrer = new Deferrer()
         this.router = new Router()
+
         this.router.setStrategyNetwork([
             '/register.js',
             '/sw.js'
         ])
+
+        if(this.autoCrawl) {
+            this.crawler = new Crawler()
+            this.crawler.crawl('/')
+            .then((res)=>{
+                Promise.allSettled([
+                    this.addToCache(this.crawler.pages),
+                    this.addToCache(this.crawler.assets, this.assetsCacheName)
+                ])
+                .then(()=>{
+                    this.message('Static resources installation complete !')
+                })
+            })
+        }
+
     }
 
     // addEventListeners
@@ -82,10 +100,7 @@ export default class SWrapper {
     bindInstall(){
         this.sw.addEventListener('install', e => {
             e.waitUntil(
-                // download static resources
-                caches.open(this.cacheName).then(cache => {
-                    return cache.addAll(this.staticPages)
-                })
+                this.addToCache(this.staticPages)
             )
         })
     }
@@ -208,6 +223,13 @@ export default class SWrapper {
         cacheName = (cacheName) ? cacheName : this.cacheName
         return caches.delete(cacheName)
     }
+    addToCache(paths, cacheName=null){
+        cacheName = (cacheName) ? cacheName : this.cacheName
+        return caches.open(cacheName).then(cache => {
+            return cache.addAll(paths).catch(err => { console.log(err) })
+        })
+        .catch(err => { console.log(err) })
+    }
 
     // STRATEGY
     defaultFetchStrategy(e) {
@@ -282,7 +304,12 @@ export default class SWrapper {
     }
 
     message(message){
-        if(!this.messagePort) return false
+        if(!this.messagePort) {
+            setTimeout(()=>{
+                // retry until it works
+                this.message(message)
+            }, 200)
+        }
         else this.messagePort.postMessage(message)
     }
 }

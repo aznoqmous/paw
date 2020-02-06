@@ -141,7 +141,7 @@ eval("module.exports = {\"name\":\"paw\",\"short_name\":\"paw\",\"theme_color\":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _classes_register_wrapper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./classes/register-wrapper */ \"./paw/classes/register-wrapper.js\");\n/* harmony import */ var _config_json__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./config.json */ \"./paw/config.json\");\nvar _config_json__WEBPACK_IMPORTED_MODULE_1___namespace = /*#__PURE__*/__webpack_require__.t(/*! ./config.json */ \"./paw/config.json\", 1);\n\r\n\r\n\r\nwindow.rw = new _classes_register_wrapper__WEBPACK_IMPORTED_MODULE_0__[\"default\"](_config_json__WEBPACK_IMPORTED_MODULE_1__)\r\n\r\nwindow.addEventListener('load', ()=>{ console.log('load') })\r\nwindow.addEventListener('beforeunload', ()=>{ console.log('beforeunload') })\r\n\n\n//# sourceURL=webpack:///./paw/register-dev.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _classes_register_wrapper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./classes/register-wrapper */ \"./paw/classes/register-wrapper.js\");\n/* harmony import */ var _config_json__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./config.json */ \"./paw/config.json\");\nvar _config_json__WEBPACK_IMPORTED_MODULE_1___namespace = /*#__PURE__*/__webpack_require__.t(/*! ./config.json */ \"./paw/config.json\", 1);\n\r\n\r\n\r\nwindow.rw = new _classes_register_wrapper__WEBPACK_IMPORTED_MODULE_0__[\"default\"](_config_json__WEBPACK_IMPORTED_MODULE_1__)\r\n\n\n//# sourceURL=webpack:///./paw/register-dev.js?");
 
 /***/ }),
 

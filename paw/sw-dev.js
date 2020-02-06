@@ -19,9 +19,9 @@ router.route('/deferred', ()=>{
     })
 })
 
-router.route('/{path}', (e, path)=>{
-    console.log(`path matched ${path}`)
-})
+// router.route('/{path}', (e, path)=>{
+//     console.log(`path matched ${path}`)
+// })
 router.route('/paw/test', (e)=>{
     return Object.keys(e).map((k,v) => {
         return `${k} - ${JSON.stringify(e[k])}`

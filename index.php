@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-  <head>
+<head>
     <meta charset="utf-8">
     <title></title>
 
@@ -9,13 +9,14 @@
     <script src="/register.js"></script>
     <!-- Insert these two lines inside your application index -->
 
-  </head>
-  <body>
+</head>
+<body>
+    <a href="/test/test.html">test</a>
     PAW demo index
     <form action="/" method="post">
         <input type="text" name="foo" value="bar">
         <input type="submit" value="submit">
     </form>
     <?php var_dump($_POST); ?>
-  </body>
+</body>
 </html>
