@@ -5,11 +5,7 @@ export default class Message {
         this.time = (time) ? time : Date.now()
         this.build()
     }
-    load(savedMessage){
-        // build from js Object
-        for(let key in savedMessage) this[key] = savedMessage[key]
-        this.build()
-    }
+    
     build(){
         this.element = document.createElement('div')
         let styles = {
