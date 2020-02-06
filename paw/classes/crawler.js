@@ -1,7 +1,8 @@
 export default class Crawler {
 
-    constructor(config){
+    constructor(host, config){
         config = Object.assign({
+            host: host,
             url: null,
             pages: [],
             assets: []
@@ -51,7 +52,11 @@ export default class Crawler {
         let links = []
         matches.map(match => {
             let link = match.match(/(href|src)\=(\"|\')([^\"\']*?)(\"|\')/)
-            if(link.length && link[3]) links.push(link[3])
+            if(link.length && link[3]) {
+                link = link[3]
+                if(link.match('http') && !link.match(this.host)) return false
+                links.push(link)
+            }
         })
         return links
     }

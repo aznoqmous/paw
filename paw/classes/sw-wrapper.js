@@ -35,7 +35,7 @@ export default class SWrapper {
         ])
 
         if(this.autoCrawl) {
-            this.crawler = new Crawler()
+            this.crawler = new Crawler(this.sw.location.hostname)
             this.crawler.crawl('/')
             .then((res)=>{
                 Promise.allSettled([
