@@ -7,7 +7,7 @@ let configFile = `${cwd}/paw/config.json`
 
 const config = require(configFile)
 
-let manifestFile = `${config.publicDir}/manifest.json`
+let manifestFile = `${config.publicDirectory}/manifest.json`
 
 console.log(`Generating manifest.json from ${configFile}...`)
 
