@@ -37,6 +37,7 @@ function getPublicDir(){
 }
 
 function buildWebpackConfig(publicDir){
+    let pawConfigFile = './paw.config.js'
     return new Promise((resolve, reject)=>{
         fs.writeFile(pawConfigFile, `
             const path = require('path')
@@ -68,53 +69,50 @@ function buildWebpackConfig(publicDir){
             (err)=>{
                 if(!err) resolve('paw webpack config build')
                 else reject(err)
+            })
         })
-    })
-}
+    }
 
-function copyPublicFiles(publicDir){
-    return new Promise(resolve => {
-        copyfiles([
-            './icon-*.png',
-            publicDir
-        ], '', ()=>{
-            resolve()
+    function copyPublicFiles(publicDir){
+        return new Promise(resolve => {
+            copyfiles([
+                './icon-*.png',
+                publicDir
+            ], '', ()=>{
+                resolve()
+            })
         })
-    })
-}
+    }
 
-function copyPawFiles(){
-    return new Promise(resolve => {
-        copyfiles([
-            './paw.config.js',
-            './paw/register.js',
-            './paw/sw.js',
-            './paw/config.json',
-            `${cwd}/`
-        ], '', ()=>{
-            console.log('PAW Installation completed')
-            process.chdir(cwd)
-            npmAddScript({key: 'paw', value: `node ${installedPath}/build-manifest.js && webpack --config paw.config.js --mode production`})
-            npmAddScript({key: 'paw:dev', value: `node ${installedPath}/build-manifest.js && webpack --config paw.config.js --mode development`})
-            npmAddScript({key: 'paw:watch', value: `node ${installedPath}/build-manifest.js && webpack --config paw.config.js --mode development --watch`})
-            npmAddScript({key: 'paw:config', value: `node ${installedPath}/setup-config.js && node ${installedPath}/build-manifest.js`})
-            npmAddScript({key: 'paw:manifest', value: `node ${installedPath}/build-manifest.js`})
-            console.log(`PAW scripts has been added inside ${cwd}/package.json`)
-            resolve()
+    function copyPawFiles(){
+        return new Promise(resolve => {
+            copyfiles([
+                './paw.config.js',
+                './paw/register.js',
+                './paw/sw.js',
+                './paw/config.json',
+                `${cwd}/`
+            ], '', ()=>{
+                console.log('PAW Installation completed')
+                process.chdir(cwd)
+                npmAddScript({key: 'paw', value: `node ${installedPath}/build-manifest.js && webpack --config paw.config.js --mode production`})
+                npmAddScript({key: 'paw:dev', value: `node ${installedPath}/build-manifest.js && webpack --config paw.config.js --mode development`})
+                npmAddScript({key: 'paw:watch', value: `node ${installedPath}/build-manifest.js && webpack --config paw.config.js --mode development --watch`})
+                npmAddScript({key: 'paw:config', value: `node ${installedPath}/setup-config.js && node ${installedPath}/build-manifest.js`})
+                npmAddScript({key: 'paw:manifest', value: `node ${installedPath}/build-manifest.js`})
+                console.log(`PAW scripts has been added inside ${cwd}/package.json`)
+                resolve()
+            })
         })
-    })
-}
+    }
 
-/*
-BUILD CONFIG FILE
-*/
-function getConfig(publicDir){
-    return new Promise(resolve => {
+    /*
+    BUILD CONFIG FILE
+    */
+    function getConfig(publicDir){
         let cwd = process.env.INIT_CWD
         let configFile = `${cwd}/paw/config.json`
-
-        console.log(`PAW config setup ${configFile} :`)
-        prompts({
+        return prompts({
             type: 'text',
             name: 'name',
             message: 'Name your app : ',
@@ -150,19 +148,14 @@ function getConfig(publicDir){
                 publicDirectory: publicDir
             }
             for(let key in res) config[key] = res[key]
-
-            if(!err) resolve(config)
-            else reject(err)
         })
+    }
 
-    })
-}
-
-function writeConfigFile(config){
-    return new Promise((resolve, reject)=> {
-        fs.writeFile(configFile, JSON.stringify(config, null, 4), (err)=>{
-            if(!err) resolve('PAW config setup complete')
-            else reject(err)
+    function writeConfigFile(config){
+        return new Promise((resolve, reject)=> {
+            fs.writeFile(configFile, JSON.stringify(config, null, 4), (err)=>{
+                if(!err) resolve('PAW config setup complete')
+                else reject(err)
+            })
         })
-    })
-}
+    }
