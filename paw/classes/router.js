@@ -73,7 +73,10 @@ export default class Router {
       return route
   }
   json(path, callback, config = {}){
-      return this.route(path, ()=>{ return JSON.stringify( callback() ) }, Object.assign(config, {json: true}))
+      return this.route(path, ()=>{ return JSON.stringify( callback() ) }, Object.assign(config, {type: 'json'}))
+  }
+  html(path, callback, config = {}){
+      return this.route(path, ()=>{ return JSON.stringify( callback() ) }, Object.assign(config, {type: 'html'}))
   }
 
   // register offline routes
