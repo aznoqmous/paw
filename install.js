@@ -33,7 +33,7 @@ function getPublicDir(){
         type: 'text',
         name: 'publicDir',
         message: `Enter public root folder path inside ${cwd} :`,
-        validate: publicDir => (fs.lstatSync(publicDir).isDirectory()) ? true : `${publicDir} is not a valid directory`
+        validate: publicDir => (isDir(publicDir)) ? true : `${publicDir} is not a valid directory`
     })
     .then((res)=>{ return res.publicDir })
 }
@@ -161,4 +161,8 @@ function buildWebpackConfig(publicDir){
                 else reject(err)
             })
         })
+    }
+
+    function isDir(path){
+        return (fs.existsSync(dirPath) && fs.lstatSync(dirPath).isDirectory())
     }
