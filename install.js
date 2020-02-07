@@ -164,5 +164,5 @@ function buildWebpackConfig(publicDir){
     }
 
     function isDir(path){
-        return fs.existsSync(dirPath)
+        return (fs.existsSync(path) && fs.lstatSync(path).isDirectory())
     }
