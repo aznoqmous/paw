@@ -20,7 +20,7 @@ getPublicDir()
         return getConfig(publicDir)
         .then(config =>{ return writeConfigFile(config) })
     }).then(()=>{
-        copyPublicFiles(publicDir)
+        return copyPublicFiles(publicDir)
     })
     .then(()=>{
         console.log('Installation completed')
