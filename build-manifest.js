@@ -9,7 +9,7 @@ console.log(process.env.INIT_CWD, cwd)
 
 const config = require(configFile)
 
-let manifestFile = `${config.publicDirectory}/manifest.json`
+let manifestFile = `${config.rootDirectory}${config.publicDirectory}/manifest.json`
 
 console.log(`Generating manifest.json from ${configFile} --> ${manifestFile}...`)
 

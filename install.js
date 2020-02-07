@@ -147,7 +147,8 @@ function buildWebpackConfig(publicDir){
                 messageTimeOut: 3000,
                 messagePosition: 'bottom',
                 updateText: 'A new update is available, click on this message to <strong>update</strong>',
-                publicDirectory: `./${publicDir}`
+                publicDirectory: `/${publicDir}`,
+                rootDirectory: `${cwd}`
             }
             for(let key in res) config[key] = res[key]
             return config
