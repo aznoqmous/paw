@@ -32,7 +32,8 @@ function getPublicDir(){
     return prompts({
         type: 'text',
         name: 'publicDir',
-        message: 'Enter public root folder path : '
+        message: `Enter public root folder path inside ${cwd} :`,
+        validate: publicDir => (fs.lstatSync(publicDir).isDirectory()) ? true : `${publicDir} is not a valid directory`
     })
 }
 
@@ -152,6 +153,7 @@ function buildWebpackConfig(publicDir){
     }
 
     function writeConfigFile(config){
+        let configFile = `${cwd}/paw/config.json`
         return new Promise((resolve, reject)=> {
             fs.writeFile(configFile, JSON.stringify(config, null, 4), (err)=>{
                 if(!err) resolve('PAW config setup complete')
