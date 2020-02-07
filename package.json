@@ -5,9 +5,7 @@
   "main": "paw/index.js",
   "scripts": {
     "postinstall": "node install.js && node build-manifest.js",
-
     "paw:manifest": "node build-manifest.js",
-
     "paw": "node build-manifest.js && webpack --config paw.config-dev.js --mode production",
     "paw:dev": "node build-manifest.js && webpack --config paw.config-dev.js --mode development",
     "paw:watch": "node build-manifest.js && webpack --config paw.config-dev.js --mode development --watch"
@@ -28,6 +26,7 @@
     "path": "^0.12.7",
     "process": "^0.11.10",
     "prompt": "^1.0.0",
+    "prompts": "^2.3.0",
     "urlb64touint8array": "^1.0.3"
   }
 }

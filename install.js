@@ -1,4 +1,4 @@
-const prompt = require('prompt')
+const prompts = require('prompts')
 const path = require('path')
 const process = require('process')
 const fs = require('fs')
@@ -29,13 +29,10 @@ getPublicDir()
 })
 
 function getPublicDir(){
-    return new Promise(resolve => {
-        let publicDir = null
-        prompt.get([{
-            publicDir: 'Document root folder ( public ) :'
-        }], (err, res)=>{
-            resolve(publicDir)
-        })
+    return prompts({
+        type: 'text',
+        name: 'publicDir',
+        message: 'Enter public root folder path : '
     })
 }
 
@@ -117,9 +114,13 @@ function getConfig(publicDir){
         let configFile = `${cwd}/paw/config.json`
 
         console.log(`PAW config setup ${configFile} :`)
-        prompt.get([{
+        prompts({
+            type: 'text',
             name: 'name',
-        }], (err, res)=>{
+            message: 'Name your app : ',
+            initial: 'pwa'
+        })
+        .then(res => {
             let config = {
                 name: 'paw',
                 short_name: 'paw',
@@ -150,8 +151,10 @@ function getConfig(publicDir){
             }
             for(let key in res) config[key] = res[key]
 
-            resolve(config)
+            if(!err) resolve(config)
+            else reject(err)
         })
+
     })
 }
 
