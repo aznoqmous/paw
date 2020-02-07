@@ -29,18 +29,18 @@ getPublicDir()
 })
 
 function getPublicDir(){
-    return new Promise(res => {
+    return new Promise(resolve => {
         let publicDir = null
         prompt.get([{
             publicDir: 'Document root folder ( public ) :'
         }], (err, res)=>{
-            res(publicDir)
+            resolve(publicDir)
         })
     })
 }
 
 function buildWebpackConfig(publicDir){
-    return new Promise((res,rej)=>{
+    return new Promise((resolve, reject)=>{
         fs.writeFile(pawConfigFile, `
             const path = require('path')
 
@@ -69,25 +69,25 @@ function buildWebpackConfig(publicDir){
                 }
             ]`,
             (err)=>{
-                if(!err) res('paw webpack config build')
-                else rej(err)
+                if(!err) resolve('paw webpack config build')
+                else reject(err)
         })
     })
 }
 
 function copyPublicFiles(publicDir){
-    return new Promise(res => {
+    return new Promise(resolve => {
         copyfiles([
             './icon-*.png',
             publicDir
         ], '', ()=>{
-            res()
+            resolve()
         })
     })
 }
 
 function copyPawFiles(){
-    return new Promise(res => {
+    return new Promise(resolve => {
         copyfiles([
             './paw.config.js',
             './paw/register.js',
@@ -103,7 +103,7 @@ function copyPawFiles(){
             npmAddScript({key: 'paw:config', value: `node ${installedPath}/setup-config.js && node ${installedPath}/build-manifest.js`})
             npmAddScript({key: 'paw:manifest', value: `node ${installedPath}/build-manifest.js`})
             console.log(`PAW scripts has been added inside ${cwd}/package.json`)
-            res()
+            resolve()
         })
     })
 }
@@ -112,7 +112,7 @@ function copyPawFiles(){
 BUILD CONFIG FILE
 */
 function getConfig(publicDir){
-    return new Promise(res => {
+    return new Promise(resolve => {
         let cwd = process.env.INIT_CWD
         let configFile = `${cwd}/paw/config.json`
 
@@ -150,16 +150,16 @@ function getConfig(publicDir){
             }
             for(let key in res) config[key] = res[key]
 
-            res(config)
+            resolve(config)
         })
     })
 }
 
 function writeConfigFile(config){
-    return new Promise((res, rej)=> {
+    return new Promise((resolve, reject)=> {
         fs.writeFile(configFile, JSON.stringify(config, null, 4), (err)=>{
-            if(!err) res('PAW config setup complete')
-            else rej(err)
+            if(!err) resolve('PAW config setup complete')
+            else reject(err)
         })
     })
 }
