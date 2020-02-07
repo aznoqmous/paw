@@ -14,12 +14,11 @@ console.log(`Installing PAW...`)
 
 getPublicDir()
 .then(publicDir => {
-    buildWebpackConfig(publicDir).then(()=>{
-        return copyPawFiles()
-    }).then(()=>{
-        return getConfig(publicDir).then(config =>{
-            return writeConfigFile(config)
-        })
+    buildWebpackConfig(publicDir)
+    .then(()=>{ return copyPawFiles() })
+    .then(()=>{
+        return getConfig(publicDir)
+        .then(config =>{ return writeConfigFile(config) })
     }).then(()=>{
         copyPublicFiles(publicDir)
     })
@@ -150,6 +149,7 @@ function buildWebpackConfig(publicDir){
                 publicDirectory: publicDir
             }
             for(let key in res) config[key] = res[key]
+            return config
         })
     }
 
