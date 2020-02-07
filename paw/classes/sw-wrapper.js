@@ -48,25 +48,26 @@ export default class SWrapper {
             e.waitUntil(this.notify(JSON.stringify(e.data), 'New push notification'))
         })
 
-        this.sw.addEventListener('message', (e)=>{
-            if(e.data.action) return this.sw[e.data.action]()
+        this.sw.addEventListener('message', (e) => {
+            if (e.data.action) return this.sw[e.data.action]()
 
-            if(e.data.sync) {
-                if(typeof e.data.sync == 'object') return this.sync(...e.data.sync)
+            if (e.data.sync) {
+                if (typeof e.data.sync == 'object') return this.sync(...e.data.sync)
                 else return this.sync(e.data.sync)
             }
 
-            if(e.data == 'message-init') {
+            if (e.data == 'message-init') {
                 this.messagePort = e.ports[0]
                 return false
             }
 
-            if(!e.ports.length) return false
+            if (!e.ports.length) return false
             let port = e.ports[0]
             port.postMessage(e.data)
         })
     }
-    bindActivate(){
+
+    bindActivate() {
         this.sw.addEventListener('activate', e => {
             // clean old cache
             e.waitUntil(caches.keys().then(keyList => {
@@ -83,7 +84,8 @@ export default class SWrapper {
             this.sw.clients.claim()
         })
     }
-    bindInstall(){
+
+    bindInstall() {
         this.sw.addEventListener('install', e => {
             e.waitUntil(
                 Promise.all([
@@ -93,60 +95,68 @@ export default class SWrapper {
             )
         })
     }
-    bindFetch(){
+
+    bindFetch() {
         this.sw.addEventListener('fetch', e => {
             e.respondWith(this.handleRequest(e))
         })
     }
-    bindSync(){
-        this.sw.addEventListener('sync', (e)=>{
+
+    bindSync() {
+        this.sw.addEventListener('sync', (e) => {
             this.notify(e)
         })
     }
 
     // REQUESTS HANDLING
-    handleRequest(fetchEvent){
+    handleRequest(fetchEvent) {
         return this.prepareRequest(fetchEvent)
-        .then(()=>{
-            let matches = this.router.routeMatch(fetchEvent)
-            if (matches.length) {
-                return this.router.resolve(fetchEvent)
-                .then(res => { return res })
-                .catch(finalRoute => {
-                    if (finalRoute.strategy) return this.fetchStrategy(fetchEvent, finalRoute.strategy)
-                    else return this.defaultFetchStrategy(fetchEvent) // if no response handle basic response
-                })
-            }
-            else if (fetchEvent.request.mode == 'navigate') {
-                return this.defaultFetchStrategy(fetchEvent)
-            }
-            else {
-                return this.defaultAssetStrategy(fetchEvent)
-            }
-        })
+            .then(() => {
+                let matches = this.router.routeMatch(fetchEvent)
+                if (matches.length) {
+                    return this.router.resolve(fetchEvent)
+                        .then(res => {
+                            return res
+                        })
+                        .catch(finalRoute => {
+                            if (finalRoute.strategy) return this.fetchStrategy(fetchEvent, finalRoute.strategy)
+                            else return this.defaultFetchStrategy(fetchEvent) // if no response handle basic response
+                        })
+                }
+                else if (fetchEvent.request.mode == 'navigate') {
+                    return this.defaultFetchStrategy(fetchEvent)
+                }
+                else {
+                    return this.defaultAssetStrategy(fetchEvent)
+                }
+            })
     }
-    prepareRequest(fetchEvent){
+
+    prepareRequest(fetchEvent) {
         fetchEvent.data = {}
         return Promise.all([
             this.getPostData(fetchEvent),
             this.getURLParamsData(fetchEvent)
         ])
     }
-    getPostData(fetchEvent){
-        let request = fetchEvent.request.clone()
-        return new Promise((res, rej)=>{
-            let requestData = this.fetchRequestData(request)
-            if(requestData) requestData.then((data)=>{
 
-                if(typeof data[Symbol.iterator] === 'function') {
+    getPostData(fetchEvent) {
+        let request = fetchEvent.request.clone()
+        return new Promise((res, rej) => {
+            let requestData = this.fetchRequestData(request)
+            if (requestData) requestData.then((data) => {
+
+                if (typeof data[Symbol.iterator] === 'function') {
                     let objData = {}
-                    data.forEach((value, key) => { objData[key] = value });
+                    data.forEach((value, key) => {
+                        objData[key] = value
+                    });
                     data = objData
                 }
 
-                if(Object.entries(data).length){
-                    if(!fetchEvent.data) fetchEvent.data = {}
-                    if(!fetchEvent.datas) fetchEvent.datas = {}
+                if (Object.entries(data).length) {
+                    if (!fetchEvent.data) fetchEvent.data = {}
+                    if (!fetchEvent.datas) fetchEvent.datas = {}
                     fetchEvent.data.post = data
                     fetchEvent.datas = Object.assign(fetchEvent.datas, data)
                 }
@@ -156,32 +166,37 @@ export default class SWrapper {
             else res(false)
         })
     }
-    fetchRequestData(request){
+
+    fetchRequestData(request) {
         let headers = {}
         let hs = [...request.headers]
-        hs.map(h => { headers[h[0]] = h[1] })
-        if(headers['content-type'] == 'application/x-www-form-urlencoded')
-        return request.formData()
-        else if(headers['content-type'] == 'application/json')
-        return request.json()
-        else if(headers['content-type'] == 'text/html')
-        return request.text()
+        hs.map(h => {
+            headers[h[0]] = h[1]
+        })
+        if (headers['content-type'] == 'application/x-www-form-urlencoded')
+            return request.formData()
+        else if (headers['content-type'] == 'application/json')
+            return request.json()
+        else if (headers['content-type'] == 'text/html')
+            return request.text()
         else return false;
     }
 
-    getURLParamsData(fetchEvent){
-        return new Promise((res, rej)=>{
+    getURLParamsData(fetchEvent) {
+        return new Promise((res, rej) => {
             let objData = {}
             let data = new URL(fetchEvent.request.url).searchParams
 
-            if(typeof data[Symbol.iterator] === 'function') {
+            if (typeof data[Symbol.iterator] === 'function') {
                 let objData = {}
-                data.forEach((value, key) => { objData[key] = value });
+                data.forEach((value, key) => {
+                    objData[key] = value
+                });
                 data = objData
             }
-            if(Object.entries(data).length){
-                if(!fetchEvent.data) fetchEvent.data = {}
-                if(!fetchEvent.datas) fetchEvent.datas = {}
+            if (Object.entries(data).length) {
+                if (!fetchEvent.data) fetchEvent.data = {}
+                if (!fetchEvent.datas) fetchEvent.datas = {}
                 fetchEvent.data.get = data
                 fetchEvent.datas = Object.assign(fetchEvent.datas, data)
             }
@@ -195,10 +210,11 @@ export default class SWrapper {
         cacheName = (cacheName) ? cacheName : this.cacheName
         let clone = response.clone()
         caches.open(cacheName)
-        .then(cache => {
-            cache.put(url, clone)
-        })
+            .then(cache => {
+                cache.put(url, clone)
+            })
     }
+
     clearOldCaches() {
         return caches.keys().then(keyList => {
             return Promise.all(keyList.map(key => {
@@ -208,65 +224,83 @@ export default class SWrapper {
             }))
         })
     }
-    clearCache(cacheName=null) {
+
+    clearCache(cacheName = null) {
         cacheName = (cacheName) ? cacheName : this.cacheName
         return caches.delete(cacheName)
     }
-    addToCache(paths, cacheName=null){
+
+    addToCache(paths, cacheName = null) {
         cacheName = (cacheName) ? cacheName : this.cacheName
         return caches.open(cacheName).then(cache => {
-            return cache.addAll(paths).catch(err => { console.log(err) })
+            return cache.addAll(paths).catch(err => {
+                console.log(err)
+            })
         })
-        .catch(err => { console.log(err) })
+            .catch(err => {
+                console.log(err)
+            })
     }
+
 
     // STRATEGY
     defaultFetchStrategy(e) {
         return this.fetchStrategy(e, this.strategy)
     }
-    defaultAssetStrategy(e){
+
+    defaultAssetStrategy(e) {
         return this.fetchStrategy(e, 'cache', this.assetsCacheName)
     }
 
-    fetchStrategy(e, strategy, cacheName=null){
+    fetchStrategy(e, strategy, cacheName = null) {
         if (strategy == 'cache') return this.strategyCache(e, cacheName)
         else if (strategy == 'network') return this.strategyNetwork(e, cacheName)
-        else return this.strategyCache(e, cacheName)
+        else return this.strategyFastest(e, cacheName)
     }
-    strategyNetwork(e, cacheName=null) {
+
+    strategyNetwork(e, cacheName = null) {
         cacheName = (cacheName) ? cacheName : this.cacheName
         return fetch(e.request)
-        .then(response => {
-            if (response.status == 200) {
-                this.storeResponse(cacheName, e.request.url, response)
-            }
-            return response;
-        })
-        .catch(() => {
-            return caches.open(cacheName)
-            .then(cache => {
-                if (this.cacheMatch(cache, e)) return this.cacheMatch(e)
-                return cache.match(this.offlinePage)
+            .then(response => {
+                if (response.status == 200) {
+                    this.storeResponse(cacheName, e.request.url, response)
+                }
+                return response;
             })
-        })
-
+            .catch(() => {
+                return caches.open(cacheName)
+                    .then(cache => {
+                        if (this.cacheMatch(cache, e)) return this.cacheMatch(cache, e)
+                        return cache.match(this.offlinePage)
+                    })
+            })
     }
-    strategyCache(e, cacheName=null) {
+
+    strategyCache(e, cacheName = null) {
         cacheName = (cacheName) ? cacheName : this.cacheName
         return caches.open(cacheName)
-        .then(cache => {
-            return this.cacheMatch(cache, e).then(response => {
-                return response || fetch(e.request)
-                .then(response => {
-                    if (response.status == 200) {
-                        this.storeResponse(cacheName, e.request.url, response)
-                    }
-                    return response;
+            .then(cache => {
+                return this.cacheMatch(cache, e).then(response => {
+                    return response || fetch(e.request)
+                        .then(response => {
+                            if (response.status == 200) {
+                                this.storeResponse(cacheName, e.request.url, response)
+                            }
+                            return response;
+                        })
                 })
             })
-        })
     }
-    cacheMatch(cache, fetchEvent){
+
+    strategyFastest(e, cacheName = null) {
+        return Promise.race([
+            this.strategyCache(e, cacheName),
+            this.strategyNetwork(e, cacheName)
+        ])
+            .then(res => res)
+    }
+
+    cacheMatch(cache, fetchEvent) {
         return cache.match(fetchEvent.request.url)
     }
 
@@ -282,41 +316,43 @@ export default class SWrapper {
     }
 
     // deferer
-    defer(key, fetchEvent){
+    defer(key, fetchEvent) {
         return this.deferrer.save(key, fetchEvent)
     }
-    sync(key, url=null){
+
+    sync(key, url = null) {
         return this.deferrer.load(key, url)
     }
-    deferred(key){
+
+    deferred(key) {
         return this.deferrer.all(key)
     }
 
-    message(message){
-        if(!this.messagePort) {
-            setTimeout(()=>{
+    message(message) {
+        if (!this.messagePort) {
+            setTimeout(() => {
                 // retry until it works
                 this.message(message)
-            }, 200)
+            }, 100)
         }
         else this.messagePort.postMessage(message)
     }
 
-
-    autoCrawl(){
+    autoCrawl() {
         this.crawler = new Crawler(this.sw.location.hostname)
         return this.crawler.crawl('/')
-        .then((res)=>{
-            Promise.all([
-                this.addToCache(this.crawler.pages),
-                this.addToCache(this.crawler.assets, this.assetsCacheName)
-            ])
-            .then(()=>{
-                this.message('Static resources installation complete !')
+            .then((res) => {
+                this.message(`${this.crawler.pages.length} pages / ${this.crawler.assets.length} assets`)
+                Promise.all([
+                    this.addToCache(this.crawler.pages),
+                    this.addToCache(this.crawler.assets, this.assetsCacheName)
+                ])
+                    .then(() => {
+                        this.message('Installation succeeded')
+                    })
+                    .catch(() => {
+                        this.message('Installation failed')
+                    })
             })
-            .catch(()=>{
-                this.message('Static resources installation failed !')
-            })
-        })
     }
 }
