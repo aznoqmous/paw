@@ -34,7 +34,7 @@ function getPublicDir(){
         message: `Enter public root folder absolute path inside ${cwd} :`,
         validate: publicDir => (isDir(`${cwd}/${publicDir}`)) ? true : `${publicDir} is not a valid directory`
     })
-    .then((res)=>{ return `./${res.publicDir}` })
+    .then((res)=>{ return `${res.publicDir}` })
 }
 
 function buildWebpackConfig(publicDir){
@@ -52,7 +52,7 @@ function buildWebpackConfig(publicDir){
                     },
                     output: {
                         path: path.resolve(__dirname, "."),
-                        filename: "${publicDir}/sw.js"
+                        filename: "./${publicDir}/sw.js"
                     }
                 },
                 {
@@ -63,7 +63,7 @@ function buildWebpackConfig(publicDir){
                     },
                     output: {
                         path: path.resolve(__dirname, "."),
-                        filename: "${publicDir}/register.js"
+                        filename: "./${publicDir}/register.js"
                     }
                 }
             ]`,
@@ -78,7 +78,7 @@ function buildWebpackConfig(publicDir){
         return new Promise(resolve => {
             copyfiles([
                 './icon-*.png',
-                publicDir
+                `${cwd}/${publicDir}`
             ], '', ()=>{
                 resolve()
             })
@@ -146,7 +146,7 @@ function buildWebpackConfig(publicDir){
                 messageTimeOut: 3000,
                 messagePosition: 'bottom',
                 updateText: 'A new update is available, click on this message to <strong>update</strong>',
-                publicDirectory: publicDir
+                publicDirectory: `./${publicDir}`
             }
             for(let key in res) config[key] = res[key]
             return config
