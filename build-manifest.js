@@ -4,14 +4,14 @@ const fs = require('fs')
 
 let cwd = process.env.INIT_CWD
 let configFile = `${cwd}/paw/config.json`
-cwd = path.resolve(cwd, '../..')
+cwd = path.resolve(cwd, '.')
 console.log(process.env.INIT_CWD, cwd)
 
 const config = require(configFile)
 
 let manifestFile = `${config.publicDirectory}/manifest.json`
 
-console.log(`Generating manifest.json from ${configFile}...`)
+console.log(`Generating manifest.json from ${configFile} --> ${manifestFile}...`)
 
 let manifest = {
   name: "",
