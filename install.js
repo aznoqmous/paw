@@ -31,10 +31,10 @@ function getPublicDir(){
     return prompts({
         type: 'text',
         name: 'publicDir',
-        message: `Enter public root folder path inside ${cwd} :`,
-        validate: publicDir => (isDir(publicDir)) ? true : `${publicDir} is not a valid directory`
+        message: `Enter public root folder absolute path inside ${cwd} :`,
+        validate: publicDir => (isDir(`${cwd}/${publicDir}`)) ? true : `${publicDir} is not a valid directory`
     })
-    .then((res)=>{ return res.publicDir })
+    .then((res)=>{ return `./${res.publicDir}` })
 }
 
 function buildWebpackConfig(publicDir){
