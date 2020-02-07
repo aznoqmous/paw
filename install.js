@@ -15,12 +15,11 @@ console.log(`Installing PAW...`)
 getPublicDir()
 .then(publicDir => {
     buildWebpackConfig(publicDir)
+    .then(()=>{ return copyPublicFiles(publicDir) })
     .then(()=>{ return copyPawFiles() })
     .then(()=>{
         return getConfig(publicDir)
         .then(config =>{ return writeConfigFile(config) })
-    }).then(()=>{
-        return copyPublicFiles(publicDir)
     })
     .then(()=>{
         console.log('Installation completed')
