@@ -4,6 +4,8 @@ const fs = require('fs')
 
 let cwd = process.env.INIT_CWD
 let configFile = `${cwd}/paw/config.json`
+cwd = path.resolve(cwd, '../..')
+console.log(process.env.INIT_CWD, cwd)
 
 const config = require(configFile)
 
@@ -39,6 +41,7 @@ config.icons.map(icon => {
 icons.sort((a,b)=>{ return (a.src > b.src) ? 1 : -1 })
 manifest.icons = []
 icons.map(icon => { manifest.icons.push(icon) })
+
 
 fs.writeFile(manifestFile, JSON.stringify(manifest, null, 4), (err)=>{
   if(err) console.log('Error:', err)
