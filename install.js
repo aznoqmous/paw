@@ -12,14 +12,12 @@ cwd = path.resolve(cwd, '.')
 
 console.log(`Installing PAW...`)
 
-getPublicDir()
-.then(publicDir => {
-    buildWebpackConfig(publicDir)
-    .then(()=>{ return copyPublicFiles(publicDir) })
+getConfig()
+.then(config => {
+    buildWebpackConfig(config.publicDir)
+    .then(()=>{ return copyPublicFiles(config.publicDir) })
     .then(()=>{ return copyPawFiles() })
-    .then(()=>{
-        return getConfig(publicDir)
-        .then(config =>{ return writeConfigFile(config) })
+    .then(()=>{ return writeConfigFile(config) })
     })
     .then(()=>{
         console.log('Installation completed')
@@ -110,15 +108,23 @@ function buildWebpackConfig(publicDir){
     /*
     BUILD CONFIG FILE
     */
-    function getConfig(publicDir){
+    function getConfig(){
         let cwd = process.env.INIT_CWD
         let configFile = `${cwd}/paw/config.json`
-        return prompts({
-            type: 'text',
-            name: 'name',
-            message: 'Name your app : ',
-            initial: 'pwa'
-        })
+        return prompts([
+            {
+                type: 'text',
+                name: 'name',
+                message: 'Name your app : ',
+                initial: 'pwa'
+            },
+            {
+                type: 'text',
+                name: 'publicDirectory',
+                message: `Enter public root folder absolute path inside ${cwd}/ :`,
+                validate: publicDirectory => (isDir(`${cwd}/${publicDirectory}`)) ? true : `${cwd}/${publicDirectory} is not a valid directory`
+            }
+        ])
         .then(res => {
             let config = {
                 name: 'paw',
@@ -146,7 +152,7 @@ function buildWebpackConfig(publicDir){
                 messageTimeOut: 3000,
                 messagePosition: 'bottom',
                 updateText: 'A new update is available, click on this message to <strong>update</strong>',
-                publicDirectory: `/${publicDir}`,
+                publicDirectory: ``,
                 rootDirectory: `${cwd}`
             }
             for(let key in res) config[key] = res[key]
