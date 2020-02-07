@@ -75,6 +75,7 @@ function buildWebpackConfig(publicDir){
     }
 
     function copyPublicFiles(publicDir){
+        console.log('copy public files ', `${cwd}/${publicDir}`)
         return new Promise(resolve => {
             copyfiles([
                 './icon-*.png',
