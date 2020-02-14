@@ -188,8 +188,7 @@ __SW.js : controller utility__
 - Defer/Sync method to save request and load it later (sw.defer/sw.sync)
 
 ## Next
-- Ask public directory path during install
-
 - Network change handling - set but always 4g will debugging
 - Separate Router responsability from sw - router.js in progress
+- Ask before auto install + progress
 - Priority cache -> notify on update

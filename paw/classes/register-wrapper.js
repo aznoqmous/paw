@@ -211,6 +211,10 @@ export default class RegisterWrapper {
         navigator.serviceWorker.controller.postMessage(key, [messageChannel.port2])
     }
 
+    autoInstall(){
+        return this.sw({do: 'autoInstall'})
+    }
+
     loading() {
         document.body.style.transition = 'opacity 0.2s ease'
         document.body.style.opacity = 0.5

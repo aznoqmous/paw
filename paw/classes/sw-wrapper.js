@@ -48,18 +48,31 @@ export default class SWrapper {
         })
 
         this.sw.addEventListener('message', (e) => {
-            if (e.data.action) return this.sw[e.data.action]()
+
+            if(this.registerMessageChannel(e)) return false;
+
+            let port = false
+            if (e.ports.length) {
+                port = e.ports[0]
+            }
+
+            if (e.data.action) {
+                if(port) return port.postMessage(this[e.data.action]())
+                return this.sw[e.data.action]()
+            }
+            if(e.data.do) {
+                if(port) return this[e.data.do]()
+                .then(()=>{port.postMessage(true)})
+                .catch(()=>{port.postMessage(false)})
+                return this[e.data.do]()
+            }
 
             if (e.data.sync) {
                 if (typeof e.data.sync == 'object') return this.sync(...e.data.sync)
                 else return this.sync(e.data.sync)
             }
 
-            if(this.registerMessageChannel(e)) return false;
-
-            if (!e.ports.length) return false
-            let port = e.ports[0]
-            port.postMessage(e.data)
+            if(port) port.postMessage(e.data)
         })
     }
 
@@ -77,8 +90,8 @@ export default class SWrapper {
         this.sw.addEventListener('install', e => {
             e.waitUntil(
                 Promise.allSettled([
-                    this.addToCache(this.staticPages),
-                    this.autoInstall()
+                    this.addToCache(this.staticPages)
+                    // this.autoInstall() -> prompt before running auto install
                 ])
             )
         })
@@ -336,23 +349,16 @@ export default class SWrapper {
     }
 
     autoInstall() {
+        console.log('auto install started')
         this.crawler = new Crawler(this.sw.location.hostname)
         return this.crawler.crawl('/')
         .then((res) => {
             this.message(`Installing ${this.crawler.pages.length} pages...`)
             this.message(`Installing ${this.crawler.assets.length} assets...`)
-            Promise.all([
+            Promise.allSettled([
                 this.addToCache(this.crawler.pages),
                 this.addToCache(this.crawler.assets, this.assetsCacheName)
             ])
-            .then(() => {
-                this.installationProgress(1)
-                this.message('Installation succeeded')
-            })
-            .catch(() => {
-                this.message('Installation failed')
-            })
-
         })
     }
 }
