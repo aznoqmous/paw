@@ -125,6 +125,7 @@ function buildWebpackConfig(publicDir){
             }
         ])
         .then(res => {
+            console.log(res)
             let config = {
                 name: 'paw',
                 short_name: 'paw',
