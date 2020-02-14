@@ -53,7 +53,6 @@ export default class IDB {
             let request = this.getTransaction().openCursor()
             request.onsuccess = (e)=>{
                 let element = e.target.result
-                console.log(element)
                 if(element) {
                     elements.push(this.clone(element))
                     element.continue()
