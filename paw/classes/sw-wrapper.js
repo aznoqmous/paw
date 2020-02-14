@@ -70,16 +70,7 @@ export default class SWrapper {
     bindActivate() {
         this.sw.addEventListener('activate', e => {
             // clean old cache
-            e.waitUntil(caches.keys().then(keyList => {
-                return Promise.all(keyList.map(key => {
-                    if (
-                        key !== this.cacheName &&
-                        key !== this.assetsCacheName
-                    ) {
-                        return caches.delete(key)
-                    }
-                }))
-            }))
+            e.waitUntil(this.clearOldCaches())
             this.sw.skipWaiting()
             this.sw.clients.claim()
         })
@@ -88,7 +79,7 @@ export default class SWrapper {
     bindInstall() {
         this.sw.addEventListener('install', e => {
             e.waitUntil(
-                Promise.all([
+                Promise.allSettled([
                     this.addToCache(this.staticPages),
                     this.autoCrawl()
                 ])
@@ -233,13 +224,14 @@ export default class SWrapper {
     addToCache(paths, cacheName = null) {
         cacheName = (cacheName) ? cacheName : this.cacheName
         return caches.open(cacheName).then(cache => {
-            return cache.addAll(paths).catch(err => {
-                console.log(err)
-            })
+            return Promise.allSettled(paths.map(path => {
+                return cache.add(path)
+                .catch(err => {console.error(path, 'add to cache failed')})
+            }))
         })
-            .catch(err => {
-                console.log(err)
-            })
+        .catch(err => {
+            console.log(err)
+        })
     }
 
 

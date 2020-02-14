@@ -28,7 +28,7 @@ export default class IDB {
                 this.table = this.db.createObjectStore(this.tableName, {
                     autoIncrement: true
                 })
-                this.table.createIndex('name', 'name', { unique: false })
+                this.table.createIndex('key', 'key', { unique: false })
                 res(this.db)
             }
         })
@@ -49,10 +49,11 @@ export default class IDB {
 
     get(key=null){
         let elements = []
-        return new Promise(res => {
+        return new Promise((res, rej) => {
             let request = this.getTransaction().openCursor()
             request.onsuccess = (e)=>{
                 let element = e.target.result
+                console.log(element)
                 if(element) {
                     elements.push(this.clone(element))
                     element.continue()

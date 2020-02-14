@@ -12,8 +12,8 @@ router.post('/', (e)=>{
     })
 })
 router.route('/deferred', ()=>{
-    return sw.deferred().then((datas)=>{
-        datas.map( deferred => {
+    return sw.deferred('form').then((datas)=>{
+        return datas.map( deferred => {
                 return JSON.stringify(deferred)
         }).join('<br>')
     })

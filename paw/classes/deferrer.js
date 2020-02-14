@@ -17,7 +17,7 @@ export default class Deferrer {
     }
 
     all(key){
-        return this.db.get(key)
+        return this.db.get(key).then(datas => datas.map(data => data.value))
     }
 
     save(key, fetchEvent){
@@ -38,7 +38,7 @@ export default class Deferrer {
             get: fetchEvent.get,
         })
     }
-    
+
     load(key, url=null){
         return this.all(key).then(res => {
             return Promise.all(res.map((r)=>{
