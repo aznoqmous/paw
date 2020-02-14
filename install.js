@@ -22,7 +22,6 @@ getConfig()
     .then(()=>{
         console.log('Installation completed')
     })
-})
 
 function getPublicDir(){
     return prompts({
