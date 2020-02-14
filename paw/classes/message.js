@@ -1,8 +1,12 @@
 export default class Message {
-    constructor(content, timeout, time){
+    constructor(content, config){
+        config = Object.assign({
+            timeout: 3000,
+            time: Date.now(),
+            key: 'message'
+        }, config)
         this.content = content
-        this.timeout = timeout
-        this.time = (time) ? time : Date.now()
+        for(let key in config) this[key] = config[key]
         this.build()
     }
 
@@ -38,6 +42,10 @@ export default class Message {
     }
     get remaining(){
         return (this.time + this.timeout) - Date.now()
+    }
+
+    setHtml(html){
+        this.element.innerHTML = html
     }
 
     setOff(timeout){

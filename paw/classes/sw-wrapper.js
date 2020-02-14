@@ -56,10 +56,8 @@ export default class SWrapper {
                 else return this.sync(e.data.sync)
             }
 
-            if (e.data == 'message-init') {
-                this.messagePort = e.ports[0]
-                return false
-            }
+            if(this.registerMessageChannel(e)) return false;
+
 
             if (!e.ports.length) return false
             let port = e.ports[0]
@@ -84,6 +82,7 @@ export default class SWrapper {
                     this.autoCrawl()
                 ])
             )
+
         })
     }
 
@@ -102,25 +101,25 @@ export default class SWrapper {
     // REQUESTS HANDLING
     handleRequest(fetchEvent) {
         return this.prepareRequest(fetchEvent)
-            .then(() => {
-                let matches = this.router.routeMatch(fetchEvent)
-                if (matches.length) {
-                    return this.router.resolve(fetchEvent)
-                        .then(res => {
-                            return res
-                        })
-                        .catch(finalRoute => {
-                            if (finalRoute.strategy) return this.fetchStrategy(fetchEvent, finalRoute.strategy)
-                            else return this.defaultFetchStrategy(fetchEvent) // if no response handle basic response
-                        })
-                }
-                else if (fetchEvent.request.mode == 'navigate') {
-                    return this.defaultFetchStrategy(fetchEvent)
-                }
-                else {
-                    return this.defaultAssetStrategy(fetchEvent)
-                }
-            })
+        .then(() => {
+            let matches = this.router.routeMatch(fetchEvent)
+            if (matches.length) {
+                return this.router.resolve(fetchEvent)
+                .then(res => {
+                    return res
+                })
+                .catch(finalRoute => {
+                    if (finalRoute.strategy) return this.fetchStrategy(fetchEvent, finalRoute.strategy)
+                    else return this.defaultFetchStrategy(fetchEvent) // if no response handle basic response
+                })
+            }
+            else if (fetchEvent.request.mode == 'navigate') {
+                return this.defaultFetchStrategy(fetchEvent)
+            }
+            else {
+                return this.defaultAssetStrategy(fetchEvent)
+            }
+        })
     }
 
     prepareRequest(fetchEvent) {
@@ -165,11 +164,11 @@ export default class SWrapper {
             headers[h[0]] = h[1]
         })
         if (headers['content-type'] == 'application/x-www-form-urlencoded')
-            return request.formData()
+        return request.formData()
         else if (headers['content-type'] == 'application/json')
-            return request.json()
+        return request.json()
         else if (headers['content-type'] == 'text/html')
-            return request.text()
+        return request.text()
         else return false;
     }
 
@@ -201,9 +200,9 @@ export default class SWrapper {
         cacheName = (cacheName) ? cacheName : this.cacheName
         let clone = response.clone()
         caches.open(cacheName)
-            .then(cache => {
-                cache.put(url, clone)
-            })
+        .then(cache => {
+            cache.put(url, clone)
+        })
     }
 
     clearOldCaches() {
@@ -253,35 +252,35 @@ export default class SWrapper {
     strategyNetwork(e, cacheName = null) {
         cacheName = (cacheName) ? cacheName : this.cacheName
         return fetch(e.request)
-            .then(response => {
-                if (response.status == 200) {
-                    this.storeResponse(cacheName, e.request.url, response)
-                }
-                return response;
+        .then(response => {
+            if (response.status == 200) {
+                this.storeResponse(cacheName, e.request.url, response)
+            }
+            return response;
+        })
+        .catch(() => {
+            return caches.open(cacheName)
+            .then(cache => {
+                if (this.cacheMatch(cache, e)) return this.cacheMatch(cache, e)
+                return cache.match(this.offlinePage)
             })
-            .catch(() => {
-                return caches.open(cacheName)
-                    .then(cache => {
-                        if (this.cacheMatch(cache, e)) return this.cacheMatch(cache, e)
-                        return cache.match(this.offlinePage)
-                    })
-            })
+        })
     }
 
     strategyCache(e, cacheName = null) {
         cacheName = (cacheName) ? cacheName : this.cacheName
         return caches.open(cacheName)
-            .then(cache => {
-                return this.cacheMatch(cache, e).then(response => {
-                    return response || fetch(e.request)
-                        .then(response => {
-                            if (response.status == 200) {
-                                this.storeResponse(cacheName, e.request.url, response)
-                            }
-                            return response;
-                        })
+        .then(cache => {
+            return this.cacheMatch(cache, e).then(response => {
+                return response || fetch(e.request)
+                .then(response => {
+                    if (response.status == 200) {
+                        this.storeResponse(cacheName, e.request.url, response)
+                    }
+                    return response;
                 })
             })
+        })
     }
 
     strategyFastest(e, cacheName = null) {
@@ -289,7 +288,7 @@ export default class SWrapper {
             this.strategyCache(e, cacheName),
             this.strategyNetwork(e, cacheName)
         ])
-            .then(res => res)
+        .then(res => res)
     }
 
     cacheMatch(cache, fetchEvent) {
@@ -320,6 +319,18 @@ export default class SWrapper {
         return this.deferrer.all(key)
     }
 
+    registerMessageChannel(e){
+        if (e.data == 'message') {
+            this.messagePort = e.ports[0]
+            return e.ports[0]
+        }
+        if(e.data == 'loading') {
+            this.loadingPort = e.ports[0]
+            return e.ports[0]
+
+        }
+        return false
+    }
     message(message) {
         if (!this.messagePort) {
             setTimeout(() => {
@@ -330,21 +341,57 @@ export default class SWrapper {
         else this.messagePort.postMessage(message)
     }
 
+    installationProgress(value){
+        console.log(this.loadingPort)
+        if (!this.loadingPort) {
+            setTimeout(() => {
+                // retry until it works
+                this.installationProgress(value)
+            }, 100)
+        }
+        else this.loadingPort.postMessage(value)
+    }
+
+
     autoCrawl() {
         this.crawler = new Crawler(this.sw.location.hostname)
+        let total = this.crawler.pages.length + this.crawler.assets.length
+        let resolved = 0
+        console.log(total)
         return this.crawler.crawl('/')
-            .then((res) => {
-                this.message(`${this.crawler.pages.length} pages / ${this.crawler.assets.length} assets`)
-                Promise.all([
-                    this.addToCache(this.crawler.pages),
-                    this.addToCache(this.crawler.assets, this.assetsCacheName)
-                ])
-                    .then(() => {
-                        this.message('Installation succeeded')
-                    })
-                    .catch(() => {
-                        this.message('Installation failed')
-                    })
+        .then((res) => {
+            this.message(`Installing ${this.crawler.pages.length} pages...`)
+            this.message(`Installing ${this.crawler.assets.length} assets...`)
+            Promise.all([
+                caches.open(this.cacheName).then(cache => {
+                    return Promise.allSettled(this.crawler.pages.map(path => {
+                        return cache.add(path)
+                        .catch(err => {console.error(path, 'add to cache failed')})
+                        .finally(()=>{
+                            resolved++
+                            this.installationProgress(resolved/total)
+                        })
+                    }))
+                }),
+                caches.open(this.assetsCacheName).then(cache => {
+                    return Promise.allSettled(this.crawler.assets.map(path => {
+                        return cache.add(path)
+                        .catch(err => {console.error(path, 'add to cache failed')})
+                        .finally(()=>{
+                            resolved++
+                            this.installationProgress(resolved/total)
+                        })
+                    }))
+                })
+            ])
+            .then(() => {
+                this.installationProgress(1)
+                this.message('Installation succeeded')
             })
+            .catch(() => {
+                this.message('Installation failed')
+            })
+
+        })
     }
 }
