@@ -41,7 +41,6 @@ export default class SWrapper {
         this.bindInstall()
         this.bindActivate()
         this.bindFetch()
-
         this.bindSync()
 
         this.sw.addEventListener('push', (e) => {
@@ -58,7 +57,6 @@ export default class SWrapper {
 
             if(this.registerMessageChannel(e)) return false;
 
-
             if (!e.ports.length) return false
             let port = e.ports[0]
             port.postMessage(e.data)
@@ -67,8 +65,9 @@ export default class SWrapper {
 
     bindActivate() {
         this.sw.addEventListener('activate', e => {
-            // clean old cache
-            e.waitUntil(this.clearOldCaches())
+            e.waitUntil(
+                this.clearOldCaches()
+            )
             this.sw.skipWaiting()
             this.sw.clients.claim()
         })
@@ -79,10 +78,9 @@ export default class SWrapper {
             e.waitUntil(
                 Promise.allSettled([
                     this.addToCache(this.staticPages),
-                    this.autoCrawl()
+                    this.autoInstall()
                 ])
             )
-
         })
     }
 
@@ -326,7 +324,7 @@ export default class SWrapper {
         }
         return false
     }
-    
+
     message(message) {
         if (!this.messagePort) {
             setTimeout(() => {
@@ -337,7 +335,7 @@ export default class SWrapper {
         else this.messagePort.postMessage(message)
     }
 
-    autoCrawl() {
+    autoInstall() {
         this.crawler = new Crawler(this.sw.location.hostname)
         return this.crawler.crawl('/')
         .then((res) => {
