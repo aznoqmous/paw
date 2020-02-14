@@ -47,7 +47,6 @@ export default class RegisterWrapper {
                 this.registration = registration
 
                 this.newMessageChannel('message')
-                this.newLoadingChannel()
 
                 // Registration was successful
                 if (registration.waiting && registration.waiting.state == 'installed') {
@@ -57,7 +56,7 @@ export default class RegisterWrapper {
                             this.loading()
                         })
                 }
-                
+
                 this.registration.addEventListener('updatefound', () => {
                     var networker = this.registration.installing;
 
@@ -211,64 +210,10 @@ export default class RegisterWrapper {
         }
         navigator.serviceWorker.controller.postMessage(key, [messageChannel.port2])
     }
-    newLoadingChannel(){
-        if (!navigator.serviceWorker) return false
-        let messageChannel = new MessageChannel()
-        messageChannel.port1.onmessage = (e) => {
-            if (e.data.error) return false
-            else this.loadingProgress(e.data)
-        }
-        navigator.serviceWorker.controller.postMessage('loading', [messageChannel.port2])
-    }
 
     loading() {
         document.body.style.transition = 'opacity 0.2s ease'
         document.body.style.opacity = 0.5
-    }
-
-    createProgressBar(){
-        this.progress = document.createElement('div')
-        this.progress.className = "paw-progress"
-        let styles = {
-            position: 'fixed',
-            left: '0',
-            top: '0',
-            zIndex: '10000',
-            width: '100vw',
-            height: '3px',
-            background: '#eee',
-            pointerEvents: 'none',
-            transition: 'all 0.2s ease'
-        }
-        for (let key in styles) this.progress.style[key] = styles[key]
-
-        this.progressBar = document.createElement('div')
-        this.progressBar.className = 'paw-progress-bar'
-        styles = {
-            position: 'absolute',
-            left: '0',
-            top: '0',
-            background: '#BADA55',
-            height: '100%',
-            width: 0,
-            transition: 'all 0.2s ease'
-        }
-        for (let key in styles) this.progressBar.style[key] = styles[key]
-
-        this.progress.appendChild(this.progressBar)
-
-        if (document.body) document.body.appendChild(this.progress)
-        else document.addEventListener('DOMContentLoaded', () => {
-            document.body.appendChild(this.progress)
-        })
-    }
-    loadingProgress(value){
-        console.log(this.progress, value)
-        if(!this.progress) this.createProgressBar()
-        this.progressBar.style.width = `${value * 100}%`
-        if(value >= 1) setTimeout(()=>{
-            this.progress.style.opacity = 0
-        }, 2000)
     }
 
     loaded() {

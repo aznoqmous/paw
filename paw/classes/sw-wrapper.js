@@ -324,13 +324,9 @@ export default class SWrapper {
             this.messagePort = e.ports[0]
             return e.ports[0]
         }
-        if(e.data == 'loading') {
-            this.loadingPort = e.ports[0]
-            return e.ports[0]
-
-        }
         return false
     }
+    
     message(message) {
         if (!this.messagePort) {
             setTimeout(() => {
@@ -341,46 +337,15 @@ export default class SWrapper {
         else this.messagePort.postMessage(message)
     }
 
-    installationProgress(value){
-        if (!this.loadingPort) {
-            setTimeout(() => {
-                // retry until it works
-                this.installationProgress(value)
-            }, 100)
-        }
-        else this.loadingPort.postMessage(value)
-    }
-
-
     autoCrawl() {
         this.crawler = new Crawler(this.sw.location.hostname)
-        let total = this.crawler.pages.length + this.crawler.assets.length
-        let resolved = 0
         return this.crawler.crawl('/')
         .then((res) => {
             this.message(`Installing ${this.crawler.pages.length} pages...`)
             this.message(`Installing ${this.crawler.assets.length} assets...`)
             Promise.all([
-                caches.open(this.cacheName).then(cache => {
-                    return Promise.allSettled(this.crawler.pages.map(path => {
-                        return cache.add(path)
-                        .catch(err => {console.error(path, 'add to cache failed')})
-                        .finally(()=>{
-                            resolved++
-                            this.installationProgress(resolved/total)
-                        })
-                    }))
-                }),
-                caches.open(this.assetsCacheName).then(cache => {
-                    return Promise.allSettled(this.crawler.assets.map(path => {
-                        return cache.add(path)
-                        .catch(err => {console.error(path, 'add to cache failed')})
-                        .finally(()=>{
-                            resolved++
-                            this.installationProgress(resolved/total)
-                        })
-                    }))
-                })
+                this.addToCache(this.crawler.pages),
+                this.addToCache(this.crawler.assets, this.assetsCacheName)
             ])
             .then(() => {
                 this.installationProgress(1)
