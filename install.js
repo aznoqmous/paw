@@ -14,8 +14,8 @@ console.log(`Installing PAW...`)
 
 getConfig()
 .then(config => {
-    buildWebpackConfig(config.publicDir)
-    .then(()=>{ return copyPublicFiles(config.publicDir) })
+    buildWebpackConfig(config.publicDirectory)
+    .then(()=>{ return copyPublicFiles(config.publicDirectory) })
     .then(()=>{ return copyPawFiles() })
     .then(()=>{ return writeConfigFile(config) })
     })
@@ -125,7 +125,6 @@ function buildWebpackConfig(publicDir){
             }
         ])
         .then(res => {
-            console.log(res)
             let config = {
                 name: 'paw',
                 short_name: 'paw',
