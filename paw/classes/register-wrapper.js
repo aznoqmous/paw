@@ -44,6 +44,10 @@ export default class RegisterWrapper {
     register(sw) {
         return navigator.serviceWorker.register(sw)
             .then((registration) => {
+                this.registration = registration
+
+                this.newMessageChannel('message')
+                this.newLoadingChannel()
 
                 // Registration was successful
                 if (registration.waiting && registration.waiting.state == 'installed') {
@@ -53,9 +57,7 @@ export default class RegisterWrapper {
                             this.loading()
                         })
                 }
-
-                this.registration = registration
-
+                
                 this.registration.addEventListener('updatefound', () => {
                     var networker = this.registration.installing;
 
@@ -74,9 +76,6 @@ export default class RegisterWrapper {
                 });
 
                 this.registration.update()
-
-                this.newMessageChannel('message')
-                this.newLoadingChannel()
 
                 if (this.notifications) this.subscribe(registration)
 

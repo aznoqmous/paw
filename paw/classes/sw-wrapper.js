@@ -342,7 +342,6 @@ export default class SWrapper {
     }
 
     installationProgress(value){
-        console.log(this.loadingPort)
         if (!this.loadingPort) {
             setTimeout(() => {
                 // retry until it works
@@ -357,7 +356,6 @@ export default class SWrapper {
         this.crawler = new Crawler(this.sw.location.hostname)
         let total = this.crawler.pages.length + this.crawler.assets.length
         let resolved = 0
-        console.log(total)
         return this.crawler.crawl('/')
         .then((res) => {
             this.message(`Installing ${this.crawler.pages.length} pages...`)
