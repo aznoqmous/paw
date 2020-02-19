@@ -5,7 +5,6 @@ const fs = require('fs')
 let cwd = process.env.INIT_CWD
 let configFile = `${cwd}/paw/config.json`
 cwd = path.resolve(cwd, '.')
-console.log(process.env.INIT_CWD, cwd)
 
 const config = require(configFile)
 
