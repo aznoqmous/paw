@@ -232,9 +232,23 @@ export default class RegisterWrapper {
             console.log('rw crawl completed')
             this.message(`Installing ${this.crawler.pages.length} pages...`)
             this.message(`Installing ${this.crawler.assets.length} assets...`)
+            let total = this.crawler.pages.length + this.crawler.assets.length
+            let current = 0
             return Promise.allSettled([
-                this.sw({do: 'addToCache', options: [this.crawler.pages]}),
-                this.sw({do: 'addToAssetsCache', options: [this.crawler.assets]}),
+                this.crawler.pages.map(page => {
+                    return this.sw({do: 'addToCache', options: [page]})
+                    .then(()=>{
+                        current++
+                        this.updateProgress(`${current}/${total} (${Math.floor(current/total*100)}%)`)
+                    })
+                }),
+                this.crawler.assets.map(asset => {
+                    return this.sw({do: 'addToAssetsCache', options: [asset]})
+                    .then(()=>{
+                        current++
+                        this.updateProgress(`${current}/${total} (${Math.floor(current/total*100)}%)`)
+                    })
+                })
             ])
             .then(()=>{
                 this.loaded()
@@ -245,12 +259,17 @@ export default class RegisterWrapper {
     }
 
     loading() {
+        this.progress = document.createElement('div')
+        document.body.appendChild(this.progress)
         document.body.style.transition = 'opacity 0.2s ease'
         document.body.style.opacity = 0.5
     }
-
+    updateProgress(state){
+        this.progress.innerHTML = state
+    }
     loaded() {
         document.body.style.opacity = 1
+        this.progress.style.display = 'none'
     }
 
     unload() {
