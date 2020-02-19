@@ -152,7 +152,8 @@ function buildWebpackConfig(publicDir){
                 messagePosition: 'bottom',
                 updateText: 'A new update is available, click on this message to <strong>update</strong>',
                 publicDirectory: ``,
-                rootDirectory: `${cwd}`
+                rootDirectory: `${cwd}`,
+                autoInstallation: false
             }
             for(let key in res) config[key] = res[key]
             return config

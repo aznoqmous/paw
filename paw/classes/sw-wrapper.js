@@ -343,18 +343,20 @@ export default class SWrapper {
         else this.messagePort.postMessage(message)
     }
 
+    // OFFLINE INSTALL
     install() {
-        console.log('installation for offline support start')
+        console.log('installation start')
         this.crawler = new Crawler(this.sw.location.hostname)
         return this.crawler.crawl('/')
         .then((res) => {
+            console.log('crawl completed')
             this.message(`Installing ${this.crawler.pages.length} pages...`)
             this.message(`Installing ${this.crawler.assets.length} assets...`)
             return Promise.allSettled([
                 this.addToCache(this.crawler.pages),
                 this.addToCache(this.crawler.assets, this.assetsCacheName)
             ])
-            .then(()=>{console.log('installation for offline support ended')})
+            .then(()=>{console.log('installation ended')})
         })
     }
     autoInstall(){
