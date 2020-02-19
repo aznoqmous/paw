@@ -55,10 +55,12 @@ export default class SWrapper {
                 return this.sw[e.data.action]()
             }
             if(e.data.do) {
-                if(port) return this[e.data.do]()
+                let options = (e.data.options)? e.data.options : [];
+                console.log(e.data)
+                if(port) return this[e.data.do](...options)
                 .then(()=>{port.postMessage(true)})
                 .catch(()=>{port.postMessage(false)})
-                return this[e.data.do]()
+                return this[e.data.do](...options)
             }
 
             if (e.data.sync) {
@@ -82,12 +84,10 @@ export default class SWrapper {
 
     bindInstall() {
         this.sw.addEventListener('install', e => {
-
             e.waitUntil(
                 Promise.allSettled([
-                    this.addToCache(this.staticPages),
-                    this.autoInstall()
-                ])
+                    this.addToCache(this.staticPages)
+                ]).then(()=>{console.log('sw install complete')})
             )
         })
     }
@@ -239,6 +239,9 @@ export default class SWrapper {
         })
     }
 
+    addToAssetsCache(paths){
+        return this.addToCache(paths, this.assetsCacheName)
+    }
 
     // STRATEGY
     defaultFetchStrategy(e) {
@@ -354,7 +357,7 @@ export default class SWrapper {
             this.message(`Installing ${this.crawler.assets.length} assets...`)
             return Promise.allSettled([
                 this.addToCache(this.crawler.pages),
-                this.addToCache(this.crawler.assets, this.assetsCacheName)
+                this.addToAssetsCache(this.crawler.assets)
             ])
             .then(()=>{console.log('installation ended')})
         })

@@ -1,5 +1,6 @@
 import urlB64ToUint8Array from 'urlb64touint8array'
 import Message from './message'
+import Crawler from './crawler'
 
 export default class RegisterWrapper {
     constructor(config) {
@@ -31,10 +32,20 @@ export default class RegisterWrapper {
                 let refreshing = false
                 navigator.serviceWorker.addEventListener('controllerchange', (e) => {
                     if (refreshing) return false
-                    window.location.reload()
-                    refreshing = true
+
+                    this.loading()
+                    this.autoInstall()
+                    .then(()=>{
+                        console.log('autoInstall completed')
+                        this.loaded()
+                    })
+
+                    // window.location.reload()
+                    // refreshing = true
+
                 })
             })
+
             window.addEventListener('unload', () => {
                 this.unload()
             })
@@ -70,6 +81,7 @@ export default class RegisterWrapper {
 
                     networker.addEventListener('statechange', () => {
                         this.message(`Update : ${networker.state}`);
+                        this.loaded()
                     });
 
                 });
@@ -110,7 +122,7 @@ export default class RegisterWrapper {
 
     notify(body, title = false) {
         if (!this.registration) return false;
-        title = `${this.title} - ${title ? title : 'New message'}`
+        title = `${this.title}${title ? ' - ' + title : ''}`
         let options = {
             body: `${body}`,
             icon: (this.config.icons.length) ? this.config.icons[0] : '',
@@ -212,6 +224,23 @@ export default class RegisterWrapper {
     }
 
     autoInstall(){
+        this.crawler = new Crawler(window.location.hostname)
+        this.message('Installing resources for offline support...')
+        this.loading()
+        return this.crawler.crawl('/')
+        .then((res)=>{
+            console.log('rw crawl completed')
+            this.message(`Installing ${this.crawler.pages.length} pages...`)
+            this.message(`Installing ${this.crawler.assets.length} assets...`)
+            return Promise.allSettled([
+                this.sw({do: 'addToCache', options: [this.crawler.pages]}),
+                this.sw({do: 'addToAssetsCache', options: [this.crawler.assets]}),
+            ])
+            .then(()=>{
+                this.loaded()
+                this.message('Installation completed !')
+            })
+        })
         return this.sw({do: 'install'})
     }
 

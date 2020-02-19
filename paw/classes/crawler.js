@@ -25,8 +25,10 @@ export default class Crawler {
     fetch(url){
         return new Promise((res, rej) => {
             fetch(url)
-            .then(res => res.text())
-            .then(text => { res(text) })
+            .then(response => {
+                response.text()
+                .then(text => { res(text) })
+            })
             .catch(err => { rej(err) })
         })
     }
