@@ -101,7 +101,7 @@ export default class RegisterWrapper {
             .then((sub) => {
                 if (this.config.debug) this.message('user subscribed to notifications')
                 this.isSubscribed = true
-                this.notify('Notifications are now active', 'permission')
+                this.notify('Notifications are now active')
             })
             .catch((err) => {
                 console.log(err)
@@ -212,7 +212,7 @@ export default class RegisterWrapper {
     }
 
     autoInstall(){
-        return this.sw({do: 'autoInstall'})
+        return this.sw({do: 'install'})
     }
 
     loading() {

@@ -192,3 +192,4 @@ __SW.js : controller utility__
 - Separate Router responsability from sw - router.js in progress
 - Ask before auto install + progress
 - Priority cache -> notify on update
+- Separate messages / implement translations

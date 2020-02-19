@@ -7,17 +7,11 @@ export default class SWrapper {
 
     constructor(sw, config) {
         this.config = Object.assign({
-            title: config.name,
-            cacheName: config.cacheName,
             assetsCacheName: `${config.cacheName}-assets`,
             deferrerName: `paw-deferred`,
-            offlinePage: config.offlinePage,
-            staticPages: config.staticPages,
-            strategy: config.strategy,
-            auto: true
         }, config)
         for (let key in this.config) this[key] = this.config[key]
-
+        console.log(this)
         this.init(sw)
         this.bind()
     }
@@ -88,10 +82,11 @@ export default class SWrapper {
 
     bindInstall() {
         this.sw.addEventListener('install', e => {
+
             e.waitUntil(
                 Promise.allSettled([
-                    this.addToCache(this.staticPages)
-                    // this.autoInstall() -> prompt before running auto install
+                    this.addToCache(this.staticPages),
+                    this.autoInstall()
                 ])
             )
         })
@@ -348,17 +343,22 @@ export default class SWrapper {
         else this.messagePort.postMessage(message)
     }
 
-    autoInstall() {
-        console.log('auto install started')
+    install() {
+        console.log('installation for offline support start')
         this.crawler = new Crawler(this.sw.location.hostname)
         return this.crawler.crawl('/')
         .then((res) => {
             this.message(`Installing ${this.crawler.pages.length} pages...`)
             this.message(`Installing ${this.crawler.assets.length} assets...`)
-            Promise.allSettled([
+            return Promise.allSettled([
                 this.addToCache(this.crawler.pages),
                 this.addToCache(this.crawler.assets, this.assetsCacheName)
             ])
+            .then(()=>{console.log('installation for offline support ended')})
         })
+    }
+    autoInstall(){
+        if(this.autoInstallation) return this.install()
+        return Promise.resolve()
     }
 }
