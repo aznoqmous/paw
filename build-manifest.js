@@ -8,7 +8,7 @@ cwd = path.resolve(cwd, '.')
 
 const config = require(configFile)
 
-let manifestFile = `${config.rootDirectory}${config.publicDirectory}/manifest.json`
+let manifestFile = `${config.rootDirectory}/${config.publicDirectory}/manifest.json`
 
 console.log(`Generating manifest.json from ${configFile} --> ${manifestFile}...`)
 

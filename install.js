@@ -27,7 +27,7 @@ function getPublicDir(){
     return prompts({
         type: 'text',
         name: 'publicDir',
-        message: `Enter public root folder absolute path inside ${cwd} :`,
+        message: `Enter public root folder absolute path inside ${cwd.replace(/\/$/, '')} :`,
         validate: publicDir => (isDir(`${cwd}/${publicDir}`)) ? true : `${publicDir} is not a valid directory`
     })
     .then((res)=>{ return `${res.publicDir}` })
