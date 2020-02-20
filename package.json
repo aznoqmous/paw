@@ -1,33 +1,34 @@
 {
-  "name": "paw",
-  "version": "1.0.0",
-  "description": "```js\r import SWrapper from './sw-wrapper'",
-  "main": "paw/index.js",
-  "scripts": {
-    "postinstall": "node install.js && node build-manifest.js",
-    "preremove": "echo 'hello'",
-    "paw:manifest": "node build-manifest.js",
-    "paw": "node build-manifest.js && webpack --config paw.config-dev.js --mode production",
-    "paw:dev": "node build-manifest.js && webpack --config paw.config-dev.js --mode development",
-    "paw:watch": "node build-manifest.js && webpack --config paw.config-dev.js --mode development --watch"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/aznoqmous/paw.git"
-  },
-  "author": "plandreau@addictic.fr",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/aznoqmous/paw/issues"
-  },
-  "homepage": "https://github.com/aznoqmous/paw#readme",
-  "dependencies": {
-    "copyfiles": "^2.2.0",
-    "npm-add-script": "^1.1.0",
-    "path": "^0.12.7",
-    "process": "^0.11.10",
-    "prompt": "^1.0.0",
-    "prompts": "^2.3.0",
-    "urlb64touint8array": "^1.0.3"
-  }
+    "name": "paw",
+    "version": "1.0.0",
+    "description": "```js\r import SWrapper from './sw-wrapper'",
+    "main": "paw/index.js",
+    "scripts": {
+        "postinstall": "node install.js && node build-manifest.js",
+        "preuninstall": "node uninstall.js",
+        "paw:manifest": "node build-manifest.js",
+        "paw": "node build-manifest.js && webpack --config paw.config-dev.js --mode production",
+        "paw:dev": "node build-manifest.js && webpack --config paw.config-dev.js --mode development",
+        "paw:watch": "node build-manifest.js && webpack --config paw.config-dev.js --mode development --watch"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/aznoqmous/paw.git"
+    },
+    "author": "plandreau@addictic.fr",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/aznoqmous/paw/issues"
+    },
+    "homepage": "https://github.com/aznoqmous/paw#readme",
+    "dependencies": {
+        "copyfiles": "^2.2.0",
+        "fs-extra": "^8.1.0",
+        "npm-add-script": "^1.1.0",
+        "path": "^0.12.7",
+        "process": "^0.11.10",
+        "prompt": "^1.0.0",
+        "prompts": "^2.3.0",
+        "urlb64touint8array": "^1.0.3"
+    }
 }
