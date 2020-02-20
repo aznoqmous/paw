@@ -1,5 +1,6 @@
 const fs = require('fs-extra')
 const process = require('process')
+const fss = require('fs')
 
 let cwd = process.env.INIT_CWD
 let configFile = `${cwd}/paw/config.json`
@@ -56,10 +57,9 @@ function removeNpmScripts(){
     let keys = [...Object.keys(packageJson.scripts)].filter(script => {
         return /paw/.test(script)
     })
-    console.log(keys)
     keys.map(key => {
         delete packageJson.scripts[key]
     })
-    return fs.writeJson(packageFile, packageJson)
+    return fs.writeJson(packageFile, packageJson, {spaces: 4})
     .then(()=>{ console.log('paw scripts removed') })
 }
