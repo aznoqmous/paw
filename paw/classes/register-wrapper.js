@@ -259,7 +259,6 @@ export default class RegisterWrapper {
                 transition: 'opacity 0.2s ease'
             }
             for(let key in styles) this.overlay.style[key] = styles[key]
-            console.log(this.overlay)
             document.body.appendChild(this.overlay)
         }
     }
@@ -273,7 +272,6 @@ export default class RegisterWrapper {
         if(this.progress) this.progress.element.style.display = 'none'
         if(this.overlay) this.overlay.style.opacity = 0
         this.messages = []
-
     }
 
 }

@@ -125,38 +125,11 @@ function buildWebpackConfig(publicDir){
             }
         ])
         .then(res => {
-            let config = {
-                name: 'paw',
-                short_name: 'paw',
-                theme_color: "#fff",
-                background_color: "#474747",
-                display: "standalone",
-                scope: "/",
-                orientation: "portrait",
-                start_url: "/",
-                charset: "utf-8",
-                icons: [
-                    "icon-192.png",
-                    "icon-512.png"
-                ],
-                badge: "icon-192.png",
-                cacheName: "paw-cache",
-                privateKey: "4AtF_NBS2jXcgQNEdQmOFLMeqA2ZWylX-_PhIlOq4xE",
-                publicKey: "BE-bdUE6scWTi0HQzt3PujQcSDeCK0KKz-wCkq-XIfTIXhmawwI-dTUNZAZEH_X5rkDrBqbA71wba2CsAm7gyDA",
-                strategy: "cache",
-                debug: false,
-                staticPages: [ "/" ],
-                offlinePage: null,
-                notifications: true,
-                messageTimeOut: 3000,
-                messagePosition: 'bottom',
-                overlayColor: 'rgba(255,255,255,0.5)',
-                updateText: 'A new update is available, click on this message to <strong>update</strong>',
-                publicDirectory: ``,
-                rootDirectory: `${cwd}`,
-                autoInstallation: false
-            }
+            let config = require(`${installedPath}/paw/config.json`)
+            
             for(let key in res) config[key] = res[key]
+
+            config.rootDirectory = `${cwd}`
             return config
         })
     }
