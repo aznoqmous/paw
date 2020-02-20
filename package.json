@@ -5,6 +5,7 @@
   "main": "paw/index.js",
   "scripts": {
     "postinstall": "node install.js && node build-manifest.js",
+    "preremove": "echo 'hello'",
     "paw:manifest": "node build-manifest.js",
     "paw": "node build-manifest.js && webpack --config paw.config-dev.js --mode production",
     "paw:dev": "node build-manifest.js && webpack --config paw.config-dev.js --mode development",
