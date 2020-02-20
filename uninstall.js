@@ -21,14 +21,14 @@ console.log('paw directory', pawDirectory)
 console.log('public directory', publicDirectory)
 
 Promise.all(
-    fs.remove(`${pawDirectory}`)
-    .then(()=>{ console.log(`${pawDirectory} erased`) }),
-    Promise.all(
-        publicFiles.map(file => {
-            fs.remove(`${cwd}${publicDirectory}/${file}`)
-            .then(()=>{ console.log(`${file} erased`) })
-        })
-    )
-    .then(()=>{ console.log('public directory cleared') })
+    publicFiles.map(file => {
+        return fs.remove(`${cwd}${publicDirectory}/${file}`)
+        .then(()=>{ console.log(`${file} erased`) })
+    })
 )
+.then(()=>{
+    console.log('public directory cleared')
+    return fs.remove(`${pawDirectory}`)
+    .then(()=>{ console.log(`${pawDirectory} erased`) })
+})
 .then(()=>{ console.log('Uninstall completed') })
