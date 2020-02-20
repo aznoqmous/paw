@@ -17,11 +17,22 @@ console.log(`${chalk.blue("Installing PAW...")}`)
 
 getConfig()
 .then(config => {
-    buildWebpackConfig(config.publicDirectory)
+    return buildWebpackConfig(config.publicDirectory)
     .then(()=>{ return copyPublicFiles(config.publicDirectory) })
     .then(()=>{ return copyPawFiles() })
     .then(()=>{ return writeConfigFile(config) })
-    })
+})
+.then(()=>{
+    console.log(`${chalk.blue("Installation completed !")}`)
+    console.log('')
+    console.log('You can now add the following line to your site <head> (on page you want to update from, in most case, at least your homepage) :')
+    console.log('<link rel="manifest" href="/manifest.json">')
+    console.log('<script src="/register.js"></scripts>')
+    console.log('')
+    console.log(`Run ${chalk.green("npm run paw")} to build manifest and required scripts`)
+    console.log('')
+    console.log('')
+})
 
 function getPublicDir(){
     return prompts({
@@ -91,7 +102,6 @@ function buildWebpackConfig(publicDir){
                 './paw/config.json',
                 `${cwd}/`
             ], '', ()=>{
-                console.log('PAW Installation completed')
                 process.chdir(cwd)
                 npmAddScript({key: 'paw', value: `node ${installedPath}/build-manifest.js && webpack --config paw.config.js --mode production`})
                 npmAddScript({key: 'paw:dev', value: `node ${installedPath}/build-manifest.js && webpack --config paw.config.js --mode development`})
