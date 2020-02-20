@@ -5,7 +5,8 @@
     "main": "paw/index.js",
     "scripts": {
         "postinstall": "node install.js && node build-manifest.js",
-        "preuninstall": "node uninstall.js",
+        "preuninstall": "echo 'uninstall...' && node uninstall.js",
+        "uninstall": "echo 'uninstall...' && node uninstall.js",
         "paw:manifest": "node build-manifest.js",
         "paw": "node build-manifest.js && webpack --config paw.config-dev.js --mode production",
         "paw:dev": "node build-manifest.js && webpack --config paw.config-dev.js --mode development",
