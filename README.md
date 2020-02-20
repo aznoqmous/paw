@@ -58,6 +58,10 @@ You'll have to add those two lines to your app root page :
 ...
 ```
 
+## Uninstall
+`npm remove paw`
+
+
 ## How to use
 Your `paw/sw.js` file must look like this :
 ```js
@@ -172,7 +176,7 @@ router.online('/back-online-route', (e)=>{
 
 ## Features
 __CLI__
-- Auto installation
+- Auto install / uninstall 
 - Build `config.json` during install (prompt in CLI)
 - Regenerate `manifest.json` from `config.json` on webpack build
 
