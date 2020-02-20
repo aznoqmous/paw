@@ -127,7 +127,43 @@ function buildWebpackConfig(publicDir){
             }
         ])
         .then(res => {
-            let config = require(defaultConfig)
+            let config = {
+                "name": "paw",
+                "short_name": "paw",
+                "theme_color": "#fff",
+                "overlay_color": "rgba(255,255,255,0.5)",
+                "background_color": "#474747",
+                "display": "standalone",
+                "orientation": "portrait",
+                "charset": "utf-8",
+                "badge": "icon-192.png",
+                "icons": [
+                  "icon-192.png",
+                  "icon-512.png"
+                ],
+
+                "scope": "/",
+                "start_url": "/",
+                "staticPages": [
+                    "/"
+                 ],
+
+                "rootDirectory": null,
+                "publicDirectory": null,
+                "strategy": "network",
+                "debug": true,
+                "offlinePage": null,
+                "notifications": true,
+                "autoInstallation": true,
+
+                "privateKey": "4AtF_NBS2jXcgQNEdQmOFLMeqA2ZWylX-_PhIlOq4xE",
+                "publicKey": "BE-bdUE6scWTi0HQzt3PujQcSDeCK0KKz-wCkq-XIfTIXhmawwI-dTUNZAZEH_X5rkDrBqbA71wba2CsAm7gyDA",
+                "cacheName": "paw-cache",
+                "messageTimeOut": 3000,
+                "messagePosition": "bottom",
+                "updateText": "A new update is available, click on this message to <strong>update</strong>"
+            }
+
 
             for(let key in res) config[key] = res[key]
 
