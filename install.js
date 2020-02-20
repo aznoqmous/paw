@@ -10,6 +10,8 @@ let cwd = process.env.INIT_CWD
 let installedPath = "./node_modules/paw"
 cwd = path.resolve(cwd, '.')
 
+let defaultConfig = `${dir}/paw/config.json`
+
 console.log(`Installing PAW...`)
 
 getConfig()
@@ -125,8 +127,8 @@ function buildWebpackConfig(publicDir){
             }
         ])
         .then(res => {
-            let config = require(`${installedPath}/paw/config.json`)
-            
+            let config = require(defaultConfig)
+
             for(let key in res) config[key] = res[key]
 
             config.rootDirectory = `${cwd}`
