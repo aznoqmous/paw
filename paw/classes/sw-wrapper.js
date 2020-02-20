@@ -345,25 +345,4 @@ export default class SWrapper {
         }
         else this.messagePort.postMessage(message)
     }
-
-    // OFFLINE INSTALL
-    install() {
-        console.log('installation start')
-        this.crawler = new Crawler(this.sw.location.hostname)
-        return this.crawler.crawl('/')
-        .then((res) => {
-            console.log('crawl completed')
-            this.message(`Installing ${this.crawler.pages.length} pages...`)
-            this.message(`Installing ${this.crawler.assets.length} assets...`)
-            return Promise.allSettled([
-                this.addToCache(this.crawler.pages),
-                this.addToAssetsCache(this.crawler.assets)
-            ])
-            .then(()=>{console.log('installation ended')})
-        })
-    }
-    autoInstall(){
-        if(this.autoInstallation) return this.install()
-        return Promise.resolve()
-    }
 }
