@@ -22,6 +22,7 @@
     },
     "homepage": "https://github.com/aznoqmous/paw#readme",
     "dependencies": {
+        "chalk": "^3.0.0",
         "copyfiles": "^2.2.0",
         "fs-extra": "^8.1.0",
         "npm-add-script": "^1.1.0",

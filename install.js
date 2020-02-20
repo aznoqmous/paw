@@ -4,6 +4,7 @@ const process = require('process')
 const fs = require('fs')
 const copyfiles = require('copyfiles')
 const npmAddScript = require('npm-add-script')
+const chalk = require('chalk')
 
 let dir = path.resolve(__dirname, '.')
 let cwd = process.env.INIT_CWD
@@ -22,7 +23,13 @@ getConfig()
     .then(()=>{ return writeConfigFile(config) })
     })
     .then(()=>{
-        console.log('Installation completed')
+        console.log('Installation completed !')
+        
+        console.log('You can now add the following line to your site <head> (on page you want to update from, in most case, at least your homepage)')
+        console.log('<link rel="manifest" href="/manifest.json">')
+        console.log('<script src="/register.js"></scripts>')
+
+        console.log(`Run ${chalk.green("npm run paw")} to build manifest and required scripts`)
     })
 
 function getPublicDir(){
@@ -124,6 +131,22 @@ function buildWebpackConfig(publicDir){
                 name: 'publicDirectory',
                 message: `Enter public root folder absolute path inside ${cwd}/ :`,
                 validate: publicDirectory => (isDir(`${cwd}/${publicDirectory}`)) ? true : `${cwd}/${publicDirectory} is not a valid directory`
+            },
+            {
+                type: 'toggle',
+                name: 'notifications',
+                message: 'Do you want to enable notifications ?',
+                initial: false,
+                active: 'yes',
+                inactive: 'no'
+            },
+            {
+                type: 'toggle',
+                name: 'autoInstallation',
+                message: 'Do you want to enable auto-installation ?',
+                initial: false,
+                active: 'yes',
+                inactive: 'no'
             }
         ])
         .then(res => {
@@ -131,8 +154,8 @@ function buildWebpackConfig(publicDir){
                 "name": "paw",
                 "short_name": "paw",
                 "theme_color": "#fff",
-                "overlay_color": "rgba(255,255,255,0.5)",
                 "background_color": "#474747",
+                "overlayColor": "rgba(255,255,255,0.5)",
                 "display": "standalone",
                 "orientation": "portrait",
                 "charset": "utf-8",
