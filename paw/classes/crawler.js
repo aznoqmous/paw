@@ -14,6 +14,17 @@ export default class Crawler {
         for(let key in config) this[key] = config[key]
     }
 
+    crawlPageAssets(url){
+        this.newPages(url)
+        return this.fetch(url)
+        .then((text)=>{
+            let links = this.extractLinks(text)
+            this.newAssets(links.assets)
+            return links.assets
+        })
+    }
+
+    // full crawl - stop when no new url if found
     crawl(url){
         return this.fetch(url)
         .then((text)=>{

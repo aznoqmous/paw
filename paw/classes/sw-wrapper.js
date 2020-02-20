@@ -85,9 +85,8 @@ export default class SWrapper {
     bindInstall() {
         this.sw.addEventListener('install', e => {
             e.waitUntil(
-                Promise.allSettled([
-                    this.addToCache(this.staticPages)
-                ]).then(()=>{console.log('sw install complete')})
+                this.addPagesToCache(this.staticPages)
+                .then(()=>{console.log('sw install complete')})
             )
         })
     }
@@ -224,6 +223,30 @@ export default class SWrapper {
     clearCache(cacheName = null) {
         cacheName = (cacheName) ? cacheName : this.cacheName
         return caches.delete(cacheName)
+    }
+
+    addPagesToCache(paths){
+        let crawler = new Crawler(this.sw.location.hostname)
+        return Promise.allSettled(paths.map(path => {
+            return Promise.allSettled([
+                this.addToCache(path),
+                crawler.crawlPageAssets(path)
+            ])
+        }))
+        .then(()=>{
+            this.addToAssetsCache(crawler.assets)
+        })
+    }
+
+    addPageToCache(path){
+        let crawler = new Crawler(this.sw.location.hostname)
+        return Promise.allSettled([
+            this.addToCache(path),
+            crawler.crawlPageAssets(path)
+            .then(assets => {
+                this.addToAssetsCache(assets)
+            })
+        ])
     }
 
     addToCache(paths, cacheName = null) {
