@@ -13,19 +13,22 @@ let publicFiles = [
     'register.js',
     'sw.js',
     'manifest.json',
-    'icon-*.png'
+    'icon-192.png',
+    'icon-512.png'
 ]
 
-console.log('cwd', cwd)
-console.log('config', config)
-console.log('pawDirectory', pawDirectory)
-console.log('publicDirectory', publicDirectory)
+console.log('paw directory', pawDirectory)
+console.log('public directory', publicDirectory)
 
-// Promise.all(
-//     fs.remove(`${pawDirectory}`),
-//     Promise.allSettled(
-//         publicFiles.map(file => {
-//             fs.remove(`${publicDirectory}/${file}`, err => { console.error(err) })
-//         })
-//     )
-// )
+Promise.all(
+    fs.remove(`${pawDirectory}`)
+    .then(()=>{ console.log(`${pawDirectory} erased`) }),
+    Promise.allSettled(
+        publicFiles.map(file => {
+            fs.remove(`${cwd}${publicDirectory}/${file}`)
+            .then(()=>{ console.log(`${file} erased`) })
+        })
+    )
+    .then(()=>{ console.log('public directory cleared') })
+)
+.then(()=>{ console.log('Uninstall completed') })
