@@ -15,7 +15,7 @@ export default class Crawler {
     }
 
     crawlPageAssets(url){
-        this.newPages(url)
+        this.newPages([url])
         return this.fetch(url)
         .then((text)=>{
             let links = this.extractLinks(text)
