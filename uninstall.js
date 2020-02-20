@@ -37,7 +37,7 @@ function removePublicDirectory(){
     return Promise.all(
         publicFiles.map(file => {
             return fs.remove(`${cwd}${publicDirectory}/${file}`)
-                .then(()=>{ console.log(`${file} erased`) })
+                .then(()=>{ console.log(`${file} removed`) })
         })
     )
         .then(()=>{ console.log('public directory cleared') })

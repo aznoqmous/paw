@@ -98,7 +98,6 @@ function buildWebpackConfig(publicDir){
                 npmAddScript({key: 'paw:watch', value: `node ${installedPath}/build-manifest.js && webpack --config paw.config.js --mode development --watch`})
                 npmAddScript({key: 'paw:config', value: `node ${installedPath}/setup-config.js && node ${installedPath}/build-manifest.js`})
                 npmAddScript({key: 'paw:manifest', value: `node ${installedPath}/build-manifest.js`})
-                npmAddScript({key: 'paw:uninstall', value: `node ${installedPath}/uninstall.js && npm remove paw`})
                 console.log(`PAW scripts has been added inside ${cwd}/package.json`)
                 resolve()
             })
