@@ -3,10 +3,11 @@ const process = require('process')
 
 let cwd = process.env.INIT_CWD
 let configFile = `${cwd}/paw/config.json`
+let pawDirectory = `${cwd}/paw`
+let packageFile = `${cwd}/package.json`
 
 const config = require(configFile)
-
-let pawDirectory = `${cwd}/paw`
+const packageJson = require(packageFile)
 
 let publicDirectory = config.publicDirectory
 let publicFiles = [
@@ -17,18 +18,48 @@ let publicFiles = [
     'icon-512.png'
 ]
 
-console.log('paw directory', pawDirectory)
-console.log('public directory', publicDirectory)
-
-Promise.all(
-    publicFiles.map(file => {
-        return fs.remove(`${cwd}${publicDirectory}/${file}`)
-        .then(()=>{ console.log(`${file} erased`) })
-    })
-)
+removePublicDirectory()
 .then(()=>{
-    console.log('public directory cleared')
-    return fs.remove(`${pawDirectory}`)
-    .then(()=>{ console.log(`${pawDirectory} erased`) })
+    return removePawDirectory()
 })
-.then(()=>{ console.log('Uninstall completed') })
+.then(()=>{
+    return removePawConfig()
+})
+.then(()=>{
+    return removeNpmScripts()
+})
+.then(()=>{
+    console.log('Uninstall completed')
+})
+
+function removePublicDirectory(){
+    return Promise.all(
+        publicFiles.map(file => {
+            return fs.remove(`${cwd}${publicDirectory}/${file}`)
+                .then(()=>{ console.log(`${file} erased`) })
+        })
+    )
+        .then(()=>{ console.log('public directory cleared') })
+}
+
+function removePawDirectory(){
+    return fs.remove(`${pawDirectory}`)
+        .then(()=>{ console.log(`paw directory removed`) })
+}
+
+function removePawConfig(){
+    return fs.remove(`${cwd}/paw.config.js`)
+        .then(()=>{ console.log(`paw.config.js removed`)})
+}
+
+function removeNpmScripts(){
+    let keys = [...Object.keys(packageJson.scripts)].filter(script => {
+        return /paw/.test(script)
+    })
+    console.log(keys)
+    keys.map(key => {
+        delete packageJson.scripts[key]
+    })
+    return fs.writeJson(packageFile, packageJson)
+    .then(()=>{ console.log('paw scripts removed') })
+}
