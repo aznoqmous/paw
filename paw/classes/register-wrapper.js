@@ -29,20 +29,15 @@ export default class RegisterWrapper {
                 this.register('sw.js')
 
                 // bind reload on sw update
+                let refreshed = false
                 navigator.serviceWorker.addEventListener('controllerchange', (e) => {
-
-                    this.loading()
-                    this.autoInstall()
-                        .then(()=>{
-                            this.loaded()
-                        })
-
-
+                    if(refreshed) return false;
+                    refreshed = true
+                    if(this.config.autoInstallation) this.autoInstall().then(()=>{
+                        this.loaded()
+                    })
+                    else this.loaded()
                 })
-            })
-
-            window.addEventListener('unload', () => {
-                this.unload()
             })
         }
     }
@@ -278,9 +273,6 @@ export default class RegisterWrapper {
         if(this.overlay) this.overlay.style.opacity = 0
         this.messages = []
         window.location.reload()
-    }
-
-    unload() {
     }
 
 }
