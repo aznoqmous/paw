@@ -1,0 +1,11 @@
+const chalk = require('chalk')
+
+console.log(`${chalk.blue("Installation completed !")}`)
+console.log('')
+console.log('You can now add the following line to your site <head> (on page you want to update from, in most case, at least your homepage) :')
+console.log('<link rel="manifest" href="/manifest.json">')
+console.log('<script src="/register.js"></scripts>')
+console.log('')
+console.log(`Run ${chalk.green("npm run paw")} to build manifest and required scripts`)
+console.log('')
+console.log('')
