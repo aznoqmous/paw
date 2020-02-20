@@ -23,7 +23,7 @@ console.log('public directory', publicDirectory)
 Promise.all(
     fs.remove(`${pawDirectory}`)
     .then(()=>{ console.log(`${pawDirectory} erased`) }),
-    Promise.allSettled(
+    Promise.all(
         publicFiles.map(file => {
             fs.remove(`${cwd}${publicDirectory}/${file}`)
             .then(()=>{ console.log(`${file} erased`) })
