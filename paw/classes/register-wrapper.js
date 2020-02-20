@@ -29,19 +29,14 @@ export default class RegisterWrapper {
                 this.register('sw.js')
 
                 // bind reload on sw update
-                let refreshing = false
                 navigator.serviceWorker.addEventListener('controllerchange', (e) => {
-                    if (refreshing) return false
 
                     this.loading()
                     this.autoInstall()
-                    .then(()=>{
-                        console.log('autoInstall completed')
-                        this.loaded()
-                    })
+                        .then(()=>{
+                            this.loaded()
+                        })
 
-                    // window.location.reload()
-                    // refreshing = true
 
                 })
             })
@@ -163,9 +158,8 @@ export default class RegisterWrapper {
         let styles = {
             position: 'fixed',
             left: '0',
-            bottom: '0',
             padding: '1rem',
-            zIndex: '10000',
+            zIndex: 1000000,
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
@@ -173,6 +167,9 @@ export default class RegisterWrapper {
             fontFamily: 'Arial, sans-serif',
             width: '100vw'
         }
+        if(this.config.messagePosition == 'bottom') styles.bottom = '0'
+        else styles.top = '0'
+
         for (let key in styles) this.messageHolder.style[key] = styles[key]
 
         if (document.body) document.body.appendChild(this.messageHolder)
@@ -224,56 +221,66 @@ export default class RegisterWrapper {
     }
 
     autoInstall(){
-        this.crawler = new Crawler(window.location.hostname)
-        this.message('Installing resources for offline support...')
         this.loading()
+        let count = 0
+        this.crawler = new Crawler(window.location.hostname, {
+            onNewUrl: (url, crawler)=>{
+                this.updateProgress(`${crawler.pages.length} pages / ${crawler.assets.length} assets discovered...`)
+            }
+        })
         return this.crawler.crawl('/')
         .then((res)=>{
-            console.log('rw crawl completed')
-            this.message(`Installing ${this.crawler.pages.length} pages...`)
-            this.message(`Installing ${this.crawler.assets.length} assets...`)
             let total = this.crawler.pages.length + this.crawler.assets.length
-            let current = 0
+            this.updateProgress(`Adding ${total} resources to cache...`)
             return Promise.allSettled([
                 this.crawler.pages.map(page => {
                     return this.sw({do: 'addToCache', options: [page]})
-                    .then(()=>{
-                        current++
-                        this.updateProgress(`${current}/${total} (${Math.floor(current/total*100)}%)`)
-                    })
                 }),
                 this.crawler.assets.map(asset => {
                     return this.sw({do: 'addToAssetsCache', options: [asset]})
-                    .then(()=>{
-                        current++
-                        this.updateProgress(`${current}/${total} (${Math.floor(current/total*100)}%)`)
-                    })
                 })
             ])
-            .then(()=>{
-                this.loaded()
-                this.message('Installation completed !')
-            })
         })
-        return this.sw({do: 'install'})
     }
 
     loading() {
-        this.progress = document.createElement('div')
-        document.body.appendChild(this.progress)
-        document.body.style.transition = 'opacity 0.2s ease'
-        document.body.style.opacity = 0.5
+        if(!this.progress) {
+            this.progress = new Message('Loading...', {timeout: 5 * 60 * 1000})
+            this.renderMessage(this.progress)
+        }
+        if(!this.overlay){
+            this.overlay = document.createElement('div')
+
+            let styles = {
+                background: this.config.overlayColor,
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100vw',
+                height: '100vh',
+                zIndex: 100000,
+                opacity: 1,
+                transition: 'opacity 0.2s ease'
+            }
+            for(let key in styles) this.overlay.style[key] = styles[key]
+            console.log(this.overlay)
+            document.body.appendChild(this.overlay)
+        }
     }
     updateProgress(state){
-        this.progress.innerHTML = state
+        if(!this.progress) this.loading()
+        if(this.progress.element.style.display == 'none') this.progress.element.style.display = 'block'
+        this.progress.setHtml(state)
     }
+
     loaded() {
-        document.body.style.opacity = 1
-        this.progress.style.display = 'none'
+        if(this.progress) this.progress.element.style.display = 'none'
+        if(this.overlay) this.overlay.style.opacity = 0
+        this.messages = []
+        window.location.reload()
     }
 
     unload() {
-        document.body.style.opacity = 0
     }
 
 }

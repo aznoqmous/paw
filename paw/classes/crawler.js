@@ -5,7 +5,11 @@ export default class Crawler {
             host: host,
             url: null,
             pages: [],
-            assets: []
+            assets: [],
+
+            //callbacks
+            onNewUrl: null
+
         }, config)
         for(let key in config) this[key] = config[key]
     }
@@ -15,7 +19,7 @@ export default class Crawler {
         .then((text)=>{
             let links = this.extractLinks(text)
             this.newAssets(links.assets)
-            return Promise.all(this.newPages(links.pages).map(a => {
+            return Promise.allSettled(this.newPages(links.pages).map(a => {
                 return this.crawl(a)
             }))
             .then(()=>{ return this.pages })
@@ -26,6 +30,7 @@ export default class Crawler {
         return new Promise((res, rej) => {
             fetch(url)
             .then(response => {
+                if(!response.ok) rej(response.status)
                 response.text()
                 .then(text => { res(text) })
             })
@@ -73,6 +78,7 @@ export default class Crawler {
             if(!this.pages.includes(page)) {
                 newPages.push(page)
                 this.pages.push(page)
+                if(this.onNewUrl) this.onNewUrl(page, this)
             }
         })
         return newPages
@@ -83,9 +89,9 @@ export default class Crawler {
             if(!this.assets.includes(asset)) {
                 newAssets.push(asset)
                 this.assets.push(asset)
+                if(this.onNewUrl) this.onNewUrl(asset, this)
             }
         })
         return newAssets
     }
-
 }

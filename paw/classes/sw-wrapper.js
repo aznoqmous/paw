@@ -228,6 +228,7 @@ export default class SWrapper {
 
     addToCache(paths, cacheName = null) {
         cacheName = (cacheName) ? cacheName : this.cacheName
+        if(!paths.map) paths = [paths]
         return caches.open(cacheName).then(cache => {
             return Promise.allSettled(paths.map(path => {
                 return cache.add(path)

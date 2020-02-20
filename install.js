@@ -150,6 +150,7 @@ function buildWebpackConfig(publicDir){
                 notifications: true,
                 messageTimeOut: 3000,
                 messagePosition: 'bottom',
+                overlayColor: 'rgba(255,255,255,0.5)',
                 updateText: 'A new update is available, click on this message to <strong>update</strong>',
                 publicDirectory: ``,
                 rootDirectory: `${cwd}`,
