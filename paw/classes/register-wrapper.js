@@ -34,6 +34,7 @@ export default class RegisterWrapper {
                     if(refreshed) return false;
                     refreshed = true
                     if(this.config.autoInstallation) this.autoInstall().then(()=>{
+                        this.message('Installation completed')
                         this.loaded()
                     })
                     else this.loaded()
@@ -272,7 +273,7 @@ export default class RegisterWrapper {
         if(this.progress) this.progress.element.style.display = 'none'
         if(this.overlay) this.overlay.style.opacity = 0
         this.messages = []
-        window.location.reload()
+
     }
 
 }
