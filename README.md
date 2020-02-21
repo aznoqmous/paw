@@ -176,7 +176,7 @@ router.online('/back-online-route', (e)=>{
 
 ## Features
 __CLI__
-- Auto install / uninstall 
+- Auto install / uninstall
 - Build `config.json` during install (prompt in CLI)
 - Regenerate `manifest.json` from `config.json` on webpack build
 
@@ -197,3 +197,4 @@ __SW.js : controller utility__
 - Ask before auto install + progress
 - Priority cache -> notify on update
 - Separate messages / implement translations
+- Faster install: Crawl via cli, create static site archive then background fetch after sw registration

@@ -37,7 +37,10 @@ export default class RegisterWrapper {
                         this.message('Installation completed')
                         this.loaded()
                     })
-                    else this.loaded()
+                    else {
+                         this.loaded()
+                         window.location.reload()
+                    }
                 })
             })
         }
@@ -222,10 +225,11 @@ export default class RegisterWrapper {
         this.crawler = new Crawler(window.location.hostname, {
             onNewUrl: (url, crawler)=>{
                 this.updateProgress(`${crawler.pages.length} pages / ${crawler.assets.length} assets discovered...`)
-            }
+            },
+            bgFetch: this.registration.backgroundFetch
         })
         return this.crawler.crawl('/')
-        .then((res)=>{
+        .then(()=>{
             let total = this.crawler.pages.length + this.crawler.assets.length
             this.updateProgress(`Adding ${total} resources to cache...`)
             return Promise.allSettled([

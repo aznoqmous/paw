@@ -11,10 +11,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
         document.body.style.opacity = 0.2
         rw.autoInstall()
         .finally(()=>{
-            setTimeout(()=>{
-                document.body.style.opacity = 1
-                console.log('DONE !')
-            }, 1000)
+            rw.loaded()
         })
     })
 })

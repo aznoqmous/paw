@@ -8,6 +8,7 @@
         "paw": "node .scripts/build-manifest.js && webpack --config paw.config-dev.js --mode production",
         "paw:dev": "node .scripts/build-manifest.js && webpack --config paw.config-dev.js --mode development",
         "paw:watch": "node .scripts/build-manifest.js && webpack --config paw.config-dev.js --mode development --watch",
+        "paw:crawl" : "node .scripts/crawl.js",
         "postinstall": "node .scripts/install.js",
         "preuninstall": "node .scripts/uninstall.js"
     },

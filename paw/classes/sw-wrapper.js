@@ -225,6 +225,7 @@ export default class SWrapper {
         return caches.delete(cacheName)
     }
 
+    // @addPageToCache
     addPagesToCache(paths){
         let crawler = new Crawler(this.sw.location.hostname)
         return Promise.allSettled(paths.map(path => {
@@ -238,6 +239,7 @@ export default class SWrapper {
         })
     }
 
+    // Crawl page path for its assets, then add both to cache
     addPageToCache(path){
         let crawler = new Crawler(this.sw.location.hostname)
         return Promise.allSettled([
@@ -259,7 +261,7 @@ export default class SWrapper {
             }))
         })
         .catch(err => {
-            console.log(err)
+            console.err('add to cache failed', err)
         })
     }
 

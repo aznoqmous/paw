@@ -4,20 +4,28 @@ export default class Crawler {
         config = Object.assign({
             host: host,
             url: null,
+
             pages: [],
             assets: [],
+
+            errors: [],
+
+            size: [],
+
+            bgFetch: null,
 
             //callbacks
             onNewUrl: null
 
         }, config)
         for(let key in config) this[key] = config[key]
+        console.log(this)
     }
 
     crawlPageAssets(url){
-        this.newPages([url])
         return this.fetch(url)
         .then((text)=>{
+            this.newPages([url])
             let links = this.extractLinks(text)
             this.newAssets(links.assets)
             return links.assets
@@ -29,13 +37,17 @@ export default class Crawler {
         return this.fetch(url)
         .then((text)=>{
             let links = this.extractLinks(text)
+
             this.newAssets(links.assets)
-            return Promise.allSettled(this.newPages(links.pages).map(a => {
+            let pages = this.newPages(links.pages)
+
+            return Promise.allSettled(pages.map(a => {
                 return this.crawl(a)
             }))
             .then(()=>{ return {
                 pages: this.pages,
-                assets: this.assets
+                assets: this.assets,
+                errors: this.errors
             } })
         })
     }
@@ -48,7 +60,13 @@ export default class Crawler {
                 response.text()
                 .then(text => { res(text) })
             })
-            .catch(err => { rej(err) })
+            .catch(err => {
+                this.errors.push(url)
+                rej({
+                    error: err,
+                    url: url
+                })
+            })
         })
     }
 

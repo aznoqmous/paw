@@ -1,6 +1,6 @@
+// This file is processed during installation only
 import SWrapper from './classes/sw-wrapper'
 import config from './config.json'
-// This file is processed during installation only
 
 let sw = new SWrapper(self, config)
 let router = sw.router
@@ -22,6 +22,7 @@ router.route('/deferred', ()=>{
 // router.route('/{path}', (e, path)=>{
 //     console.log(`path matched ${path}`)
 // })
+
 router.route('/paw/test', (e)=>{
     return Object.keys(e).map((k,v) => {
         return `${k} - ${JSON.stringify(e[k])}`
