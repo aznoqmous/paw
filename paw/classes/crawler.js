@@ -33,7 +33,10 @@ export default class Crawler {
             return Promise.allSettled(this.newPages(links.pages).map(a => {
                 return this.crawl(a)
             }))
-            .then(()=>{ return this.pages })
+            .then(()=>{ return {
+                pages: this.pages,
+                assets: this.assets
+            } })
         })
     }
 
