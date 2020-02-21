@@ -85,7 +85,7 @@ function buildWebpackConfig(publicDir){
         console.log('copy public files ', `${cwd}/${publicDir}`)
         return new Promise(resolve => {
             copyfiles([
-                './icon-*.png',
+                './res/icon-*.png',
                 `${cwd}/${publicDir}`
             ], '', ()=>{
                 resolve()
@@ -103,11 +103,10 @@ function buildWebpackConfig(publicDir){
                 `${cwd}/`
             ], '', ()=>{
                 process.chdir(cwd)
-                npmAddScript({key: 'paw', value: `node ${installedPath}/build-manifest.js && webpack --config paw.config.js --mode production`})
-                npmAddScript({key: 'paw:dev', value: `node ${installedPath}/build-manifest.js && webpack --config paw.config.js --mode development`})
-                npmAddScript({key: 'paw:watch', value: `node ${installedPath}/build-manifest.js && webpack --config paw.config.js --mode development --watch`})
-                npmAddScript({key: 'paw:config', value: `node ${installedPath}/setup-config.js && node ${installedPath}/build-manifest.js`})
-                npmAddScript({key: 'paw:manifest', value: `node ${installedPath}/build-manifest.js`})
+                npmAddScript({key: 'paw', value: `node ${installedPath}/.scripts/build-manifest.js && webpack --config paw.config.js --mode production`})
+                npmAddScript({key: 'paw:dev', value: `node ${installedPath}/.scripts/build-manifest.js && webpack --config paw.config.js --mode development`})
+                npmAddScript({key: 'paw:watch', value: `node ${installedPath}/.scripts/build-manifest.js && webpack --config paw.config.js --mode development --watch`})
+                npmAddScript({key: 'paw:manifest', value: `node ${installedPath}/.scripts/build-manifest.js`})
                 console.log(`PAW scripts has been added inside ${cwd}/package.json`)
                 resolve()
             })

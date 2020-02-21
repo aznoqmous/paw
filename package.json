@@ -4,12 +4,12 @@
     "description": "```js\r import SWrapper from './sw-wrapper'",
     "main": "paw/index.js",
     "scripts": {
-        "postinstall": "node install.js",
-        "preuninstall": "node uninstall.js",
-        "paw:manifest": "node build-manifest.js",
-        "paw": "node build-manifest.js && webpack --config paw.config-dev.js --mode production",
-        "paw:dev": "node build-manifest.js && webpack --config paw.config-dev.js --mode development",
-        "paw:watch": "node build-manifest.js && webpack --config paw.config-dev.js --mode development --watch"
+        "paw:manifest": "node .scripts/build-manifest.js",
+        "paw": "node .scripts/build-manifest.js && webpack --config paw.config-dev.js --mode production",
+        "paw:dev": "node .scripts/build-manifest.js && webpack --config paw.config-dev.js --mode development",
+        "paw:watch": "node .scripts/build-manifest.js && webpack --config paw.config-dev.js --mode development --watch",
+        "postinstall": "node .scripts/install.js",
+        "preuninstall": "node .scripts/uninstall.js"
     },
     "repository": {
         "type": "git",
