@@ -11,7 +11,7 @@ export default class SWrapper {
             deferrerName: `paw-deferred`,
         }, config)
         for (let key in this.config) this[key] = this.config[key]
-        console.log(this)
+
         this.init(sw)
         this.bind()
     }
@@ -56,7 +56,6 @@ export default class SWrapper {
             }
             if(e.data.do) {
                 let options = (e.data.options)? e.data.options : [];
-                console.log(e.data)
                 if(port) return this[e.data.do](...options)
                 .then(()=>{port.postMessage(true)})
                 .catch(()=>{port.postMessage(false)})

@@ -7,6 +7,7 @@ export default class Router {
   }
 
   routeMatch(fetchEvent) {
+
       let path = (new URL(fetchEvent.request.url)).pathname
       let matches = this.routes.filter((route) => {
           if (!route.methods.toUpperCase().match(fetchEvent.request.method)) return false; // methods dont match
@@ -68,7 +69,7 @@ export default class Router {
 
   // register routes
   route(path, callback=null, config={}) {
-      let route = new Route(path, callback, config)
+      let route = new Route(encodeURI(path), callback, config)
       this.routes.push(route)
       return route
   }
