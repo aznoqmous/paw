@@ -9,6 +9,7 @@ export default class SWrapper {
         this.config = Object.assign({
             assetsCacheName: `${config.cacheName}-assets`,
             deferrerName: `paw-deferred`,
+            staticPages: ['/'],
         }, config)
         for (let key in this.config) this[key] = this.config[key]
 
@@ -234,18 +235,18 @@ export default class SWrapper {
             ])
         }))
         .then(()=>{
-            this.addToAssetsCache(crawler.assets)
+            this.addToAssetsCache(Object.keys(crawler.assets))
         })
     }
 
     // Crawl page path for its assets, then add both to cache
     addPageToCache(path){
-        let crawler = new Crawler(this.sw.location.hostname)
+        let crawler = new Crawler(this.sw.location.origin)
         return Promise.allSettled([
             this.addToCache(path),
             crawler.crawlPageAssets(path)
-            .then(assets => {
-                this.addToAssetsCache(assets)
+            .then(() => {
+                this.addToAssetsCache(Object.keys(crawler.assets))
             })
         ])
     }

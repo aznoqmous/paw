@@ -50,9 +50,17 @@ export default class Crawler {
                 return Promise.allSettled(pages.map(a => {
                     return this.crawl(a)
                 }))
-                    .then(() => {
-                        return this
-                    })
+
+            })
+            .catch(err => {
+                this.errors[url] = err
+
+                delete this.pages[url]
+
+                rej({
+                    error: err,
+                    url: url
+                })
             })
     }
 
@@ -66,17 +74,16 @@ export default class Crawler {
                             res(text)
                         })
                 })
-                .catch(err => {
-                    this.errors.push(url)
-                    rej({
-                        error: err,
-                        url: url
-                    })
-                })
+                .catch(err => rej(err))
         })
     }
 
     extractLinks(baseUrl, text) {
+        let base = this.matchAll(/\<base[^>]*?href\=[\"|\']([^\"\']*?)[\"|\']/gs, text)
+        if(base.length) {
+            baseUrl = new URL(base[0])
+        }
+
         let pages = this.matchAll(/\<a[^>]*?href\=[\"|\']([^\"\']*?)[\"|\']/gs, text)
         let lhrefs = this.matchAll(/\<link[^>]*?href\=[\"|\']([^\"\']*?)[\"|\']/gs, text)
         let srcs = this.matchAll(/src\=[\"|\']([^\"\']*?)[\"|\']/gs, text)
@@ -143,7 +150,10 @@ export default class Crawler {
         let newPages = []
         pages.map(page => {
             let index = `${page.origin}${page.pathname}`
-            if (!Object.keys(this.pages).includes(index)) {
+            if (
+                !Object.keys(this.pages).includes(index)
+                && !Object.keys(this.errors).includes(page)
+            ) {
                 newPages.push(page)
                 this.pages[index] = page
                 if (this.onNewUrl) this.onNewUrl(page, this)
@@ -156,7 +166,10 @@ export default class Crawler {
         let newAssets = []
         assets.map(asset => {
             let index = `${asset.origin}${asset.pathname}`
-            if (!Object.keys(this.assets).includes(index)) {
+            if (
+                !Object.keys(this.assets).includes(index)
+                && !Object.keys(this.errors).includes(asset)
+            ) {
                 newAssets.push(asset)
                 this.assets[index] = asset
                 if (this.onNewUrl) this.onNewUrl(asset, this)
