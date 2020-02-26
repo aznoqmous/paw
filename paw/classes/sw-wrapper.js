@@ -226,7 +226,7 @@ export default class SWrapper {
 
     // @addPageToCache
     addPagesToCache(paths){
-        let crawler = new Crawler(this.sw.location.hostname)
+        let crawler = new Crawler(this.sw.location.origin)
         return Promise.allSettled(paths.map(path => {
             return Promise.allSettled([
                 this.addToCache(path),

@@ -2,11 +2,11 @@ export default class Crawler {
 
     constructor(host, config) {
         config = Object.assign({
-            host: host,
-            url: null,
+            host: new URL(host),
+            url: host,
 
-            pages: [],
-            assets: [],
+            pages: {},
+            assets: {},
 
             errors: [],
 
@@ -17,28 +17,32 @@ export default class Crawler {
             //callbacks
             onNewUrl: null,
 
-            allowedExtensions: ['css', 'js', 'jpg', 'jpeg', 'png', 'html', 'php', 'icon', 'json', 'pdf']
+            allowedAssets: ['css', 'js', 'jpg', 'jpeg', 'svg', 'png', 'ico', 'json', 'pdf', 'xml'],
+            allowedPages: ['html', 'php']
 
         }, config)
+
         for (let key in config) this[key] = config[key]
         console.log(this)
     }
 
-    crawlPageAssets(url) {
+    crawlPageAssets(url=null) {
+        url = ( url ) ? url : this.host
         return this.fetch(url)
             .then((text) => {
                 this.newPages([url])
-                let links = this.extractLinks(text)
+                let links = this.extractLinks(url, text)
                 this.newAssets(links.assets)
                 return links.assets
             })
     }
 
     // full crawl - stop when no new url if found
-    crawl(url) {
+    crawl(url=null) {
+        url = ( url ) ? url : this.host
         return this.fetch(url)
             .then((text) => {
-                let links = this.extractLinks(text)
+                let links = this.extractLinks(url, text)
 
                 this.newAssets(links.assets)
                 let pages = this.newPages(links.pages)
@@ -47,11 +51,7 @@ export default class Crawler {
                     return this.crawl(a)
                 }))
                     .then(() => {
-                        return {
-                            pages: this.pages,
-                            assets: this.assets,
-                            errors: this.errors
-                        }
+                        return this
                     })
             })
     }
@@ -76,62 +76,77 @@ export default class Crawler {
         })
     }
 
-    extractLinks(text) {
-        let pages = text.match(/\<a[^\>]*?href\=[\"|\'][^\"\']*?[\"|\']/g)
-        let lhrefs = text.match(/\<link[^\>]*?href\=[\"|\'][^\"\']*?[\"|\']/g)
-        let srcs = text.match(/src\=[\"|\'][^\"\']*?[\"|\']/g)
+    extractLinks(baseUrl, text) {
+        let pages = this.matchAll(/\<a[^>]*?href\=[\"|\']([^\"\']*?)[\"|\']/gs, text)
+        let lhrefs = this.matchAll(/\<link[^>]*?href\=[\"|\']([^\"\']*?)[\"|\']/gs, text)
+        let srcs = this.matchAll(/src\=[\"|\']([^\"\']*?)[\"|\']/gs, text)
 
-        pages = (pages) ? pages : []
-        lhrefs = (lhrefs) ? lhrefs : []
-        srcs = (srcs) ? srcs : []
+        // PAGES
+        pages = (pages) ? [...pages] : []
+
+        pages = pages.filter(page => {
+            if(! /\./.test(page)) return true
+            return this.allowedPages.filter(ext => {
+                return new RegExp(`\.${ext}`).test(page.split('/')[0])
+            }).length > 0
+        })
+        pages = pages.map(page => {
+            try {
+                page = new URL(page)
+            }
+            catch (e) {
+                page = new URL(page, this.host)
+            }
+
+            return page
+        } )
+        pages = pages.filter(page => {
+            return page.host == baseUrl.host
+        })
+
+
+        // ASSETS
+        lhrefs = (lhrefs) ? [...lhrefs] : []
+        srcs = (srcs) ? [...srcs] : []
+
         let assets = lhrefs.concat(srcs)
+        assets = assets.filter(asset => {
+            if(! /\./.test(asset)) return false
+            return this.allowedAssets.filter(ext => {
+                return new RegExp(`\.${ext}`).test(asset)
+            }).length > 0
+        })
+        assets = assets.map(asset => {
+            if(/^\//.test(asset)) return new URL(asset, this.host)
+            return new URL(asset, baseUrl)
+        } )
+        assets = assets.filter(asset => {
+            return asset.host == baseUrl.host
+        })
 
         return {
-            pages: this.getLinksFromMatches(pages),
-            assets: this.getLinksFromMatches(assets)
+            pages: pages,
+            assets: assets
         }
     }
 
-    getLinksFromMatches(matches) {
-        if (!matches) return []
-        let links = []
-
-        matches.map(match => {
-            let link = match.match(/(href|src)\=[\"|\']([^\"\']*?)[\"|\']/)
-
-            if (link.length && link[2]) {
-                link = link[2]
-
-                if (!/^http/.test(link)) {
-                    let ext = link.match(/[^\/]*?[\.]([[a-z][^\.]]*?)$/)
-                    if(!ext) ext = link.match(/[^\/]*?[\.]([[a-z][^\.]]*?)\//)
-
-                    ext = (ext && ext.length) ? ext[1] : false
-
-                    if(ext && !this.allowedExtensions.includes(ext)) return false;
-
-                    if(/^\//.test(link)) link = `https://${this.host}${link}` // ex: /bloublou.js
-                    else link = `https://${this.host}/${link}` // ex: bloublou.js
-                }
-
-                if (link.match(/javascript\:history/)) return false
-
-                let url = new URL(link)
-
-                if (url.hostname != this.host) return false
-
-                if (url) links.push(url.pathname)
-            }
-        })
-        return links
+    matchAll(pattern, text){
+        let res = text.matchAll(pattern, text)
+        res = [...res]
+        return res.map(re => {
+            return re.filter((value, i) => {
+                return i == 1
+            })
+        }).flat()
     }
 
     newPages(pages) {
         let newPages = []
         pages.map(page => {
-            if (!this.pages.includes(page)) {
+            let index = `${page.origin}${page.pathname}`
+            if (!Object.keys(this.pages).includes(index)) {
                 newPages.push(page)
-                this.pages.push(page)
+                this.pages[index] = page
                 if (this.onNewUrl) this.onNewUrl(page, this)
             }
         })
@@ -141,9 +156,10 @@ export default class Crawler {
     newAssets(assets) {
         let newAssets = []
         assets.map(asset => {
-            if (!this.assets.includes(asset)) {
+            let index = `${asset.origin}${asset.pathname}`
+            if (!Object.keys(this.assets).includes(index)) {
                 newAssets.push(asset)
-                this.assets.push(asset)
+                this.assets[index] = asset
                 if (this.onNewUrl) this.onNewUrl(asset, this)
             }
         })

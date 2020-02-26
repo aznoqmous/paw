@@ -222,21 +222,23 @@ export default class RegisterWrapper {
     autoInstall(){
         this.loading()
         let count = 0
-        this.crawler = new Crawler(window.location.hostname, {
+
+        console.log(window.location.origin)
+        this.crawler = new Crawler(window.location.origin, {
             onNewUrl: (url, crawler)=>{
-                this.updateProgress(`${crawler.pages.length} pages / ${crawler.assets.length} assets discovered...`)
+                this.updateProgress(`${Object.keys(crawler.pages).length} pages / ${Object.keys(crawler.assets).length} assets discovered...`)
             },
             bgFetch: this.registration.backgroundFetch
         })
-        return this.crawler.crawl('/')
+        return this.crawler.crawl()
         .then(()=>{
-            let total = this.crawler.pages.length + this.crawler.assets.length
+            let total = Object.keys(this.crawler.pages).length + Object.keys(this.crawler.assets).length
             this.updateProgress(`Adding ${total} resources to cache...`)
             return Promise.allSettled([
-                this.crawler.pages.map(page => {
+                Object.keys(this.crawler.pages).map(page => {
                     return this.sw({do: 'addToCache', options: [page]})
                 }),
-                this.crawler.assets.map(asset => {
+                Object.keys(this.crawler.assets).map(asset => {
                     return this.sw({do: 'addToAssetsCache', options: [asset]})
                 })
             ])
