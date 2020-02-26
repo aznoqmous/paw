@@ -72,16 +72,10 @@ router.json('/network', ()=>{
     }
 }).setStrategyNetwork()
 
-router.json('/cache', ()=>{
-    return 'test'
-})
-
-router.online('/status', ()=>{
-    router.notify('You are online')
-    return router.redirectResponse('/')
-})
 
 router.offline('/status', ()=>{
-    router.notify('You are offline')
-    return router.redirectResponse('/')
+    sw.message('Youre offline')
+})
+router.online('/status', ()=>{
+    sw.message('Youre online')
 })

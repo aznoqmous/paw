@@ -39,9 +39,9 @@ router.route('/paw', (e)=>{
         <h1>paw</h1>
         <h2>Routed from your paw/router.js</h2>
         <ul>
-            <li><a href="/status">custom <code>online/offline</code> callback then redirect</a></li>
-            <li><a href="/network">custom json response with strategy <code>network</code></a></li>
-            <li><a href="/cache">custom json response with strategy <code>cache</code></a></li>
+            <li><a href="/paw/status">custom <code>online/offline</code> callback then redirect</a></li>
+            <li><a href="/paw/routes">list registered routes</a></li>
+
         </ul>
 
         <div id="routeTesterContainer"></div>
@@ -51,22 +51,21 @@ router.route('/paw', (e)=>{
 })
 
 
+router.route('/paw/routes', ()=>{
+    return router.routes.map(route => {
+        return route.path + '<br>'
+    })
+})
+
 router.json('/network', ()=>{
     return {
         foo: "bar"
     }
 }).setStrategyNetwork()
 
-router.json('/cache', ()=>{
-    return 'test'
+router.offline('/paw/status', ()=>{
+    sw.message('Youre offline')
 })
-
-router.online('/status', ()=>{
-    router.notify('You are online')
-    return router.redirectResponse('/')
-})
-
-router.offline('/status', ()=>{
-    router.notify('You are offline')
-    return router.redirectResponse('/')
+router.online('/paw/status', ()=>{
+    sw.message('Youre online')
 })

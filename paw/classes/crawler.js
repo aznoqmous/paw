@@ -87,7 +87,7 @@ export default class Crawler {
         pages = pages.filter(page => {
             if(! /\./.test(page)) return true
             return this.allowedPages.filter(ext => {
-                return new RegExp(`\.${ext}`).test(page.split('/')[0])
+                return new RegExp(`\.${ext}`).test( page.split('/')[0] )
             }).length > 0
         })
         pages = pages.map(page => {
@@ -97,7 +97,6 @@ export default class Crawler {
             catch (e) {
                 page = new URL(page, this.host)
             }
-
             return page
         } )
         pages = pages.filter(page => {
@@ -113,7 +112,7 @@ export default class Crawler {
         assets = assets.filter(asset => {
             if(! /\./.test(asset)) return false
             return this.allowedAssets.filter(ext => {
-                return new RegExp(`\.${ext}`).test(asset)
+                return new RegExp(`\.${ext}$`).test(asset)
             }).length > 0
         })
         assets = assets.map(asset => {
