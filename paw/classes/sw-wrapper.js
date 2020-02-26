@@ -17,10 +17,9 @@ export default class SWrapper {
         this.bind()
     }
 
+
     init(sw) {
         this.sw = sw
-        this.routes = []
-        this.offlineRoutes = []
         this.deferrer = new Deferrer()
         this.router = new Router()
 
@@ -108,6 +107,7 @@ export default class SWrapper {
         return this.prepareRequest(fetchEvent)
         .then(() => {
             let matches = this.router.routeMatch(fetchEvent)
+
             if (matches.length) {
                 return this.router.resolve(fetchEvent)
                 .then(res => {
@@ -121,9 +121,11 @@ export default class SWrapper {
             else if (fetchEvent.request.mode == 'navigate') {
                 return this.defaultFetchStrategy(fetchEvent)
             }
-            else {
+            else if (fetchEvent.request.destination.length){
                 return this.defaultAssetStrategy(fetchEvent)
             }
+
+            return this.defaultFetchStrategy(fetchEvent)
         })
     }
 
@@ -235,7 +237,8 @@ export default class SWrapper {
             ])
         }))
         .then(()=>{
-            this.addToAssetsCache(Object.keys(crawler.assets))
+            console.log(crawler.assets)
+            return this.addToAssetsCache(Object.keys(crawler.assets))
         })
     }
 
@@ -257,6 +260,7 @@ export default class SWrapper {
         return caches.open(cacheName).then(cache => {
             return Promise.allSettled(paths.map(path => {
                 return cache.add(path)
+                .then(res => { console.log(path, 'add to cache successfully') })
                 .catch(err => {console.error(path, 'add to cache failed')})
             }))
         })
@@ -367,7 +371,7 @@ export default class SWrapper {
             setTimeout(() => {
                 // retry until it works
                 this.message(message)
-            }, 100)
+            }, 1000)
         }
         else this.messagePort.postMessage(message)
     }
