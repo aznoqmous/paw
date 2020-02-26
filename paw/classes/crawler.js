@@ -23,17 +23,20 @@ export default class Crawler {
         }, config)
 
         for (let key in config) this[key] = config[key]
-        console.log(this)
     }
 
     crawlPageAssets(url=null) {
-        url = ( url ) ? url : this.host
+        try{
+            url = new URL(url)
+        }
+        catch{
+            url = ( url ) ? url : this.host
+        }
         return this.fetch(url)
             .then((text) => {
                 this.newPages([url])
-                let links = this.extractLinks(url, text)
-                this.newAssets(links.assets)
-                return links.assets
+                let links = this.extractLinks(this.host, text)
+                return this.newAssets(links.assets)
             })
     }
 

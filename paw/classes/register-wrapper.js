@@ -75,8 +75,7 @@ export default class RegisterWrapper {
                     }
 
                     networker.addEventListener('statechange', () => {
-                        this.message(`Update : ${networker.state}`);
-                        this.loaded()
+                        if(this.config.debug) this.message(`networker state : ${networker.state}`);
                     });
 
                 });

@@ -69,6 +69,7 @@ export default class Router {
 
   // register routes
   route(path, callback=null, config={}) {
+      if(path.map) return path.map(p => this.route(p, callback, config))
       let route = new Route(encodeURI(path), callback, config)
       this.routes.push(route)
       return route

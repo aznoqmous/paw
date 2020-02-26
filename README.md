@@ -192,9 +192,9 @@ __SW.js : controller utility__
 - Defer/Sync method to save request and load it later (sw.defer/sw.sync)
 
 ## Next
-- Network change handling - set but always 4g will debugging
 - Separate Router responsability from sw - router.js in progress
 - Priority cache -> notify on update
 - Separate messages / implement translations
 - Ask before auto install + progress
 - Faster install: Crawl via cli, create static site archive then background fetch after sw registration
+- Save crawl errors inside local storage (auto hide/pin broken links)
