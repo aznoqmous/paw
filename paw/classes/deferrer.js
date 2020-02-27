@@ -39,31 +39,54 @@ export default class Deferrer {
         })
     }
 
-    load(key, url=null){
+    load(key, config){
+        console.log(key, config)
+        config = Object.assign({url: null, data: null}, config)
+        console.log(config)
+
         return this.all(key).then(res => {
-            return Promise.all(res.map((r)=>{
-                url = (url) ? url : r.value.url
+            console.log(res)
+            return Promise.allSettled(res.map((r)=>{
+
+                let url = (config.url) ? config.url : r.url
+
+                url = (new URL(url).pathname)
+
                 return fetch(url, {
-                    method: r.value.method,
-                    // headers: r.headers,
-                    body: this.content(r.value.headers['content-type'], r.value.data)
+                    method: r.method,
+                    body: this.content(r.headers['content-type'], r.data, config.data)
                 })
-                .then(re => { return this.db.delete(r.key) })
-                .then(deleted => { return `key ${deleted} has been deleted` })
+                .then(re => this.db.delete(r.key))
+                .then(deleted => { console.log(`key ${deleted} has been deleted`) })
+                .catch((err)=>{console.error(err)})
             }))
 
         })
     }
 
-    content(contentType, data){ // js object to given  content type
+    content(contentType, data={}, newData={}){ // js object to given  content type
+
+        console.log(data, newData)
+
+        data.get = (data.get) ? data.get : {}
+        data.post = (data.post) ? data.post : {}
+
+        if(newData.get) data.get = Object.assign(data.get, newData.get)
+        if(newData.post) data.post = Object.assign(data.post, newData.post)
+
+
         if(contentType == 'application/x-www-form-urlencoded'){
+            data = data.post
             let datas = new FormData()
             for (let key in data){
                 datas.append(key, data[key])
             }
             return datas
         }
+
         if(contentType == 'application/json') return JSON.stringify(data)
+
+        return data
     }
 
 }

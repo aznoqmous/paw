@@ -28,7 +28,7 @@ export default class IDB {
                 this.table = this.db.createObjectStore(this.tableName, {
                     autoIncrement: true
                 })
-                this.table.createIndex('key', 'key', { unique: false })
+                this.table.createIndex('by_key', 'key', { unique: false })
                 res(this.db)
             }
         })
@@ -50,9 +50,10 @@ export default class IDB {
     get(key=null){
         let elements = []
         return new Promise((res, rej) => {
-            let request = this.getTransaction().openCursor()
+            let request = this.getTransaction().index('by_key').openCursor(IDBKeyRange.only(key))
             request.onsuccess = (e)=>{
                 let element = e.target.result
+
                 if(element) {
                     elements.push(this.clone(element))
                     element.continue()
@@ -62,10 +63,28 @@ export default class IDB {
             request.onerror = (err)=>{ console.error(err); rej(err) }
         })
     }
-    delete(key){
+
+    delete(key=null){
+        let elements = []
+        return new Promise((res, rej) => {
+            let request = this.getTransaction().index('by_key').openCursor(IDBKeyRange.only(key))
+            request.onsuccess = (e)=>{
+                let element = e.target.result
+
+                if(element) {
+                    element.delete()
+                    element.continue()
+                }
+                else res(elements)
+            }
+            request.onerror = (err)=>{ console.error(err); rej(err) }
+        })
+    }
+
+    deleteById(id){
         return new Promise(res => {
-            let request = this.getTransaction().delete(key)
-            request.onsuccess = ()=>{ res(key) }
+            let request = this.getTransaction().delete(id)
+            request.onsuccess = ()=>{ res(id) }
             request.onerror = (err)=>{ console.error(err); rej(err) }
         })
     }

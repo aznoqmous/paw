@@ -67,8 +67,18 @@ export default class SWrapper {
             }
 
             if (e.data.sync) {
-                if (typeof e.data.sync == 'object') return this.sync(...e.data.sync)
-                else return this.sync(e.data.sync)
+                if(port) return this.sync(e.data.sync, e.data.config)
+                .then((res)=>{port.postMessage(res)})
+                .catch((err)=>{port.postMessage(err)})
+
+                return this.sync(e.data.sync, e.data.config)
+            }
+            if (e.data.deferred) {
+                if(port) return this.deferred(e.data.deferred)
+                .then((res)=>{port.postMessage(res)})
+                .catch((err)=>{port.postMessage(err)})
+
+                return this.deferred(e.data.deferred)
             }
 
             if(port) port.postMessage(e.data)
@@ -253,7 +263,6 @@ export default class SWrapper {
             ])
         }))
         .then(()=>{
-            console.log(crawler.assets)
             return this.addToAssetsCache(Object.keys(crawler.assets))
         })
     }
@@ -366,8 +375,9 @@ export default class SWrapper {
         return this.deferrer.save(key, fetchEvent)
     }
 
-    sync(key, url = null) {
-        return this.deferrer.load(key, url)
+
+    sync(key, config={}) {
+        return this.deferrer.load(key, config)
     }
 
     deferred(key) {
