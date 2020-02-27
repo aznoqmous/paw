@@ -13,6 +13,9 @@ export default class SWrapper {
         }, config)
         for (let key in this.config) this[key] = this.config[key]
 
+        this.assetsCacheName += `-${Date.now()}`
+        this.cacheName += `-${Date.now()}`
+
         this.init(sw)
         this.bind()
     }
@@ -215,7 +218,7 @@ export default class SWrapper {
     clearOldCaches() {
         return caches.keys().then(keyList => {
             return Promise.all(keyList.map(key => {
-                if (key !== this.cacheName) {
+                if (![this.cacheName, this.assetsCacheName].includes(key)) {
                     return caches.delete(key)
                 }
             }))
@@ -260,7 +263,6 @@ export default class SWrapper {
         return caches.open(cacheName).then(cache => {
             return Promise.allSettled(paths.map(path => {
                 return cache.add(path)
-                .then(res => { console.log(path, 'add to cache successfully') })
                 .catch(err => {console.error(path, 'add to cache failed')})
             }))
         })
@@ -269,8 +271,10 @@ export default class SWrapper {
         })
     }
 
+
     addToAssetsCache(paths){
         return this.addToCache(paths, this.assetsCacheName)
+
     }
 
     // STRATEGY
