@@ -13,6 +13,7 @@ export default class SWrapper {
         }, config)
         for (let key in this.config) this[key] = this.config[key]
 
+
         this.assetsCacheName += `-${Date.now()}`
         this.cacheName += `-${Date.now()}`
 
@@ -134,7 +135,7 @@ export default class SWrapper {
 
     prepareRequest(fetchEvent) {
         fetchEvent.data = {}
-        return Promise.all([
+        return Promise.allSettled([
             this.getPostData(fetchEvent),
             this.getURLParamsData(fetchEvent)
         ])
@@ -163,23 +164,32 @@ export default class SWrapper {
 
                 res()
             })
-            else res(false)
+            else rej()
         })
     }
 
     fetchRequestData(request) {
         let headers = {}
         let hs = [...request.headers]
+
         hs.map(h => {
             headers[h[0]] = h[1]
         })
-        if (headers['content-type'] == 'application/x-www-form-urlencoded')
-        return request.formData()
-        else if (headers['content-type'] == 'application/json')
-        return request.json()
-        else if (headers['content-type'] == 'text/html')
-        return request.text()
-        else return false;
+
+        if (
+            /application\/x\-www\-form\-urlencoded/.test( headers['content-type'] ) ||
+            /multipart\/form\-data/.test( headers['content-type'] )
+        ) return request.formData()
+
+        if (
+            /application\/json/.test( headers['content-type'] )
+        ) return request.json()
+
+        if (
+            /text\/html/.test( headers['content-type'] )
+        ) return request.text()
+
+        return false;
     }
 
     getURLParamsData(fetchEvent) {
