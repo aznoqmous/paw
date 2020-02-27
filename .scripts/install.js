@@ -45,8 +45,9 @@ function getPublicDir(){
 }
 
 function buildWebpackConfig(publicDir){
-    let pawConfigFile = './paw.config.js'
-    let webpackConfig = require(pawConfigFile)
+    let defaultConfigFile = `${installedPath}/paw.config.js`
+    let destinationFile = './paw.config.js'
+    let webpackConfig = require(defaultConfigFile)
     console.log(webpackConfig)
 
     return new Promise((resolve, reject)=>{
