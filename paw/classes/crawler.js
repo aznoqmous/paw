@@ -60,10 +60,10 @@ export default class Crawler {
 
                 delete this.pages[url]
 
-                rej({
+                return {
                     error: err,
                     url: url
-                })
+                }
             })
     }
 
@@ -77,7 +77,7 @@ export default class Crawler {
                             res(text)
                         })
                 })
-                .catch(err => rej(err))
+                .catch(err => { rej(err) })
         })
     }
 

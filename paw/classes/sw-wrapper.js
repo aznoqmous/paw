@@ -61,8 +61,8 @@ export default class SWrapper {
             if(e.data.do) {
                 let options = (e.data.options)? e.data.options : [];
                 if(port) return this[e.data.do](...options)
-                .then(()=>{port.postMessage(true)})
-                .catch(()=>{port.postMessage(false)})
+                .then((res)=>{port.postMessage(res)})
+                .catch((err)=>{port.postMessage(err)})
                 return this[e.data.do](...options)
             }
 
@@ -168,6 +168,8 @@ export default class SWrapper {
         })
     }
 
+
+
     fetchRequestData(request) {
         let headers = {}
         let hs = [...request.headers]
@@ -175,6 +177,7 @@ export default class SWrapper {
         hs.map(h => {
             headers[h[0]] = h[1]
         })
+
 
         if (
             /application\/x\-www\-form\-urlencoded/.test( headers['content-type'] ) ||
@@ -359,7 +362,6 @@ export default class SWrapper {
         return this.sw.registration.showNotification(title, options)
     }
 
-    // deferer
     defer(key, fetchEvent) {
         return this.deferrer.save(key, fetchEvent)
     }

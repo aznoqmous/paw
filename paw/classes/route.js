@@ -40,7 +40,7 @@ export default class Route {
 
     getRegPath(){
         let regPath = `^${this.path.replace(/\//g, '\\\/')}$`
-        regPath = regPath.replace(/\*/, '.*?')
+        regPath = regPath.replace(/\*/, '[^\/]*?[\/|$]')
         regPath = regPath.replace(/\{([a-z]*?)\}/g, '(?<$1>[^\\\/]*?)')
         return regPath
     }
