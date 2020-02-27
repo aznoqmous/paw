@@ -2,12 +2,6 @@ const path = require('path')
 
 module.exports = [
     {
-        module: {
-            test: /\.js$/,
-            loaders: ['babel-loader']
-        }
-    },
-    {
         entry: {
             path: [
                 './paw/sw.js'
@@ -16,6 +10,19 @@ module.exports = [
         output: {
             path: path.resolve(__dirname, "."),
             filename: "sw.js"
+        },
+        module: {
+            rules: [
+                {
+                    test: /\.js$/,
+                    use: {
+                        loader: 'babel-loader',
+                        options: {
+                            presets: ['@babel/preset-env']
+                        }
+                    }
+                }
+            ]
         }
     },
     {
@@ -27,6 +34,19 @@ module.exports = [
         output: {
             path: path.resolve(__dirname, "."),
             filename: "register.js"
+        },
+        module: {
+            rules: [
+                {
+                    test: /\.js$/,
+                    use: {
+                        loader: 'babel-loader',
+                        options: {
+                            presets: ['@babel/preset-env']
+                        }
+                    }
+                }
+            ]
         }
     }
 ]
