@@ -151,8 +151,8 @@ function buildWebpackConfig(publicDir){
         ])
         .then(res => {
             let config = {
-                "name": "paw",
-                "short_name": "paw",
+                "name": res.name,
+                "short_name": res.name,
                 "theme_color": "#fff",
                 "background_color": "#474747",
                 "overlayColor": "rgba(255,255,255,0.5)",
