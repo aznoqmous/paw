@@ -46,6 +46,9 @@ function getPublicDir(){
 
 function buildWebpackConfig(publicDir){
     let pawConfigFile = './paw.config.js'
+    let webpackConfig = require(pawConfigFile)
+    console.log(webpackConfig)
+
     return new Promise((resolve, reject)=>{
         fs.writeFile(pawConfigFile, `
             const path = require('path')
