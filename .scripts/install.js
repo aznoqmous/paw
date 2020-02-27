@@ -45,39 +45,64 @@ function getPublicDir(){
 }
 
 function buildWebpackConfig(publicDir){
-    let defaultConfigFile = `${installedPath}/paw.config.js`
-    let destinationFile = './paw.config.js'
-    let webpackConfig = require(defaultConfigFile)
-    console.log(webpackConfig)
+
+    let pawConfigFile = './paw.config.js'
 
     return new Promise((resolve, reject)=>{
         fs.writeFile(pawConfigFile, `
-            const path = require('path')
+const path = require('path')
 
-            module.exports = [
+module.exports = [
+    {
+        entry: {
+            path: [
+                './paw/sw.js'
+            ]
+        },
+        output: {
+            path: path.resolve(__dirname, "."),
+            filename: "${publicDir}/sw.js"
+        },
+        module: {
+            rules: [
                 {
-                    entry: {
-                        path: [
-                            './paw/sw.js'
-                        ]
-                    },
-                    output: {
-                        path: path.resolve(__dirname, "."),
-                        filename: "./${publicDir}/sw.js"
-                    }
-                },
-                {
-                    entry: {
-                        path: [
-                            './paw/register.js'
-                        ]
-                    },
-                    output: {
-                        path: path.resolve(__dirname, "."),
-                        filename: "./${publicDir}/register.js"
+                    test: /\.js$/,
+                    use: {
+                        loader: 'babel-loader',
+                        options: {
+                            presets: ['@babel/preset-env']
+                        }
                     }
                 }
-            ]`,
+            ]
+        }
+    },
+    {
+        entry: {
+            path: [
+                './paw/register.js'
+            ]
+        },
+        output: {
+            path: path.resolve(__dirname, "."),
+            filename: "${publicDir}/register.js"
+        },
+        module: {
+            rules: [
+                {
+                    test: /\.js$/,
+                    use: {
+                        loader: 'babel-loader',
+                        options: {
+                            presets: ['@babel/preset-env']
+                        }
+                    }
+                }
+            ]
+        }
+    }
+]
+`,
             (err)=>{
                 if(!err) resolve('paw webpack config build')
                 else reject(err)
