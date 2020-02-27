@@ -8,7 +8,7 @@
         "paw": "node .scripts/build-manifest.js && webpack --config paw.config-dev.js --mode production",
         "paw:dev": "node .scripts/build-manifest.js && webpack --config paw.config-dev.js --mode development",
         "paw:watch": "node .scripts/build-manifest.js && webpack --config paw.config-dev.js --mode development --watch",
-        "paw:crawl" : "node .scripts/crawl.js",
+        "paw:crawl": "node .scripts/crawl.js",
         "postinstall": "node .scripts/install.js",
         "preuninstall": "node .scripts/uninstall.js"
     },
@@ -32,5 +32,8 @@
         "prompt": "^1.0.0",
         "prompts": "^2.3.0",
         "urlb64touint8array": "^1.0.3"
+    },
+    "devDependencies": {
+        "babel-loader": "^8.0.6"
     }
 }
