@@ -29,19 +29,16 @@ export default class RegisterWrapper {
                 this.register('sw.js')
 
                 // bind reload on sw update
-                let refreshed = false
                 navigator.serviceWorker.addEventListener('controllerchange', (e) => {
-                    if(refreshed) return false;
-                    refreshed = true
-                    if(this.config.autoInstallation) this.autoInstall().then(()=>{
-                        this.message('Installation completed')
-                        this.loaded()
-                        window.location.reload()
-                    })
-                    else {
-                         this.loaded()
-                         window.location.reload()
+                    this.loaded()
+                    if(this.config.autoInstallation) {
+                        this.autoInstall().then(()=>{
+                            this.message('Installation completed')
+                            this.loaded()
+                            window.location.reload()
+                        })
                     }
+                    else window.location.reload()
                 })
             })
         }
@@ -69,7 +66,7 @@ export default class RegisterWrapper {
                     if (navigator.serviceWorker.controller) {
                         this.message(this.config.updateText, { timeout: 5 * 3600 })
                             .addEventListener('click', (e) => {
-                                networker.postMessage({action: 'skipWaiting'})
+                                navigator.serviceWorker.controller.postMessage({action: 'skipWaiting'})
                                 this.loading()
                             })
                     }
@@ -81,6 +78,9 @@ export default class RegisterWrapper {
                 });
 
                 this.registration.update()
+                if(this.config.debug) setInterval(()=>{
+                    this.registration.update()
+                }, 1000)
 
                 if (this.notifications) this.subscribe(registration)
 
@@ -194,7 +194,7 @@ export default class RegisterWrapper {
 
     // SW MESSAGING
     sw(message) {
-        if (!navigator.serviceWorker) return false
+        if (!navigator.serviceWorker) setTimeout(()=>{ this.sw(message) }, 1000)
         return new Promise((res, rej) => {
             let messageChannel = new MessageChannel()
             messageChannel.port1.onmessage = (e) => {

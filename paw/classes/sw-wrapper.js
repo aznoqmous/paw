@@ -6,6 +6,7 @@ import Crawler from './crawler'
 export default class SWrapper {
 
     constructor(sw, config) {
+
         this.config = Object.assign({
             assetsCacheName: `${config.cacheName}-assets`,
             deferrerName: `paw-deferred`,
@@ -55,9 +56,11 @@ export default class SWrapper {
             }
 
             if (e.data.action) {
-                if(port) return port.postMessage(this[e.data.action]())
-                return this.sw[e.data.action]()
+
+                if(e.data.action == 'skipWaiting') return this.sw.skipWaiting()
+                console.log('unhandled e.data.action', e.data.action)
             }
+
             if(e.data.do) {
                 let options = (e.data.options)? e.data.options : [];
                 if(port) return this[e.data.do](...options)
@@ -70,7 +73,6 @@ export default class SWrapper {
                 if(port) return this.sync(e.data.sync, e.data.config)
                 .then((res)=>{port.postMessage(res)})
                 .catch((err)=>{port.postMessage(err)})
-
                 return this.sync(e.data.sync, e.data.config)
             }
             if (e.data.deferred) {
