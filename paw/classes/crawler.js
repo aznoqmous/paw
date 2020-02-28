@@ -54,11 +54,6 @@ export default class Crawler {
                     return this.crawl(a)
                 }))
             })
-            // .then(()=>{
-            //     return {
-            //         pages: this.pages,
-            //         assets: this.assets
-            //     }})
             .catch(err => {
                 this.errors[url] = err
 
@@ -96,14 +91,17 @@ export default class Crawler {
         let lhrefs = this.matchAll(/\<link[^>]*?href\=[\"|\']([^\"\']*?)[\"|\']/g, text)
         let srcs = this.matchAll(/src\=[\"|\']([^\"\']*?)[\"|\']/g, text)
 
-
         // PAGES
         pages = pages.filter(page => {
             if(! /\./.test(page)) return true
             return this.allowedPages.filter(ext => {
-                return new RegExp(`\.${ext}`).test( page.split('/')[0] )
+                let splitted = page.split('/')
+                let baseName = splitted[splitted.length-1]
+                if(!/\./.test(baseName)) return true // no ext
+                return new RegExp(`\.${ext}`).test( baseName ) // allowed ext
             }).length > 0
         })
+
         pages = pages.map(page => {
             try {
                 page = new URL(page)
@@ -114,7 +112,7 @@ export default class Crawler {
             return page
         } )
         pages = pages.filter(page => {
-            return page.host == baseUrl.host
+            return page.host == this.host.host
         })
 
 

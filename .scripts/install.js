@@ -63,12 +63,14 @@ module.exports = [
         },
         output: {
             path: path.resolve(__dirname, "."),
-            filename: "${relPublicDir}/sw.js"
+            filename: "./sw.js"
         },
         module: {
             rules: [
                 {
-                    test: /\.js$/,
+                    test: /.js$/,
+                    exclude: [/node_modules/],
+                    include: [/node_modules\/paw/],
                     use: {
                         loader: 'babel-loader',
                         options: {
@@ -87,12 +89,14 @@ module.exports = [
         },
         output: {
             path: path.resolve(__dirname, "."),
-            filename: "${relPublicDir}/register.js"
+            filename: "./register.js"
         },
         module: {
             rules: [
                 {
-                    test: /\.js$/,
+                    test: /.js$/,
+                    exclude: [/node_modules/],
+                    include: [/node_modules\/paw/],
                     use: {
                         loader: 'babel-loader',
                         options: {
@@ -104,6 +108,7 @@ module.exports = [
         }
     }
 ]
+
 `,
             (err)=>{
                 if(!err) resolve('paw webpack config build')
