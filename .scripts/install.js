@@ -48,6 +48,8 @@ function buildWebpackConfig(publicDir){
 
     let pawConfigFile = './paw.config.js'
 
+    let relPublicDir = (publicDir.length)? `./${publicDir}` : '.'
+
     return new Promise((resolve, reject)=>{
         fs.writeFile(pawConfigFile, `
 const path = require('path')
@@ -61,7 +63,7 @@ module.exports = [
         },
         output: {
             path: path.resolve(__dirname, "."),
-            filename: "${publicDir}/sw.js"
+            filename: "${relPublicDir}/sw.js"
         },
         module: {
             rules: [
@@ -85,7 +87,7 @@ module.exports = [
         },
         output: {
             path: path.resolve(__dirname, "."),
-            filename: "${publicDir}/register.js"
+            filename: "${relPublicDir}/register.js"
         },
         module: {
             rules: [
