@@ -47,14 +47,18 @@ export default class Crawler {
             .then((text) => {
                 let links = this.extractLinks(url, text)
 
-                this.newAssets(links.assets)
                 let pages = this.newPages(links.pages)
+                this.newAssets(links.assets)
 
                 return Promise.allSettled(pages.map(a => {
                     return this.crawl(a)
                 }))
-
             })
+            // .then(()=>{
+            //     return {
+            //         pages: this.pages,
+            //         assets: this.assets
+            //     }})
             .catch(err => {
                 this.errors[url] = err
 
@@ -82,18 +86,18 @@ export default class Crawler {
     }
 
     extractLinks(baseUrl, text) {
-        let base = this.matchAll(/\<base[^>]*?href\=[\"|\']([^\"\']*?)[\"|\']/gs, text)
+        let base = text.match(/\<base[^>]*?href\=[\"|\']([^\"\']*?)[\"|\']/)
+
         if(base.length) {
-            baseUrl = new URL(base[0])
+            baseUrl = new URL(base[1])
         }
 
-        let pages = this.matchAll(/\<a[^>]*?href\=[\"|\']([^\"\']*?)[\"|\']/gs, text)
-        let lhrefs = this.matchAll(/\<link[^>]*?href\=[\"|\']([^\"\']*?)[\"|\']/gs, text)
-        let srcs = this.matchAll(/src\=[\"|\']([^\"\']*?)[\"|\']/gs, text)
+        let pages = this.matchAll(/\<a[^>]*?href\=[\"|\']([^\"\']*?)[\"|\']/g, text)
+        let lhrefs = this.matchAll(/\<link[^>]*?href\=[\"|\']([^\"\']*?)[\"|\']/g, text)
+        let srcs = this.matchAll(/src\=[\"|\']([^\"\']*?)[\"|\']/g, text)
+
 
         // PAGES
-        pages = (pages) ? [...pages] : []
-
         pages = pages.filter(page => {
             if(! /\./.test(page)) return true
             return this.allowedPages.filter(ext => {
@@ -140,13 +144,8 @@ export default class Crawler {
     }
 
     matchAll(pattern, text){
-        let res = text.matchAll(pattern, text)
-        res = [...res]
-        return res.map(re => {
-            return re.filter((value, i) => {
-                return i == 1
-            })
-        }).flat()
+        let matches = [...text.matchAll(pattern)]
+        return matches.map(m => m[1])
     }
 
     newPages(pages) {
