@@ -16,8 +16,11 @@ export default class Crawler {
 
             //callbacks
             onNewUrl: null,
+            onPageCrawled: null,
 
-            allowedAssets: ['css', 'js', 'jpg', 'jpeg', 'svg', 'png', 'ico', 'json', 'pdf', 'xml'],
+            timeout: 10 * 1000,
+
+            allowedAssets: ['css', 'js', 'jpg', 'jpeg', 'svg', 'png', 'ico', 'json', 'pdf', 'xml', 'txt'],
             allowedPages: ['html', 'php']
 
         }, config)
@@ -33,9 +36,9 @@ export default class Crawler {
             url = ( url ) ? url : this.host
         }
         return this.fetch(url)
-            .then((text) => {
+            .then((res) => {
                 this.newPages([url])
-                let links = this.extractLinks(this.host, text)
+                let links = this.extractLinks(this.host, res.text)
                 return this.newAssets(links.assets)
             })
     }
@@ -44,12 +47,14 @@ export default class Crawler {
     crawl(url=null) {
         url = ( url ) ? url : this.host
         return this.fetch(url)
-            .then((text) => {
-                let links = this.extractLinks(url, text)
+            .then((res) => {
+                let links = this.extractLinks(url, res.text)
 
                 let pages = this.newPages(links.pages)
-                this.newAssets(links.assets)
+                let assets = this.newAssets(links.assets)
 
+                if(this.onPageCrawled) this.onPageCrawled(url, pages, assets)
+                if(!pages.length) return Promise.resolve()
                 return Promise.allSettled(pages.map(a => {
                     return this.crawl(a)
                 }))
@@ -67,13 +72,39 @@ export default class Crawler {
     }
 
     fetch(url) {
+        let start = Date.now()
+        let ended = false
         return new Promise((res, rej) => {
+            setTimeout(()=>{
+                if(ended) return false
+                console.log({
+                    url: url.pathname,
+                    time: `took more than ${this.timeout}ms`
+                })
+                rej({
+                    url: url.pathname,
+                    time: `took more than ${this.timeout}ms`
+                })
+                ended = true
+            }, this.timeout)
             fetch(url)
                 .then(response => {
+                    let time = Date.now() - start
+                    if(ended) return false;
+                    ended = true
                     if (!response.ok) rej(response.status)
                     response.text()
                         .then(text => {
-                            res(text)
+                            console.log({
+                                url: url.pathname,
+                                time: time
+                            })
+                            res({
+                                url: url,
+                                time: time,
+                                text: text
+                            })
+
                         })
                 })
                 .catch(err => { rej(err) })
