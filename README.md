@@ -192,8 +192,8 @@ __SW.js : controller utility__
 - Defer/Sync method to save request and load it later (sw.defer/sw.sync)
 
 ## Next
-- Ask before auto install + progress | in progress
-- Separate Router responsability from sw - router.js | in progress
+- Ask before auto install + progress
+- Separate Router responsability from sw - router.js
 
 - Add default callbacks to rw (onDeferred, onSync, onUpdate...)
 - Separate messages / implement translations

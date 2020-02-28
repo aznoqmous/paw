@@ -40,12 +40,9 @@ export default class Deferrer {
     }
 
     load(key, config){
-        console.log(key, config)
         config = Object.assign({url: null, data: null}, config)
-        console.log(config)
 
         return this.all(key).then(res => {
-            console.log(res)
             return Promise.allSettled(res.map((r)=>{
 
                 let url = (config.url) ? config.url : r.url
@@ -57,16 +54,14 @@ export default class Deferrer {
                     body: this.content(r.headers['content-type'], r.data, config.data)
                 })
                 .then(re => this.db.delete(r.key))
-                .then(deleted => { console.log(`key ${deleted} has been deleted`) })
+                .then(deleted => { console.log(`key ${r.key} has been deleted`) })
                 .catch((err)=>{console.error(err)})
             }))
 
         })
     }
 
-    content(contentType, data={}, newData={}){ // js object to given  content type
-
-        console.log(data, newData)
+    content(contentType, data={}, newData={}){ // js data object to given content type
 
         data.get = (data.get) ? data.get : {}
         data.post = (data.post) ? data.post : {}
