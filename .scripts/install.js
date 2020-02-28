@@ -70,7 +70,7 @@ module.exports = [
                 {
                     test: /.js$/,
                     exclude: [/node_modules/],
-                    include: [/node_modules\/paw/],
+                    include: [/node_modules\\/paw/],
                     use: {
                         loader: 'babel-loader',
                         options: {
@@ -96,7 +96,7 @@ module.exports = [
                 {
                     test: /.js$/,
                     exclude: [/node_modules/],
-                    include: [/node_modules\/paw/],
+                    include: [/node_modules\\/paw/],
                     use: {
                         loader: 'babel-loader',
                         options: {
