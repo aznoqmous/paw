@@ -75,30 +75,16 @@ export default class Crawler {
         let start = Date.now()
         let ended = false
         return new Promise((res, rej) => {
-            setTimeout(()=>{
-                if(ended) return false
-                console.log({
-                    url: url.pathname,
-                    time: `took more than ${this.timeout}ms`
-                })
-                rej({
-                    url: url.pathname,
-                    time: `took more than ${this.timeout}ms`
-                })
-                ended = true
-            }, this.timeout)
+
             fetch(url)
                 .then(response => {
-                    let time = Date.now() - start
                     if(ended) return false;
                     ended = true
+
+                    let time = Date.now() - start
                     if (!response.ok) rej(response.status)
                     response.text()
                         .then(text => {
-                            console.log({
-                                url: url.pathname,
-                                time: time
-                            })
                             res({
                                 url: url,
                                 time: time,
@@ -108,6 +94,18 @@ export default class Crawler {
                         })
                 })
                 .catch(err => { rej(err) })
+
+            setTimeout(()=>{
+                if(ended) return false
+                ended = true
+
+                rej({
+                    url: url.pathname,
+                    time: `took more than ${this.timeout}ms`
+                })
+
+            }, this.timeout)
+
         })
     }
 
