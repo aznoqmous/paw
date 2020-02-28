@@ -129,7 +129,7 @@ export default class RegisterWrapper {
         this.connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
         this.connection.addEventListener('change', (e) => {
             // e.preventDefault()
-            this.message(this.connection.effectiveType)
+            this.message(`${(navigator.onLine)? `${this.config.onlineMessage} (${this.connection.effectiveType})` : this.config.offlineMessage}`)
         })
     }
 
@@ -221,11 +221,17 @@ export default class RegisterWrapper {
 
     autoInstall(){
         this.loading()
-        let count = 0
+        let crawled = 0
+        let progress = 0
 
         this.crawler = new Crawler(window.location.origin, {
             onNewUrl: (url, crawler)=>{
-                this.updateProgress(`${Object.keys(crawler.pages).length} pages / ${Object.keys(crawler.assets).length} assets discovered...`)
+                this.updateProgress(`${Object.keys(crawler.pages).length} pages / ${Object.keys(crawler.assets).length} assets discovered... (${progress}%)`)
+            },
+            onPageCrawled: ()=>{
+                crawled++
+                progress = Math.floor(crawled / Object.keys(this.crawler.pages).length * 100)
+                this.updateProgress(`${Object.keys(this.crawler.pages).length} pages / ${Object.keys(this.crawler.assets).length} assets discovered... (${progress}%)`)
             }
         })
 
@@ -233,6 +239,7 @@ export default class RegisterWrapper {
         .then(()=>{
             let total = Object.keys(this.crawler.pages).length + Object.keys(this.crawler.assets).length
             this.updateProgress(`Adding ${total} resources to cache...`)
+            console.log('crawl end')
             return Promise.allSettled([
                 this.sw({do: 'addToCache', options: [ Object.keys(this.crawler.pages) ]}),
                 this.sw({do: 'addToAssetsCache', options: [ Object.keys(this.crawler.assets) ]})
