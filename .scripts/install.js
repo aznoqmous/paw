@@ -220,7 +220,9 @@ module.exports = [
                 "cacheName": "paw-cache",
                 "messageTimeOut": 3000,
                 "messagePosition": "bottom",
-                "updateText": "A new update is available, click on this message to <strong>update</strong>"
+                "updateText": "A new update is available, click on this message to <strong>update</strong>",
+                "onlineMessage": "online",
+                "offlineMessage": "offline"
             }
 
 
