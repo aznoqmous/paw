@@ -3,6 +3,7 @@ import Message from './message'
 import Crawler from './crawler'
 
 export default class RegisterWrapper {
+
     constructor(config) {
         if (window.location.protocol != 'https:') window.location.protocol = 'https:'
         this.config = config
@@ -26,10 +27,10 @@ export default class RegisterWrapper {
         else {
             window.addEventListener('DOMContentLoaded', () => {
 
-                this.register('sw.js')
 
                 // bind reload on sw update
                 navigator.serviceWorker.addEventListener('controllerchange', (e) => {
+                    console.log('controllerchange')
                     this.loaded()
                     if(this.config.autoInstallation) {
                         this.autoInstall().then(()=>{
@@ -40,6 +41,9 @@ export default class RegisterWrapper {
                     }
                     else window.location.reload()
                 })
+
+                this.register('sw.js')
+
             })
         }
     }
@@ -51,36 +55,38 @@ export default class RegisterWrapper {
 
                 this.newMessageChannel('message')
 
+                console.log(this.registration)
+
+
                 // Registration was successful
-                if (registration.waiting && registration.waiting.state == 'installed') {
+                if (this.registration.waiting && this.registration.waiting.state == 'installed') {
+                    console.log('installed')
                     this.message(this.config.updateText, { timeout: 5 * 3600 })
                         .addEventListener('click', (e) => {
-                            registration.waiting.postMessage({action: 'skipWaiting'})
-                            this.loading()
+                            this.registration.waiting.postMessage('skipWaiting')
+                            this.message('rw installed')
                         })
                 }
 
                 this.registration.addEventListener('updatefound', () => {
-                    var networker = this.registration.installing;
-
-                    if (navigator.serviceWorker.controller) {
-                        this.message(this.config.updateText, { timeout: 5 * 3600 })
-                            .addEventListener('click', (e) => {
-                                navigator.serviceWorker.controller.postMessage({action: 'skipWaiting'})
-                                this.loading()
-                            })
-                    }
+                    let networker = this.registration.installing
+                    console.log('updatefound')
 
                     networker.addEventListener('statechange', () => {
                         if(this.config.debug) this.message(`networker state : ${networker.state}`);
                     });
 
+                    this.message(this.config.updateText, { timeout: 5 * 3600 })
+                        .addEventListener('click', (e) => {
+                            networker.postMessage('skipWaiting')
+                            this.message('rw updatefound')
+                        })
                 });
 
                 this.registration.update()
                 if(this.config.debug) setInterval(()=>{
                     this.registration.update()
-                }, 1000)
+                }, 2000)
 
                 if (this.notifications) this.subscribe(registration)
 

@@ -14,12 +14,12 @@ export default class SWrapper {
         }, config)
         for (let key in this.config) this[key] = this.config[key]
 
-
         this.assetsCacheName += `-${Date.now()}`
         this.cacheName += `-${Date.now()}`
 
         this.init(sw)
         this.bind()
+
     }
 
 
@@ -48,6 +48,10 @@ export default class SWrapper {
 
         this.sw.addEventListener('message', (e) => {
 
+            console.log(e, e.data)
+
+            if(e.data == 'skipWaiting') return this.sw.skipWaiting()
+
             if(this.registerMessageChannel(e)) return false;
 
             let port = false
@@ -56,7 +60,6 @@ export default class SWrapper {
             }
 
             if (e.data.action) {
-
                 if(e.data.action == 'skipWaiting') return this.sw.skipWaiting()
                 console.log('unhandled e.data.action', e.data.action)
             }
@@ -75,6 +78,7 @@ export default class SWrapper {
                 .catch((err)=>{port.postMessage(err)})
                 return this.sync(e.data.sync, e.data.config)
             }
+
             if (e.data.deferred) {
                 if(port) return this.deferred(e.data.deferred)
                 .then((res)=>{port.postMessage(res)})
@@ -84,11 +88,15 @@ export default class SWrapper {
             }
 
             if(port) port.postMessage(e.data)
+
         })
+
     }
 
     bindActivate() {
         this.sw.addEventListener('activate', e => {
+            console.log('sw activate')
+
             e.waitUntil(
                 this.clearOldCaches()
             )
@@ -99,6 +107,7 @@ export default class SWrapper {
 
     bindInstall() {
         this.sw.addEventListener('install', e => {
+            console.log('sw install')
             e.waitUntil(
                 this.addPagesToCache(this.staticPages)
                 .then(()=>{console.log('sw install complete')})
