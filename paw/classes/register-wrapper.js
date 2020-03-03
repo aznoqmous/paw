@@ -141,11 +141,13 @@ export default class RegisterWrapper {
 
 
     getRegistration(state=null){
-        if(!state) return navigator.serviceWorker.getRegistration()
-        return navigator.serviceWorker.getRegistration().then(reg => {
-            return reg[state]
+        return new Promise((res, rej), ()=>{
+            if(!state) return navigator.serviceWorker.getRegistration().then(reg => {
+                    return reg[state]
+                })
+            else rej()
         })
-        else Promise.reject()
+
     }
 
     updateMessage(sw){
