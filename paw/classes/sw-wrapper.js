@@ -41,77 +41,30 @@ export default class SWrapper {
         this.bindActivate()
         this.bindFetch()
         this.bindSync()
+        this.bindMessages()
+        this.bindPushNotifications()
+    }
 
-        this.sw.addEventListener('push', (e) => {
-            e.waitUntil(this.notify(JSON.stringify(e.data), 'New push notification'))
+    bindInstall() {
+
+        this.sw.addEventListener('install', e => {
+            console.log('sw: install')
+            e.waitUntil(
+                this.addPagesToCache(this.staticPages)
+                    .then(()=>{
+                        console.log('install done, waiting...')
+                    })
+            )
         })
-
-        this.sw.addEventListener('message', (e) => {
-
-            console.log(e, e.data)
-
-            if(e.data == 'skipWaiting') return this.sw.skipWaiting()
-
-            if(this.registerMessageChannel(e)) return false;
-
-            let port = false
-            if (e.ports.length) {
-                port = e.ports[0]
-            }
-
-            if (e.data.action) {
-                if(e.data.action == 'skipWaiting') return this.sw.skipWaiting()
-                console.log('unhandled e.data.action', e.data.action)
-            }
-
-            if(e.data.do) {
-                let options = (e.data.options)? e.data.options : [];
-                if(port) return this[e.data.do](...options)
-                .then((res)=>{port.postMessage(res)})
-                .catch((err)=>{port.postMessage(err)})
-                return this[e.data.do](...options)
-            }
-
-            if (e.data.sync) {
-                if(port) return this.sync(e.data.sync, e.data.config)
-                .then((res)=>{port.postMessage(res)})
-                .catch((err)=>{port.postMessage(err)})
-                return this.sync(e.data.sync, e.data.config)
-            }
-
-            if (e.data.deferred) {
-                if(port) return this.deferred(e.data.deferred)
-                .then((res)=>{port.postMessage(res)})
-                .catch((err)=>{port.postMessage(err)})
-
-                return this.deferred(e.data.deferred)
-            }
-
-            if(port) port.postMessage(e.data)
-
-        })
-
     }
 
     bindActivate() {
         this.sw.addEventListener('activate', e => {
-            console.log('sw activate')
-
+            console.log('sw: activate')
             e.waitUntil(
                 this.clearOldCaches()
             )
-            this.sw.skipWaiting()
             this.sw.clients.claim()
-        })
-    }
-
-    bindInstall() {
-        this.sw.addEventListener('install', e => {
-            console.log('sw install')
-            e.waitUntil(
-                this.addPagesToCache(this.staticPages)
-                .then(()=>{console.log('sw install complete')})
-            )
         })
     }
 
@@ -124,6 +77,75 @@ export default class SWrapper {
     bindSync() {
         this.sw.addEventListener('sync', (e) => {
             this.notify(e)
+        })
+    }
+
+    bindMessages(){
+        this.sw.addEventListener('message', (e) => {
+
+            console.log('message', e.data)
+
+            if(e.data == 'skipWaiting') {
+                this.sw.skipWaiting()
+                    .then(res => {console.log('skipwaiting success', res)})
+                    .catch(err => { console.log('skipwaiting error', err) })
+                return true
+            }
+
+            if(this.registerMessageChannel(e)) return false;
+
+            let port = false
+
+            if (e.ports.length) {
+                port = e.ports[0]
+            }
+
+            if (e.data.sw){
+
+                if(port) return this.sw[e.data.sw]()
+                    .then(res => port.postMessage(res))
+                    .catch(err => port.postMessage(err))
+
+                return this.sw[e.data.sw]().then(res => {console.log('skipWaiting end')})
+
+            }
+
+            if (e.data.action) {
+                if(e.data.action == 'skipWaiting') return this.sw.skipWaiting()
+                console.log('unhandled e.data.action', e.data.action)
+            }
+
+            if(e.data.do) {
+                let options = (e.data.options)? e.data.options : [];
+                if(port) return this[e.data.do](...options)
+                    .then((res)=>{port.postMessage(res)})
+                    .catch((err)=>{port.postMessage(err)})
+                return this[e.data.do](...options)
+            }
+
+            if (e.data.sync) {
+                if(port) return this.sync(e.data.sync, e.data.config)
+                    .then((res)=>{port.postMessage(res)})
+                    .catch((err)=>{port.postMessage(err)})
+                return this.sync(e.data.sync, e.data.config)
+            }
+
+            if (e.data.deferred) {
+                if(port) return this.deferred(e.data.deferred)
+                    .then((res)=>{port.postMessage(res)})
+                    .catch((err)=>{port.postMessage(err)})
+
+                return this.deferred(e.data.deferred)
+            }
+
+            if(port) port.postMessage(e.data)
+
+        })
+    }
+
+    bindPushNotifications(){
+        this.sw.addEventListener('push', (e) => {
+            e.waitUntil(this.notify(JSON.stringify(e.data), 'New push notification'))
         })
     }
 
@@ -189,8 +211,6 @@ export default class SWrapper {
         })
     }
 
-
-
     fetchRequestData(request) {
         let headers = {}
         let hs = [...request.headers]
@@ -198,7 +218,6 @@ export default class SWrapper {
         hs.map(h => {
             headers[h[0]] = h[1]
         })
-
 
         if (
             /application\/x\-www\-form\-urlencoded/.test( headers['content-type'] ) ||
@@ -250,12 +269,16 @@ export default class SWrapper {
     }
 
     clearOldCaches() {
+        if(this.debug) console.log('clearing old caches...')
         return caches.keys().then(keyList => {
-            return Promise.all(keyList.map(key => {
+            return Promise.allSettled(keyList.map(key => {
                 if (![this.cacheName, this.assetsCacheName].includes(key)) {
                     return caches.delete(key)
                 }
             }))
+                .then(()=>{
+                    if(this.debug) console.log('clearing old cache end.')
+                })
         })
     }
 
@@ -266,6 +289,7 @@ export default class SWrapper {
 
     // @addPageToCache
     addPagesToCache(paths){
+        if(this.debug) console.log('adding pages to cache...', paths)
         let crawler = new Crawler(this.sw.location.origin)
         return Promise.allSettled(paths.map(path => {
             return Promise.allSettled([
@@ -276,18 +300,25 @@ export default class SWrapper {
         .then(()=>{
             return this.addToAssetsCache(Object.keys(crawler.assets))
         })
+        .then(res => {
+            if(this.debug) console.log('adding pages to cache end.')
+        })
     }
 
     // Crawl page path for its assets, then add both to cache
     addPageToCache(path){
+        if(this.debug) console.log('adding page to cache...', path)
         let crawler = new Crawler(this.sw.location.origin)
         return Promise.allSettled([
             this.addToCache(path),
             crawler.crawlPageAssets(path)
             .then(() => {
-                this.addToAssetsCache(Object.keys(crawler.assets))
+                return this.addToAssetsCache(Object.keys(crawler.assets))
             })
         ])
+        .then(res => {
+            if(this.debug) console.log('adding page to cache end.')
+        })
     }
 
     addToCache(paths, cacheName = null) {
@@ -412,4 +443,5 @@ export default class SWrapper {
         }
         else this.messagePort.postMessage(message)
     }
+
 }
