@@ -4,12 +4,30 @@
 
 `paw` is a npm package which provide default service worker logic you can easily modify to meet your requirements.
 
-__Current features :__
-- Notifications
-- In-app messages
-- Prompt on available update
-- Custom routing
-- Requests deferrer
+## Features
+__CLI__
+- Auto install / uninstall
+- Build `config.json` during install (prompt in CLI)
+- Regenerate `manifest.json` from `config.json` on webpack build
+
+__App Features__
+- Auto ask notifications permission (config.notifications)
+- Prompt on available update / on installing - on waiting
+
+__SW.js : controller utility__
+- Custom routes registration inside `paw/sw.js` (available: route, offline, online, json, redirect)
+- Custom routes with simplified regexp and capture groups (ex: `/entity/{id}`, `/pages/*`)
+- Router fill its fetchEvent input data (accessible when routing via `e.data` or `e.get` and `e.post`)
+- Notifications (rw.notify | sw.notify) and in-app message ( rw.message | sw.message )
+- Defer/Sync method to save request and load it later (sw.defer/sw.sync)
+
+## Next
+- Ask before auto install + progress
+- Add default callbacks to rw (onDeferred, onSync, onUpdate...)
+- Separate messages / implement translations
+- Priority cache -> notify on update
+- Save crawl errors inside local storage (auto hide/pin broken links)
+- Faster install: Crawl via cli, create static site archive then background fetch after sw registration
 
 
 ## Prerequisites
@@ -32,13 +50,15 @@ your_project
 │   ├── config.json # paw config file     - passed to both register and sw, generate your /manifest.json
 │   ├── register.js # register file       - register your service worker
 │   └── sw.js       # sw file             - service worker definition
+│
+your_project_public_directory
 ├── icon-*.png      # icon file           - needed, use your own
 └── paw.config.js   # paw webpack config  - used to generate final files
 ```
 
-You will also notice some new `paw` scripts available in your `package.json`.
+## Build
+Build commands are automatically added to your `package.json` during installation
 
-You have to run on of those commands to generate `your_project/register.js` and `your_project/sw.js`  
 ```sh
 # production build
 npm run paw
@@ -50,7 +70,19 @@ npm run paw:dev
 npm run paw:watch
 ```
 
-You'll have to add those two lines to your app root page :
+Each build will generate the following files :
+```sh
+your_project_public_directory
+├── register.js
+├── sw.js
+└── manifest.json
+```
+Note that those files must be accessible directly from https://yourdomain  
+(eg: https://yourdomain/register.js)
+
+## How to use
+
+Once you've installed and run build, you'll have to add those two lines to your app root page :
 ```html
 ...
 <link rel="manifest" href="/manifest.json">
@@ -58,11 +90,6 @@ You'll have to add those two lines to your app root page :
 ...
 ```
 
-## Uninstall
-`npm remove paw`
-
-
-## How to use
 Your `paw/sw.js` file must look like this :
 ```js
 import {SWrapper} from 'paw'
@@ -78,6 +105,7 @@ let sw = new SWrapper(self, config)
 Routes resolution will match the first bound route, and will continue until no return value has been found.
 
 ```js
+let router = sw.router
 
 router.route('/my-route', (event)=>{
     return 'HTML Content'
@@ -174,29 +202,5 @@ router.online('/back-online-route', (e)=>{
 })
 ```
 
-## Features
-__CLI__
-- Auto install / uninstall
-- Build `config.json` during install (prompt in CLI)
-- Regenerate `manifest.json` from `config.json` on webpack build
-
-__App Features__
-- Auto ask notifications permission (config.notifications)
-- Prompt on available update / on installing - on waiting
-
-__SW.js : controller utility__
-- Custom routes registration inside `paw/sw.js` (available: route, offline, online, json, redirect)
-- Custom routes with simplified regexp and capture groups (ex: `/entity/{id}`, `/pages/*`)
-- Router fill its fetchEvent input data (accessible when routing via `e.data` or `e.get` and `e.post`)
-- Notifications (rw.notify | sw.notify) and in-app message ( rw.message | sw.message )
-- Defer/Sync method to save request and load it later (sw.defer/sw.sync)
-
-## Next
-- Ask before auto install + progress
-
-- Add default callbacks to rw (onDeferred, onSync, onUpdate...)
-- Separate messages / implement translations
-
-- Priority cache -> notify on update
-- Save crawl errors inside local storage (auto hide/pin broken links)
-- Faster install: Crawl via cli, create static site archive then background fetch after sw registration
+## Uninstall
+`npm remove paw`
