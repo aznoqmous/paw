@@ -67,7 +67,7 @@ export default class RegisterWrapper {
                         this.bindServiceWorkerUpdateFound(registration)
 
                     })
-                    .catch(err => {console.error(err)})
+                    // .catch(err => {console.error(err)})
 
             })
         }
@@ -141,26 +141,31 @@ export default class RegisterWrapper {
 
 
     getRegistration(state=null){
-        return new Promise((res, rej), ()=>{
-            if(!state) return navigator.serviceWorker.getRegistration().then(reg => {
-                    res(reg[state])
+        return new Promise((res, rej)=>{
+            if(state) return navigator.serviceWorker.getRegistration().then(reg => {
+                    if(reg[state]) return res( reg[state] )
+                    else return rej(`no "${state}" state registration`, reg)
                 })
-            else rej()
+            else return navigator.serviceWorker.getRegistration().then(reg => {
+                return res(reg)
+            })
         })
 
     }
 
     updateMessage(sw){
-        this.getRegistration('waiting').then((reg)=>{
-            if(reg) this.message(this.config.updateText, { timeout: 5 * 3600 })
-                .addEventListener('click', (e) => {
-                    reg.postMessage('skipWaiting')
+        if(navigator.serviceWorker.controller) this.getRegistration('waiting')
+            .then((reg)=>{
+                console.log(reg)
+                if(reg) this.message(this.config.updateText, { timeout: 5 * 3600 })
+                    .addEventListener('click', (e) => {
+                        reg.postMessage('skipWaiting')
                 })
-        })
+            })
+            .catch((err)=>{console.log(err)})
     }
 
     subscribeToNotifications() {
-        return new Promise((res, rej)=>{
             if(this.notifications) return navigator.serviceWorker.getRegistration().then(registration => {
                 return registration
                     .pushManager.getSubscription()
@@ -176,15 +181,13 @@ export default class RegisterWrapper {
                                 if (this.config.debug) console.log('user subscribed to notifications')
                                 this.isSubscribed = true
                                 this.notify('Notifications are now active')
-                                res()
                             })
                             .catch((err) => {
                                 console.log(err)
                             })
                     })
             })
-            else rej()
-        })
+            else return Promise.reject()
     }
 
 
