@@ -21,27 +21,6 @@ export default class RegisterWrapper {
         this.createMessageHolder()
     }
 
-    // navigator.serviceWorker.ready
-    onReady(sw){
-        if(this.config.debug) console.log('onReady', sw)
-    }
-
-    // new service worker is installed, is waiting > prompt update message on resolve
-    onWaiting(sw){
-        if(this.config.debug) console.log('onWaiting', sw)
-        return new Promise(res => { res() })
-    }
-
-    onActivated(sw){
-        if(this.config.debug) console.log('onActivated', sw)
-        return new Promise(res => { res() })
-    }
-
-    // navigator.serviceWorker.oncontrollerchange > reload page on resolve
-    onControllerChange(sw){
-        if(this.config.debug) console.log('onControllerChange', sw)
-    }
-
     init() {
         if (!navigator.serviceWorker) console.warn('No ServiceWorker available on current navigator.');
         else {
@@ -73,6 +52,7 @@ export default class RegisterWrapper {
         }
     }
 
+    // SW LIFECYCLE
     bindServiceWorkerReady(){
         navigator.serviceWorker.ready.then(()=>{
             this.onReady(navigator.serviceWorker.controller)
@@ -139,7 +119,6 @@ export default class RegisterWrapper {
         })
     }
 
-
     getRegistration(state=null){
         return new Promise((res, rej)=>{
             if(state) return navigator.serviceWorker.getRegistration().then(reg => {
@@ -165,6 +144,8 @@ export default class RegisterWrapper {
             .catch((err)=>{console.log(err)})
     }
 
+
+    // NOTIFICATIONS
     subscribeToNotifications() {
             if(this.notifications) return navigator.serviceWorker.getRegistration().then(registration => {
                 return registration
@@ -190,7 +171,6 @@ export default class RegisterWrapper {
             else return Promise.reject()
     }
 
-
     notify(body, title = false) {
         if (!this.registration) return false;
         title = `${this.title}${title ? ' - ' + title : ''}`
@@ -202,12 +182,13 @@ export default class RegisterWrapper {
         return this.registration.showNotification(title, options)
     }
 
+    // MESSAGES
     message(content, config = {}) { // load message into html
         if (config.timeout === null) config.timeout = this.config.messageTimeOut
         return this.renderMessage(new Message(content, config))
     }
 
-    // load deferred message
+    /// load deferred message
     loadMessage(message) {
         return this.renderMessage(new Message(message.content, config))
     }
@@ -261,7 +242,7 @@ export default class RegisterWrapper {
         })
     }
 
-
+    /// allow messaging from sw.js through postMessage
     newMessageChannel(key, config){
         if (!navigator.serviceWorker || !navigator.serviceWorker.controller) return setTimeout(()=>{
             this.newMessageChannel(key, config)
@@ -274,6 +255,8 @@ export default class RegisterWrapper {
         navigator.serviceWorker.controller.postMessage(key, [messageChannel.port2])
     }
 
+
+    // UTILITIES
     autoInstall(sw){
         let crawled = 0
         let progress = 0
@@ -365,4 +348,25 @@ export default class RegisterWrapper {
         return this.sw({sync: key})
     }
 
+    // CALLBACKS
+    /// navigator.serviceWorker.ready
+    onReady(sw){
+        if(this.config.debug) console.log('onReady', sw)
+    }
+
+    /// new service worker is installed, is waiting > prompt update message on resolve
+    onWaiting(sw){
+        if(this.config.debug) console.log('onWaiting', sw)
+        return new Promise(res => { res() })
+    }
+
+    onActivated(sw){
+        if(this.config.debug) console.log('onActivated', sw)
+        return new Promise(res => { res() })
+    }
+
+    /// navigator.serviceWorker.oncontrollerchange > reload page on resolve
+    onControllerChange(sw){
+        if(this.config.debug) console.log('onControllerChange', sw)
+    }
 }
