@@ -35,6 +35,7 @@ export default class Router {
             let routes = this.routeMatch(fetchEvent)
             let response = null
             let finalRoute = null
+
             routes.map(route => {
                 if (response) return false
                 response = this.controller(route, fetchEvent)
@@ -82,7 +83,7 @@ export default class Router {
 
     json(path, callback, config = {}) {
         return this.route(path, () => {
-            if(typeof(callback()) == 'object') return callback().then(res => { return JSON.stringify(res)})
+            if(callback.constructor.name == 'Promise') return callback().then(res => { return JSON.stringify(res)})
             else return JSON.stringify(callback())
         }, Object.assign(config, {type: 'json'}))
     }
@@ -142,6 +143,106 @@ export default class Router {
                 route.setStrategy(strategy)
             })
             else this.route(path).setStrategy(strategy)
+        })
+    }
+
+    // REQUESTS HANDLING
+    handleRequest(fetchEvent) {
+        return this.prepareRequest(fetchEvent)
+            .then(() => {
+                let matches = this.routeMatch(fetchEvent)
+                if (matches.length) {
+                    return this.resolve(fetchEvent)
+                        .then(response => {
+                            return {response: response}
+                        })
+                        .catch(finalRoute => {
+                            return {finalRoute: finalRoute}
+                        })
+                }
+                else return fetchEvent
+            })
+    }
+
+    prepareRequest(fetchEvent) {
+        fetchEvent.data = {}
+        return Promise.allSettled([
+            this.getPostData(fetchEvent),
+            this.getURLParamsData(fetchEvent)
+        ])
+    }
+
+    getPostData(fetchEvent) {
+        let request = fetchEvent.request.clone()
+        return new Promise((res, rej) => {
+            let requestData = this.fetchRequestData(request)
+            if (requestData) requestData.then((data) => {
+
+                if (typeof data[Symbol.iterator] === 'function') {
+                    let objData = {}
+                    data.forEach((value, key) => {
+                        objData[key] = value
+                    });
+                    data = objData
+                }
+
+                if (Object.entries(data).length) {
+                    if (!fetchEvent.data) fetchEvent.data = {}
+                    if (!fetchEvent.datas) fetchEvent.datas = {}
+                    fetchEvent.data.post = data
+                    fetchEvent.datas = Object.assign(fetchEvent.datas, data)
+                }
+
+                res()
+            })
+            else rej()
+        })
+    }
+
+    fetchRequestData(request) {
+        let headers = {}
+        let hs = [...request.headers]
+
+        hs.map(h => {
+            headers[h[0]] = h[1]
+        })
+
+        if (
+            /application\/x\-www\-form\-urlencoded/.test( headers['content-type'] ) ||
+            /multipart\/form\-data/.test( headers['content-type'] )
+        ) return request.formData()
+
+        if (
+            /application\/json/.test( headers['content-type'] )
+        ) return request.json()
+
+        if (
+            /text\/html/.test( headers['content-type'] )
+        ) return request.text()
+
+        return false;
+    }
+
+    getURLParamsData(fetchEvent) {
+        return new Promise((res, rej) => {
+            let objData = {}
+            let data = new URL(fetchEvent.request.url).searchParams
+
+            if (typeof data[Symbol.iterator] === 'function') {
+                let objData = {}
+                data.forEach((value, key) => {
+                    objData[key] = value
+                });
+                data = objData
+            }
+            if (Object.entries(data).length) {
+                if (!fetchEvent.data) fetchEvent.data = {}
+                if (!fetchEvent.datas) fetchEvent.datas = {}
+                fetchEvent.data.get = data
+                fetchEvent.datas = Object.assign(fetchEvent.datas, data)
+            }
+
+            res()
         })
     }
 

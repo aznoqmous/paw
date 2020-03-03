@@ -70,7 +70,16 @@ export default class SWrapper {
 
     bindFetch() {
         this.sw.addEventListener('fetch', e => {
-            e.respondWith(this.handleRequest(e))
+            e.respondWith(
+                this.router.handleRequest(e)
+                    .then((res)=>{
+                        if (res.response) return res.response
+                        if (res.finalRoute && res.finalRoute.strategy) return this.fetchStrategy(e, res.finalRoute.strategy)
+                        if (e.request.mode == 'navigate')  return this.defaultFetchStrategy(e)
+                        if (e.request.destination.length) return this.defaultAssetStrategy(e)
+                        return this.defaultFetchStrategy(e)
+                    })
+            )
         })
     }
 
@@ -146,115 +155,6 @@ export default class SWrapper {
     bindPushNotifications(){
         this.sw.addEventListener('push', (e) => {
             e.waitUntil(this.notify(JSON.stringify(e.data), 'New push notification'))
-        })
-    }
-
-    // REQUESTS HANDLING
-    handleRequest(fetchEvent) {
-        return this.prepareRequest(fetchEvent)
-        .then(() => {
-            let matches = this.router.routeMatch(fetchEvent)
-
-            if (matches.length) {
-                return this.router.resolve(fetchEvent)
-                .then(res => {
-                    return res
-                })
-                .catch(finalRoute => {
-                    if (finalRoute.strategy) return this.fetchStrategy(fetchEvent, finalRoute.strategy)
-                    else return this.defaultFetchStrategy(fetchEvent) // if no response handle basic response
-                })
-            }
-            else if (fetchEvent.request.mode == 'navigate') {
-                return this.defaultFetchStrategy(fetchEvent)
-            }
-            else if (fetchEvent.request.destination.length){
-                return this.defaultAssetStrategy(fetchEvent)
-            }
-
-            return this.defaultFetchStrategy(fetchEvent)
-        })
-    }
-
-    prepareRequest(fetchEvent) {
-        fetchEvent.data = {}
-        return Promise.allSettled([
-            this.getPostData(fetchEvent),
-            this.getURLParamsData(fetchEvent)
-        ])
-    }
-
-    getPostData(fetchEvent) {
-        let request = fetchEvent.request.clone()
-        return new Promise((res, rej) => {
-            let requestData = this.fetchRequestData(request)
-            if (requestData) requestData.then((data) => {
-
-                if (typeof data[Symbol.iterator] === 'function') {
-                    let objData = {}
-                    data.forEach((value, key) => {
-                        objData[key] = value
-                    });
-                    data = objData
-                }
-
-                if (Object.entries(data).length) {
-                    if (!fetchEvent.data) fetchEvent.data = {}
-                    if (!fetchEvent.datas) fetchEvent.datas = {}
-                    fetchEvent.data.post = data
-                    fetchEvent.datas = Object.assign(fetchEvent.datas, data)
-                }
-
-                res()
-            })
-            else rej()
-        })
-    }
-
-    fetchRequestData(request) {
-        let headers = {}
-        let hs = [...request.headers]
-
-        hs.map(h => {
-            headers[h[0]] = h[1]
-        })
-
-        if (
-            /application\/x\-www\-form\-urlencoded/.test( headers['content-type'] ) ||
-            /multipart\/form\-data/.test( headers['content-type'] )
-        ) return request.formData()
-
-        if (
-            /application\/json/.test( headers['content-type'] )
-        ) return request.json()
-
-        if (
-            /text\/html/.test( headers['content-type'] )
-        ) return request.text()
-
-        return false;
-    }
-
-    getURLParamsData(fetchEvent) {
-        return new Promise((res, rej) => {
-            let objData = {}
-            let data = new URL(fetchEvent.request.url).searchParams
-
-            if (typeof data[Symbol.iterator] === 'function') {
-                let objData = {}
-                data.forEach((value, key) => {
-                    objData[key] = value
-                });
-                data = objData
-            }
-            if (Object.entries(data).length) {
-                if (!fetchEvent.data) fetchEvent.data = {}
-                if (!fetchEvent.datas) fetchEvent.datas = {}
-                fetchEvent.data.get = data
-                fetchEvent.datas = Object.assign(fetchEvent.datas, data)
-            }
-
-            res()
         })
     }
 

@@ -193,7 +193,6 @@ __SW.js : controller utility__
 
 ## Next
 - Ask before auto install + progress
-- Separate Router responsability from sw - router.js
 
 - Add default callbacks to rw (onDeferred, onSync, onUpdate...)
 - Separate messages / implement translations
