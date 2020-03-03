@@ -206,18 +206,18 @@ export default class RegisterWrapper {
         this.messageHolder.className = "paw-messages"
         let styles = {
             position: 'fixed',
-            left: '0',
-            padding: '1rem',
+            left: '50vw',
             zIndex: 1000000,
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
             fontFamily: 'Arial, sans-serif',
-            width: '100vw'
+            transform: 'translate(-50%, 0)',
+            padding: 0
         }
-        if(this.config.messagePosition == 'bottom') styles.bottom = '0'
-        else styles.top = '0'
+        if(this.config.messagePosition == 'bottom') styles.bottom = '1rem'
+        else styles.top = '1rem'
 
         for (let key in styles) this.messageHolder.style[key] = styles[key]
 

@@ -22,7 +22,10 @@ export default class Message {
             boxShadow: '0 0.1rem 0.1rem rgba(0,0,0,0.2)',
             cursor: 'pointer',
             transition: 'all 0.2s ease',
-            opacity: '0'
+            opacity: '0',
+            width: 'auto',
+            textAlign: 'center',
+            maxWidth: 'calc(100vw - 2rem)'
         }
         for(let key in styles) this.element.style[key] = styles[key]
         this.element.innerHTML = this.content
