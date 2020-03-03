@@ -143,7 +143,7 @@ export default class RegisterWrapper {
     getRegistration(state=null){
         return new Promise((res, rej), ()=>{
             if(!state) return navigator.serviceWorker.getRegistration().then(reg => {
-                    return reg[state]
+                    res(reg[state])
                 })
             else rej()
         })
@@ -173,9 +173,10 @@ export default class RegisterWrapper {
                             applicationServerKey: this.publicKey
                         })
                             .then((sub) => {
-                                if (this.config.debug) this.message('user subscribed to notifications')
+                                if (this.config.debug) console.log('user subscribed to notifications')
                                 this.isSubscribed = true
                                 this.notify('Notifications are now active')
+                                res()
                             })
                             .catch((err) => {
                                 console.log(err)
