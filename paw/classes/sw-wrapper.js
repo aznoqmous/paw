@@ -22,7 +22,6 @@ export default class SWrapper {
 
     }
 
-
     init(sw) {
         this.sw = sw
         this.deferrer = new Deferrer()
@@ -35,7 +34,7 @@ export default class SWrapper {
 
     }
 
-    // addEventListeners
+    // EVENTS
     bind() {
         this.bindInstall()
         this.bindActivate()
@@ -158,7 +157,8 @@ export default class SWrapper {
         })
     }
 
-    // CACHE
+
+    /// CACHE
     storeResponse(cacheName, url, response) {
         cacheName = (cacheName) ? cacheName : this.cacheName
         let clone = response.clone()
@@ -187,7 +187,7 @@ export default class SWrapper {
         return caches.delete(cacheName)
     }
 
-    // @addPageToCache
+    // @addPageToCache -> performance mode
     addPagesToCache(paths){
         if(this.debug) console.log('adding pages to cache...', paths)
         let crawler = new Crawler(this.sw.location.origin)
@@ -235,13 +235,13 @@ export default class SWrapper {
         })
     }
 
-
     addToAssetsCache(paths){
         return this.addToCache(paths, this.assetsCacheName)
 
     }
 
-    // STRATEGY
+
+    /// REQUESTS STRATEGY
     defaultFetchStrategy(e) {
         return this.fetchStrategy(e, this.strategy)
     }
@@ -302,6 +302,23 @@ export default class SWrapper {
         return cache.match(fetchEvent.request.url)
     }
 
+
+    /// REQUEST DEFERRER
+    defer(key, fetchEvent) {
+        return this.deferrer.save(key, fetchEvent)
+    }
+
+    deferred(key) {
+        return this.deferrer.all(key)
+    }
+
+    // sync deferred requests
+    sync(key, config={}) {
+        return this.deferrer.load(key, config)
+    }
+
+
+    /// NOTIFICATIONS - MESSAGES
     notify(body, title = false) {
         if (Notification.permission == 'denied' || !Notification.permission) return false;
         title = `${this.title} ${title ? '-' + title : ''}`
@@ -311,19 +328,6 @@ export default class SWrapper {
             badge: this.config.badge
         }
         return this.sw.registration.showNotification(title, options)
-    }
-
-    defer(key, fetchEvent) {
-        return this.deferrer.save(key, fetchEvent)
-    }
-
-
-    sync(key, config={}) {
-        return this.deferrer.load(key, config)
-    }
-
-    deferred(key) {
-        return this.deferrer.all(key)
     }
 
     registerMessageChannel(e){
