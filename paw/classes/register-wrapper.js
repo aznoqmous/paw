@@ -145,6 +145,7 @@ export default class RegisterWrapper {
         return navigator.serviceWorker.getRegistration().then(reg => {
             return reg[state]
         })
+        else Promise.reject()
     }
 
     updateMessage(sw){
