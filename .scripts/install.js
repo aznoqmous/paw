@@ -63,7 +63,7 @@ module.exports = [
         },
         output: {
             path: path.resolve(__dirname, "."),
-            filename: "./sw.js"
+            filename: "${publicDir}/sw.js"
         },
         module: {
             rules: [
@@ -89,7 +89,7 @@ module.exports = [
         },
         output: {
             path: path.resolve(__dirname, "."),
-            filename: "./register.js"
+            filename: "${publicDir}/register.js"
         },
         module: {
             rules: [
