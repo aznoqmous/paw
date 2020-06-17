@@ -2,7 +2,7 @@
     "name": "paw",
     "version": "1.0.0",
     "description": "```js\r import SWrapper from './sw-wrapper'",
-    "main": "paw/index.js",
+    "main": "dist/main.js",
     "scripts": {
         "paw:manifest": "node .scripts/build-manifest.js",
         "paw": "node .scripts/build-manifest.js && webpack --config paw.config-dev.js --mode production",
