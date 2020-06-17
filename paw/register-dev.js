@@ -1,4 +1,6 @@
 import RegisterWrapper from './classes/register-wrapper'
+import Styles from '../scss/style.scss'
+
 import config from './config.json'
 
 window.rw = new RegisterWrapper(config)

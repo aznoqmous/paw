@@ -37,6 +37,10 @@
         "urlb64touint8array": "^1.0.3"
     },
     "devDependencies": {
+        "css-loader": "^3.6.0",
+        "sass": "^1.26.8",
+        "sass-loader": "^8.0.2",
+        "style-loader": "^1.2.1",
         "webpack": "^4.41.6",
         "webpack-cli": "^3.3.11"
     }
