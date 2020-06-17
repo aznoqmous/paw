@@ -152,6 +152,7 @@ module.exports = [
                 './paw/register.js',
                 './paw/sw.js',
                 './paw/config.json',
+                './paw/paw.scss',
                 `${cwd}/`
             ], '', ()=>{
                 process.chdir(cwd)
