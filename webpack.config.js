@@ -7,6 +7,10 @@ module.exports = [
                 './paw/index.js'
             ]
         },
+        output: {
+            path: path.resolve(__dirname, "."),
+            filename: "./dist/main.js"
+        },
         module: {
             rules: [
                 {
