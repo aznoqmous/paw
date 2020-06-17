@@ -34,9 +34,7 @@
         "@babel/core": "^7.8.6",
         "@babel/preset-env": "^7.8.6",
         "babel-loader": "^8.0.6",
-        "urlb64touint8array": "^1.0.3"
-    },
-    "devDependencies": {
+        "urlb64touint8array": "^1.0.3",
         "css-loader": "^3.6.0",
         "sass": "^1.26.8",
         "sass-loader": "^8.0.2",
