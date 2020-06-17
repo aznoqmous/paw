@@ -283,6 +283,7 @@ export default class RegisterWrapper {
     loading() {
         if(!this.progress) {
             this.progress = new Message('Loading...', {timeout: 5 * 60 * 1000})
+            this.progress.element.classList.add('paw-progress')
             this.renderMessage(this.progress)
         }
         if(!this.overlay){
