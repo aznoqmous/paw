@@ -204,18 +204,8 @@ export default class RegisterWrapper {
         if (this.messageHolder) return false
         this.messageHolder = document.createElement('ul')
         this.messageHolder.className = "paw-messages"
-        let styles = {
-            position: 'fixed',
-            left: '50vw',
-            zIndex: 1000000,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            fontFamily: 'Arial, sans-serif',
-            transform: 'translate(-50%, 0)',
-            padding: 0
-        }
+
+        let styles = {}
         if(this.config.messagePosition == 'bottom') styles.bottom = '1rem'
         else styles.top = '1rem'
 
@@ -297,19 +287,8 @@ export default class RegisterWrapper {
         }
         if(!this.overlay){
             this.overlay = document.createElement('div')
-
-            let styles = {
-                background: this.config.overlayColor,
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100vw',
-                height: '100vh',
-                zIndex: 100000,
-                opacity: 1,
-                transition: 'opacity 0.2s ease'
-            }
-            for(let key in styles) this.overlay.style[key] = styles[key]
+            this.overlay.classList.add('paw-overlay')
+            this.overlay.style.background = this.config.overlayColor
             document.body.appendChild(this.overlay)
         }
     }
