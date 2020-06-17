@@ -28,7 +28,7 @@ __SW.js : controller utility__
 - Priority cache -> notify on update
 - Save crawl errors inside local storage (auto hide/pin broken links)
 - Faster install: Crawl via cli, create static site archive then background fetch after sw registration
-
+- Auto package.json generation from config when not found in destination project
 
 ## Prerequisites
 - Your app must be served over `https`
