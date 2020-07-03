@@ -48,6 +48,7 @@ export default class RegisterWrapper {
                     })
                     // .catch(err => {console.error(err)})
 
+
             })
         }
     }
@@ -61,7 +62,19 @@ export default class RegisterWrapper {
 
     bindServiceWorkerControllerChange(){
         navigator.serviceWorker.addEventListener('controllerchange', (e)=>{
+            console.log("serviceworker controller change")
+
             this.onControllerChange(e.target.controller)
+
+            this.loaded()
+            if(this.config.autoInstallation) {
+                this.autoInstall().then(()=>{
+                    this.message('Installation completed')
+                    this.loaded()
+                    window.location.reload()
+                })
+            }
+            else window.location.reload()
         })
     }
 
@@ -94,20 +107,6 @@ export default class RegisterWrapper {
 
             })
 
-        })
-    }
-
-    bindControllerChange(){
-        navigator.serviceWorker.addEventListener('controllerchange', (e) => {
-            this.loaded()
-            if(this.config.autoInstallation) {
-                this.autoInstall().then(()=>{
-                    this.message('Installation completed')
-                    this.loaded()
-                    window.location.reload()
-                })
-            }
-            else window.location.reload()
         })
     }
 
