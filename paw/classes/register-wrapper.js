@@ -19,16 +19,19 @@ export default class RegisterWrapper {
 
         this.init()
         this.createMessageHolder()
+
+        console.log(this.config)
     }
 
     init() {
         if (!navigator.serviceWorker) console.warn('No ServiceWorker available on current navigator.');
         else {
             window.addEventListener('DOMContentLoaded', () => {
+                console.log('DOMCONTENTLOADED')
 
                 this.newMessageChannel('message')
 
-                this.subscribeToNotifications()
+                if (this.notifications) this.subscribeToNotifications()
 
                 this.bindNetworkStateMessage()
 
@@ -46,7 +49,7 @@ export default class RegisterWrapper {
                         this.bindServiceWorkerUpdateFound(registration)
 
                     })
-                    // .catch(err => {console.error(err)})
+                // .catch(err => {console.error(err)})
 
 
             })
@@ -54,54 +57,55 @@ export default class RegisterWrapper {
     }
 
     // SW LIFECYCLE
-    bindServiceWorkerReady(){
-        navigator.serviceWorker.ready.then(()=>{
+    bindServiceWorkerReady() {
+        navigator.serviceWorker.ready.then(() => {
             this.onReady(navigator.serviceWorker.controller)
         })
     }
 
-    bindServiceWorkerControllerChange(){
-        navigator.serviceWorker.addEventListener('controllerchange', (e)=>{
+    bindServiceWorkerControllerChange() {
+        navigator.serviceWorker.addEventListener('controllerchange', (e) => {
             console.log("serviceworker controller change")
-
+            if(!e.target.controller) return false;
             this.onControllerChange(e.target.controller)
 
             this.loaded()
-            if(this.config.autoInstallation) {
-                this.autoInstall().then(()=>{
-                    this.message('Installation completed')
-                    this.loaded()
-                    window.location.reload()
-                })
-            }
-            else window.location.reload()
+            if (this.config.autoInstallation) {
+                this.autoInstall()
+                    .then(() => {
+                        this.message('Installation completed')
+                        this.loaded()
+                        window.location.reload()
+                    })
+            } else window.location.reload()
         })
     }
 
-    bindUpdate(registration){
-        setInterval(()=>{
+    bindUpdate(registration) {
+        setInterval(() => {
             registration.update()
         }, 1000)
     }
 
-    bindServiceWorkerUpdateFound(registration){
-        registration.addEventListener('updatefound', ()=>{
+    bindServiceWorkerUpdateFound(registration) {
+        registration.addEventListener('updatefound', () => {
             let networker = registration.installing
 
-            networker.addEventListener('statechange', ()=>{
+            networker.addEventListener('statechange', () => {
 
-                if(networker.state == 'installed' && navigator.serviceWorker.controller) {
+                if (networker.state == 'installed' && navigator.serviceWorker.controller) {
 
                     this.onWaiting(networker)
-                        .then(()=>{
+                        .then(() => {
                             this.updateMessage()
                         })
                 }
 
-                if(networker.state == 'activated') {
+                if (networker.state == 'activated') {
                     this.onActivated(networker)
-                        .then(()=>{
-                            window.location.reload()
+                        .then(() => {
+                            console.log('activated')
+                            if(!this.config.autoInstallation) window.location.reload()
                         })
                 }
 
@@ -114,16 +118,16 @@ export default class RegisterWrapper {
         this.connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
         this.connection.addEventListener('change', (e) => {
             // e.preventDefault()
-            this.message(`${(navigator.onLine)? `${this.config.onlineMessage} (${this.connection.effectiveType})` : this.config.offlineMessage}`)
+            this.message(`${(navigator.onLine) ? `${this.config.onlineMessage} (${this.connection.effectiveType})` : this.config.offlineMessage}`)
         })
     }
 
-    getRegistration(state=null){
-        return new Promise((res, rej)=>{
-            if(state) return navigator.serviceWorker.getRegistration().then(reg => {
-                    if(reg[state]) return res( reg[state] )
-                    else return rej(`no "${state}" state registration`, reg)
-                })
+    getRegistration(state = null) {
+        return new Promise((res, rej) => {
+            if (state) return navigator.serviceWorker.getRegistration().then(reg => {
+                if (reg[state]) return res(reg[state])
+                else return rej(`no "${state}" state registration`, reg)
+            })
             else return navigator.serviceWorker.getRegistration().then(reg => {
                 return res(reg)
             })
@@ -131,43 +135,44 @@ export default class RegisterWrapper {
 
     }
 
-    updateMessage(sw){
-        if(navigator.serviceWorker.controller) this.getRegistration('waiting')
-            .then((reg)=>{
+    updateMessage(sw) {
+        if (navigator.serviceWorker.controller) this.getRegistration('waiting')
+            .then((reg) => {
                 console.log(reg)
-                if(reg) this.message(this.config.updateText, { timeout: 5 * 3600 })
+                if (reg) this.message(this.config.updateText, {timeout: 5 * 3600})
                     .addEventListener('click', (e) => {
                         reg.postMessage('skipWaiting')
-                })
+                    })
             })
-            .catch((err)=>{console.log(err)})
+            .catch((err) => {
+                console.log(err)
+            })
     }
 
 
     // NOTIFICATIONS
     subscribeToNotifications() {
-            if(this.notifications) return navigator.serviceWorker.getRegistration().then(registration => {
-                return registration
-                    .pushManager.getSubscription()
-                    .then((sub) => {
-                        this.isSubscribed = !(sub === null)
-                        if (this.isSubscribed || !registration.active) return false
+        return navigator.serviceWorker.getRegistration().then(registration => {
+            return registration
+                .pushManager.getSubscription()
+                .then((sub) => {
+                    this.isSubscribed = !(sub === null)
+                    if (this.isSubscribed || !registration.active) return false
 
-                        return registration.pushManager.subscribe({
-                            userVisibleOnly: true,
-                            applicationServerKey: this.publicKey
-                        })
-                            .then((sub) => {
-                                if (this.config.debug) console.log('user subscribed to notifications')
-                                this.isSubscribed = true
-                                this.notify('Notifications are now active')
-                            })
-                            .catch((err) => {
-                                console.log(err)
-                            })
+                    return registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: this.publicKey
                     })
-            })
-            else return Promise.reject()
+                        .then((sub) => {
+                            if (this.config.debug) console.log('user subscribed to notifications')
+                            this.isSubscribed = true
+                            this.notify('Notifications are now active')
+                        })
+                        .catch((err) => {
+                            console.log(err)
+                        })
+                })
+        })
     }
 
     notify(body, title = false) {
@@ -193,7 +198,7 @@ export default class RegisterWrapper {
     }
 
     renderMessage(message) {
-        if( !this.messages[message.key] ) this.messages[message.key] = []
+        if (!this.messages[message.key]) this.messages[message.key] = []
         this.messages[message.key].push(message)
         this.messageHolder.appendChild(message.element)
         return message.element
@@ -202,13 +207,7 @@ export default class RegisterWrapper {
     createMessageHolder() {
         if (this.messageHolder) return false
         this.messageHolder = document.createElement('ul')
-        this.messageHolder.className = "paw-messages"
-
-        let styles = {}
-        if(this.config.messagePosition == 'bottom') styles.bottom = '1rem'
-        else styles.top = '1rem'
-
-        for (let key in styles) this.messageHolder.style[key] = styles[key]
+        this.messageHolder.className = `paw-messages ${this.config.messagePosition}`
 
         if (document.body) document.body.appendChild(this.messageHolder)
         else document.addEventListener('DOMContentLoaded', () => {
@@ -232,8 +231,8 @@ export default class RegisterWrapper {
     }
 
     /// allow messaging from sw.js through postMessage
-    newMessageChannel(key, config){
-        if (!navigator.serviceWorker || !navigator.serviceWorker.controller) return setTimeout(()=>{
+    newMessageChannel(key, config) {
+        if (!navigator.serviceWorker || !navigator.serviceWorker.controller) return setTimeout(() => {
             this.newMessageChannel(key, config)
         }, 1000)
         let messageChannel = new MessageChannel()
@@ -246,15 +245,17 @@ export default class RegisterWrapper {
 
 
     // UTILITIES
-    autoInstall(sw){
+    autoInstall(sw) {
         let crawled = 0
         let progress = 0
 
+        console.log('AUTOINSTALL STARTED')
+
         this.crawler = new Crawler(window.location.origin, {
-            onNewUrl: (url, crawler)=>{
+            onNewUrl: (url, crawler) => {
                 this.updateProgress(`${Object.keys(crawler.pages).length} pages / ${Object.keys(crawler.assets).length} assets discovered... (${progress}%)`)
             },
-            onPageCrawled: ()=>{
+            onPageCrawled: () => {
                 crawled++
                 progress = Math.floor(crawled / Object.keys(this.crawler.pages).length * 100)
                 this.updateProgress(`${Object.keys(this.crawler.pages).length} pages / ${Object.keys(this.crawler.assets).length} assets discovered... (${progress}%)`)
@@ -262,30 +263,27 @@ export default class RegisterWrapper {
         })
 
         return this.crawler.crawl()
-        .then(()=>{
-            let total = Object.keys(this.crawler.pages).length + Object.keys(this.crawler.assets).length
-            this.updateProgress(`Adding ${total} resources to cache...`)
-            console.log('crawl end')
-            return Promise.allSettled([
-                this.sw({do: 'addToCache', options: [ Object.keys(this.crawler.pages) ]}, sw),
-                this.sw({do: 'addToAssetsCache', options: [ Object.keys(this.crawler.assets) ]}, sw)
-            ])
-        })
-        .then(()=>{
-            this.message('Installation completed')
-            this.loaded()
-            window.location.reload()
-            return true
-        })
+            .then(() => {
+                let total = Object.keys(this.crawler.pages).length + Object.keys(this.crawler.assets).length
+                this.updateProgress(`Adding ${total} resources to cache...`)
+                return Promise.allSettled([
+                    this.sw({do: 'addToCache', options: [Object.keys(this.crawler.pages)]}, sw),
+                    this.sw({do: 'addToAssetsCache', options: [Object.keys(this.crawler.assets)]}, sw)
+                ])
+            })
+            .then(()=>{
+                console.log('AUTOINSTALL COMPLETED')
+            })
+
     }
 
     loading() {
-        if(!this.progress) {
+        if (!this.progress) {
             this.progress = new Message('Loading...', {timeout: 5 * 60 * 1000})
             this.progress.element.classList.add('paw-progress')
             this.renderMessage(this.progress)
         }
-        if(!this.overlay){
+        if (!this.overlay) {
             this.overlay = document.createElement('div')
             this.overlay.classList.add('paw-overlay')
             this.overlay.style.background = this.config.overlayColor
@@ -293,28 +291,30 @@ export default class RegisterWrapper {
         }
     }
 
-    updateProgress(state){
-        if(!this.progress) this.loading()
-        if(this.progress.element.style.display == 'none') this.progress.element.style.display = 'block'
+    updateProgress(state) {
+        if (!this.progress) this.loading()
+        if (this.progress.element.style.display == 'none') this.progress.element.style.display = 'block'
         this.progress.setHtml(state)
     }
 
     loaded() {
-        if(this.progress) this.progress.element.style.display = 'none'
-        if(this.overlay) this.overlay.style.opacity = 0
+        if (this.progress) this.progress.element.style.display = 'none'
+        if (this.overlay) this.overlay.style.opacity = 0
         this.messages = []
     }
 
 
     // SW MESSAGING
-    sw(message, sw=null) {
-        sw = (sw)? sw : navigator.serviceWorker.controller
-        if (!sw) setTimeout(()=>{ this.sw(message, sw) }, 1000)
+    sw(message, sw = null) {
+        sw = (sw) ? sw : navigator.serviceWorker.controller
+        if (!sw) setTimeout(() => {
+            this.sw(message, sw)
+        }, 1000)
 
         return new Promise((res, rej) => {
             let messageChannel = new MessageChannel()
             messageChannel.port1.onmessage = (e) => {
-                if(!e.data) return rej(e)
+                if (!e.data) return rej(e)
                 if (e.data.error) return rej(e.data.error)
                 else return res(e.data)
             }
@@ -329,23 +329,27 @@ export default class RegisterWrapper {
 
     // CALLBACKS
     /// navigator.serviceWorker.ready
-    onReady(sw){
-        if(this.config.debug) console.log('onReady', sw)
+    onReady(sw) {
+        if (this.config.debug) console.log('onReady', sw)
     }
 
     /// new service worker is installed, is waiting > prompt update message on resolve
-    onWaiting(sw){
-        if(this.config.debug) console.log('onWaiting', sw)
-        return new Promise(res => { res() })
+    onWaiting(sw) {
+        if (this.config.debug) console.log('onWaiting', sw)
+        return new Promise(res => {
+            res()
+        })
     }
 
-    onActivated(sw){
-        if(this.config.debug) console.log('onActivated', sw)
-        return new Promise(res => { res() })
+    onActivated(sw) {
+        if (this.config.debug) console.log('onActivated', sw)
+        return new Promise(res => {
+            res()
+        })
     }
 
     /// navigator.serviceWorker.oncontrollerchange > reload page on resolve
-    onControllerChange(sw){
-        if(this.config.debug) console.log('onControllerChange', sw)
+    onControllerChange(sw) {
+        if (this.config.debug) console.log('onControllerChange', sw)
     }
 }
