@@ -9,6 +9,12 @@
     font-family: Arial, sans-serif;
     transform: translate(-50%, 0);
     padding: 0;
+    &.top {
+        margin-top: 1rem;
+    }
+    &.bottom {
+        margin-bottom: 1rem;
+    }
 }
 
 .paw-overlay {
