@@ -45,12 +45,11 @@ export default class SWrapper {
     }
 
     bindInstall() {
-
         this.sw.addEventListener('install', e => {
             console.log('sw: install')
             e.waitUntil(
                 this.addPagesToCache(this.staticPages)
-                    .then(()=>{
+                    .then(() => {
                         console.log('install done, waiting...')
                     })
             )
@@ -71,10 +70,10 @@ export default class SWrapper {
         this.sw.addEventListener('fetch', e => {
             e.respondWith(
                 this.router.handleRequest(e)
-                    .then((res)=>{
+                    .then((res) => {
                         if (res.response) return res.response
                         if (res.finalRoute && res.finalRoute.strategy) return this.fetchStrategy(e, res.finalRoute.strategy)
-                        if (e.request.mode == 'navigate')  return this.defaultFetchStrategy(e)
+                        if (e.request.mode == 'navigate') return this.defaultFetchStrategy(e)
                         if (e.request.destination.length) return this.defaultAssetStrategy(e)
                         return this.defaultFetchStrategy(e)
                     })
@@ -88,70 +87,87 @@ export default class SWrapper {
         })
     }
 
-    bindMessages(){
+    bindMessages() {
         this.sw.addEventListener('message', (e) => {
 
             console.log('message', e.data)
 
-            if(e.data == 'skipWaiting') {
+            if (e.data == 'skipWaiting') {
                 this.sw.skipWaiting()
-                    .then(res => {console.log('skipwaiting success', res)})
-                    .catch(err => { console.log('skipwaiting error', err) })
+                    .then(res => {
+                        console.log('skipwaiting success', res)
+                    })
+                    .catch(err => {
+                        console.log('skipwaiting error', err)
+                    })
                 return true
             }
 
-            if(this.registerMessageChannel(e)) return false;
+            if (this.registerMessageChannel(e)) return false;
 
             let port = false
-
             if (e.ports.length) {
                 port = e.ports[0]
             }
 
-            if (e.data.sw){
+            if (e.data.sw) {
 
-                if(port) return this.sw[e.data.sw]()
+                if (port) return this.sw[e.data.sw]()
                     .then(res => port.postMessage(res))
                     .catch(err => port.postMessage(err))
 
-                return this.sw[e.data.sw]().then(res => {console.log('skipWaiting end')})
+                return this.sw[e.data.sw]().then(res => {
+                    console.log('skipWaiting end')
+                })
 
             }
 
             if (e.data.action) {
-                if(e.data.action == 'skipWaiting') return this.sw.skipWaiting()
+                if (e.data.action == 'skipWaiting') return this.sw.skipWaiting()
                 console.log('unhandled e.data.action', e.data.action)
             }
 
-            if(e.data.do) {
-                let options = (e.data.options)? e.data.options : [];
-                if(port) return this[e.data.do](...options)
-                    .then((res)=>{port.postMessage(res)})
-                    .catch((err)=>{port.postMessage(err)})
+            if (e.data.do) {
+                let options = (e.data.options) ? e.data.options : [];
+                if (port) return this[e.data.do](...options)
+                    .then((res) => {
+                        port.postMessage(res)
+                    })
+                    .catch((err) => {
+                        port.postMessage(err)
+                    })
                 return this[e.data.do](...options)
             }
 
             if (e.data.sync) {
-                if(port) return this.sync(e.data.sync, e.data.config)
-                    .then((res)=>{port.postMessage(res)})
-                    .catch((err)=>{port.postMessage(err)})
+                if (port) return this.sync(e.data.sync, e.data.config)
+                    .then((res) => {
+                        port.postMessage(res)
+                    })
+                    .catch((err) => {
+                        port.postMessage(err)
+                    })
                 return this.sync(e.data.sync, e.data.config)
             }
 
             if (e.data.deferred) {
-                if(port) return this.deferred(e.data.deferred)
-                    .then((res)=>{port.postMessage(res)})
-                    .catch((err)=>{port.postMessage(err)})
+                if (port) return this.deferred(e.data.deferred)
+                    .then((res) => {
+                        port.postMessage(res)
+                    })
+                    .catch((err) => {
+                        port.postMessage(err)
+                    })
 
                 return this.deferred(e.data.deferred)
             }
 
-            if(port) port.postMessage(e.data)
+            if (port) port.postMessage(e.data)
 
         })
     }
 
-    bindPushNotifications(){
+    bindPushNotifications() {
         this.sw.addEventListener('push', (e) => {
             e.waitUntil(this.notify(JSON.stringify(e.data), 'New push notification'))
         })
@@ -163,21 +179,21 @@ export default class SWrapper {
         cacheName = (cacheName) ? cacheName : this.cacheName
         let clone = response.clone()
         caches.open(cacheName)
-        .then(cache => {
-            cache.put(url, clone)
-        })
+            .then(cache => {
+                cache.put(url, clone)
+            })
     }
 
     clearOldCaches() {
-        if(this.debug) console.log('clearing old caches...')
+        console.log('clearing old caches...')
         return caches.keys().then(keyList => {
             return Promise.allSettled(keyList.map(key => {
                 if (![this.cacheName, this.assetsCacheName].includes(key)) {
                     return caches.delete(key)
                 }
             }))
-                .then(()=>{
-                    if(this.debug) console.log('clearing old cache end.')
+                .then(() => {
+                    console.log('clearing old cache end.')
                 })
         })
     }
@@ -188,8 +204,8 @@ export default class SWrapper {
     }
 
     // @addPageToCache -> performance mode
-    addPagesToCache(paths){
-        if(this.debug) console.log('adding pages to cache...', paths)
+    addPagesToCache(paths) {
+        if (this.debug) console.log('adding pages to cache...', paths)
         let crawler = new Crawler(this.sw.location.origin)
         return Promise.allSettled(paths.map(path => {
             return Promise.allSettled([
@@ -197,47 +213,48 @@ export default class SWrapper {
                 crawler.crawlPageAssets(path)
             ])
         }))
-        .then(()=>{
-            return this.addToAssetsCache(Object.keys(crawler.assets))
-        })
-        .then(res => {
-            if(this.debug) console.log('adding pages to cache end.')
-        })
+            .then(() => {
+                return this.addToAssetsCache(Object.keys(crawler.assets))
+            })
+            .then(res => {
+                if (this.debug) console.log('adding pages to cache end.')
+            })
     }
 
     // Crawl page path for its assets, then add both to cache
-    addPageToCache(path){
-        if(this.debug) console.log('adding page to cache...', path)
+    addPageToCache(path) {
+        if (this.debug) console.log('adding page to cache...', path)
         let crawler = new Crawler(this.sw.location.origin)
         return Promise.allSettled([
             this.addToCache(path),
             crawler.crawlPageAssets(path)
-            .then(() => {
-                return this.addToAssetsCache(Object.keys(crawler.assets))
-            })
+                .then(() => {
+                    return this.addToAssetsCache(Object.keys(crawler.assets))
+                })
         ])
-        .then(res => {
-            if(this.debug) console.log('adding page to cache end.')
-        })
+            .then(res => {
+                if (this.debug) console.log('adding page to cache end.')
+            })
     }
 
     addToCache(paths, cacheName = null) {
         cacheName = (cacheName) ? cacheName : this.cacheName
-        if(!paths.map) paths = [paths]
+        if (!paths.map) paths = [paths]
         return caches.open(cacheName).then(cache => {
             return Promise.allSettled(paths.map(path => {
                 return cache.add(path)
-                .catch(err => {console.error(path, 'add to cache failed')})
+                    .catch(err => {
+                        console.error(path, 'add to cache failed')
+                    })
             }))
         })
-        .catch(err => {
-            console.err('add to cache failed', err)
-        })
+            .catch(err => {
+                console.err('add to cache failed', err)
+            })
     }
 
-    addToAssetsCache(paths){
+    addToAssetsCache(paths) {
         return this.addToCache(paths, this.assetsCacheName)
-
     }
 
 
@@ -259,35 +276,35 @@ export default class SWrapper {
     strategyNetwork(e, cacheName = null) {
         cacheName = (cacheName) ? cacheName : this.cacheName
         return fetch(e.request)
-        .then(response => {
-            if (response.status == 200) {
-                this.storeResponse(cacheName, e.request.url, response)
-            }
-            return response;
-        })
-        .catch(() => {
-            return caches.open(cacheName)
-            .then(cache => {
-                if (this.cacheMatch(cache, e)) return this.cacheMatch(cache, e)
-                return cache.match(this.offlinePage)
+            .then(response => {
+                if (response.status == 200) {
+                    this.storeResponse(cacheName, e.request.url, response)
+                }
+                return response;
             })
-        })
+            .catch(() => {
+                return caches.open(cacheName)
+                    .then(cache => {
+                        if (this.cacheMatch(cache, e)) return this.cacheMatch(cache, e)
+                        return cache.match(this.offlinePage)
+                    })
+            })
     }
 
     strategyCache(e, cacheName = null) {
         cacheName = (cacheName) ? cacheName : this.cacheName
         return caches.open(cacheName)
-        .then(cache => {
-            return this.cacheMatch(cache, e).then(response => {
-                return response || fetch(e.request)
-                .then(response => {
-                    if (response.status == 200) {
-                        this.storeResponse(cacheName, e.request.url, response)
-                    }
-                    return response;
+            .then(cache => {
+                return this.cacheMatch(cache, e).then(response => {
+                    return response || fetch(e.request)
+                        .then(response => {
+                            if (response.status == 200) {
+                                this.storeResponse(cacheName, e.request.url, response)
+                            }
+                            return response;
+                        })
                 })
             })
-        })
     }
 
     strategyFastest(e, cacheName = null) {
@@ -295,7 +312,7 @@ export default class SWrapper {
             this.strategyCache(e, cacheName),
             this.strategyNetwork(e, cacheName)
         ])
-        .then(res => res)
+            .then(res => res)
     }
 
     cacheMatch(cache, fetchEvent) {
@@ -313,7 +330,7 @@ export default class SWrapper {
     }
 
     // sync deferred requests
-    sync(key, config={}) {
+    sync(key, config = {}) {
         return this.deferrer.load(key, config)
     }
 
@@ -330,7 +347,7 @@ export default class SWrapper {
         return this.sw.registration.showNotification(title, options)
     }
 
-    registerMessageChannel(e){
+    registerMessageChannel(e) {
         if (e.data == 'message') {
             this.messagePort = e.ports[0]
             return e.ports[0]
@@ -344,8 +361,7 @@ export default class SWrapper {
                 // retry until it works
                 this.message(message)
             }, 1000)
-        }
-        else this.messagePort.postMessage(message)
+        } else this.messagePort.postMessage(message)
     }
 
 }
